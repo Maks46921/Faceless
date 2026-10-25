@@ -229,3 +229,28 @@ street_lamp (ok/broken), bench (ok/broken), urn_street, dumpster (анимаци
 | roofs | roof_tile_bitumen / slate / gravel / wet / planks (state_ok / state_loose: просевшая доска), roof_parapet | плитка 4×4 м, материалы roof_bitumen, roof_slate, roof_gravel, roof_wet, roof_planks |
 | passage | arch_passage_brick / arch_passage_panel (проезд 3,3×3,2 м, камера sweep_loop над аркой), gate_yard_closed (анимация open) / open / code (панель с цифрами) / welded / chain (цепь и замок), item_padlock_{closed,open,broken}_{hand,ground}, intercom_panel (12 клавиш, state_ok: табло горит, state_loose: погасло, анимация press) | |
 | vehicles_extras | decal_footprint, car_dent_overlays | и в самих легковых (пересобраны): `alarm_lamps` (анимация alarm_loop мигает масштабом), `state_dent_hood`, `state_dent_roof` (игра включает видимость), ip_hand_hood. Просвет под van_gazelle ≈0,5 м, под truck_zil ≈0,5 м: мосты, карданный вал, баки, рессоры читаются |
+
+## Группа B (balconies, terrain, pipes, vents, holes, glass, items)
+| Тема | Файлы (треугольники) | Заметки |
+|---|---|---|
+| balconies | balcony_open_brick 84, balcony_open_panel 84, balcony_bars 516, balcony_glazed 132, balcony_junk 584, balcony_laundry 804, balcony_flowers 984 (анимация fall), balcony_door 432 (open, close), balcony_danger 1296 (state_ok / state_loose / state_broken, анимация collapse) | плита выступает на 1,2 м, перила 1,0 м, ip_hand по верху |
+| terrain | ditch_2m 80, ditch_3m 120, plank_over_ditch 144, bush_dense_a/b 292, tall_grass 732, park_gate 860, decal_mud_ruts 40, decal_wet_prints 96 | канава глубиной 1,1 м |
+| pipes | heating_pipe_6m 456, heating_pipe_corner 568, heating_pipe_burst 322 (steam_loop), pipe_compensator 1188 | труба диаметром 0,3 м, лежит на опорах 0,6 м |
+| vents | antenna_mast_10m 388, vent_hatch_roof 272 (open, close), vent_shaft_ladder 600, stairwell_grille 492 (open, close) | |
+| holes | hole_fence_boards 192, hole_fence_cut 344, hole_wall_slab 304, hole_bush 352, item_stash 104, decal_chalk_arrow 5, decal_graffiti_garages 11, decal_trodden_path 16 | проём ≥0,6 м |
+| glass | glass_canopy 676 (shatter), greenhouse_park 1268, skylight_stair 956, winter_garden_cafe 1076 | стекло полупрозрачное |
+| items | item_brick_{ground,hand} 96/84, item_bottle_{ground,hand} 204/192 | `_hand` с ip_hand, `_ground` лежит на полу |
+Недостатки: простая форма, текстур нет, стекло без бликов.
+
+## Группа C (elevator, basement, spirit)
+| Файл | Треугольники | Заметки |
+|---|---|---|
+| elevator/elevator_shaft | 2124 | шахта 1,6×1,6 м, кабина, анимации ride_up, ride_down, hatch_open, open, close |
+| basement/basement_window | 576 | лаз в подвал (для crawl_in_window_feet_first) |
+| basement/basement_corridor_pipes 336, basement_storage_cages 1176, basement_tech_hatch 360 | | модули подвала |
+| basement/item_flashlight_{ground,hand} | 168/156 | |
+| spirit/spirit_window 108, spirit_vent_grille 132, spirit_ripple 96 | | золотое свечение, ripple, ripple_double |
+
+## Анимации людей для перемещения (в человеке v4 и пресетах, всего 58 клипов)
+33 новых клипа к прежним 25. Циклические (суффикс `_loop`, Godot включает цикл): hang_idle_loop, climb_vertical_loop, climb_tired_loop, crouch_idle_loop, crouch_walk_loop, crawl_loop, balance_idle_loop, balance_walk_loop, careful_step_loop, wade_loop, bush_crouch_loop, squeeze_side_loop, crouch_hold_wind_loop, abandoned_stand_loop, abandoned_sit_loop. Одиночные: reach_grab, pull_up, climb_over_low / mid / high, jump_land, crawl_in_window_feet_first, crawl_out_window_back, slip_wet, creak_flinch, hand_recoil, press_bar, press_intercom, open_latch, throw_object, fall_prone, step_from_shaft, hatch_climb.
+Допущения по геометрии: перелаз low 0,9–1,2 м, mid 1,8 м, high 2,4 м; подтягивание на бортик 1,0–1,5 м; лаз 0,6×0,6 м; лестница шагом 0,28 м.

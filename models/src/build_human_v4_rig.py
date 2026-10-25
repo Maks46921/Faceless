@@ -571,12 +571,13 @@ def opendoor(f):
     return p, loc, iks
 make("open_door", 48, opendoor, 2)
 
+exec(compile(open("D:/Faceless/models/src/build_human_v4_moves.py", encoding="utf-8").read(), "v4_moves", "exec"), globals())
 # ============ NLA + export ============
 bpy.ops.object.mode_set(mode='OBJECT')
 arm.animation_data.action = None
 order = ["idle_loop", "idle_look_loop", "idle_cold_loop", "walk_loop", "walk_old_loop", "run_loop", "talk_loop", "phone_loop", "smoke_loop",
          "confused_loop", "startled", "shove", "point", "knock", "pick_up", "open_door", "fall", "down_loop", "carried_loop",
-         "climb_ladder_loop", "jump", "vault", "sit_down", "sit_idle_loop", "stand_up"]
+         "climb_ladder_loop", "jump", "vault", "sit_down", "sit_idle_loop", "stand_up"] + MOVES
 for name in order:
     act = ACTS[name]; tr = arm.animation_data.nla_tracks.new(); tr.name = name
     tr.strips.new(name, int(act.frame_range[0]), act)
