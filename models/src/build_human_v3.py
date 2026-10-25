@@ -182,6 +182,7 @@ j.rotation_euler[2] = math.pi; bpy.ops.object.transform_apply(rotation=True, loc
 mz = max((j.matrix_world @ v.co).z for v in j.data.vertices); s = 1.78 / mz
 j.scale = (s, s, s); bpy.ops.object.transform_apply(scale=True)
 bpy.ops.object.shade_smooth_by_angle(angle=math.radians(50))
+[setattr(_o, 'name', _o.name + 'only') for _o in list(bpy.data.objects) if _o.name.endswith(('-col', '-convcol'))]  # Godot: -colonly = collider only, no visible mesh
 bpy.ops.export_scene.gltf(filepath="D:/Faceless/models/human_noir_v3.glb", export_format='GLB', use_selection=True)
 xs = [j.matrix_world @ Vector(c) for c in j.bound_box]
 print("BBOX", [round(max(p[i] for p in xs) - min(p[i] for p in xs), 2) for i in range(3)], "minz", round(min(p.z for p in xs), 3))

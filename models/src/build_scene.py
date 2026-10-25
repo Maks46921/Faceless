@@ -170,7 +170,8 @@ put(P, "garage_row", -45, 44, 0, z=0.12); put(P, "garage_row", -29, 44, 0, z=0.1
 LAMPS = []
 for x in range(-85, 90, 18):
     put(P, "street_lamp", x, 5.6, 90); LAMPS.append((x - .0, 5.6 - 1.2, 5.75))
-    put(P, "street_lamp", x + 9, -5.6, -90); LAMPS.append((x + 9, -5.6 + 1.2, 5.75))
+    if x + 9 != -22:
+        put(P, "street_lamp", x + 9, -5.6, -90); LAMPS.append((x + 9, -5.6 + 1.2, 5.75))
 for x in range(-80, 95, 24):
     put(P, "power_pole", x, -8.3, 90)
 tree_cycle = ["tree_poplar", "tree_maple", "tree_birch", "tree_bare"]
@@ -262,7 +263,7 @@ so = bpy.data.objects.new("sun", sun); world_coll.objects.link(so); so.rotation_
 moon = bpy.data.lights.new("moon", 'SUN'); moon.energy = .5; moon.color = (.55, .65, 1.0)
 mo = bpy.data.objects.new("moon", moon); world_coll.objects.link(mo); mo.rotation_euler = (math.radians(50), 0, math.radians(-40)); night.append(mo)
 for (lx, ly, lz) in LAMPS:
-    l = bpy.data.lights.new("lamp", 'POINT'); l.energy = 900; l.color = (1, .72, .4); l.shadow_soft_size = .15
+    l = bpy.data.lights.new("lamp", 'POINT'); l.energy = 900; l.color = (1, .72, .4); l.shadow_soft_size = .15; l.use_shadow = abs(lx) < 45
     o = bpy.data.objects.new("lamp", l); world_coll.objects.link(o); o.location = (lx, ly, lz - .3); night.append(o)
 for (hx, hy, rot) in ((-20, -3.9, 90), (14, -1.7, 90), (-40, 1.7, -90), (8, 3.9, -90)):
     for dy in (-.6, .6):
@@ -275,6 +276,13 @@ for (hx, hy, rot) in ((-20, -3.9, 90), (14, -1.7, 90), (-40, 1.7, -90), (8, 3.9,
 w = bpy.data.worlds.new("w"); w.use_nodes = True; sc.world = w
 bg = w.node_tree.nodes["Background"]
 def set_mode(mode):
+    for m in bpy.data.materials:
+        if not m.use_nodes: continue
+        b = m.node_tree.nodes.get("Principled BSDF")
+        if b is None: continue
+        n = m.name.split(".")[0]
+        if n in ("building_window", "building_window_b", "glass_car", "glass_curtain"): b.inputs["Emission Strength"].default_value = (.55 if mode == "day" else .04)
+        elif n == "building_window_lit": b.inputs["Emission Strength"].default_value = 1.6 if mode == "day" else 5.0
     for o in day: o.hide_render = mode != "day"
     for o in night: o.hide_render = mode != "night"
     if mode == "day":
@@ -294,12 +302,12 @@ SHOTS = {
     "aerial": cam("aerial", (-40, -75, 120), (0, 12, 0), 32),
     "aerial_east": cam("aerial_east", (120, 60, 70), (0, 5, 2), 30),
     "plan": cam("plan", (0, 15, 250), (0, 15, 0), 30, ortho=230),
-    "eye_street": cam("eye_street", (-80, -7.2, 1.65), (30, 0, 3.5), 28),
+    "eye_street": cam("eye_street", (-92, -6.6, 1.65), (30, -2, 3.5), 28),
     "eye_busstop": cam("eye_busstop", (-6, 6.5, 1.65), (-14, -9, 3), 30),
     "eye_courtyard": cam("eye_courtyard", (-27, 12, 1.65), (-45, 33, 2.5), 24),
     "eye_militia": cam("eye_militia", (-25.5, -5.3, 1.65), (-18, -5.8, 1.3), 35),
     "eye_kiosk": cam("eye_kiosk", (14, 6.2, 1.65), (30, 7.5, 2), 32),
-    "eye_crossing": cam("eye_crossing", (0.0, 7.0, 1.65), (-8, 0, 1.6), 32),
+    "eye_crossing": cam("eye_crossing", (2.5, 7.8, 1.65), (-8, 0, 1.6), 32),
 }
 
 want = [a for a in sys.argv[sys.argv.index("--") + 1:]] if "--" in sys.argv else list(SHOTS)

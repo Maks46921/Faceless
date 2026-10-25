@@ -4,6 +4,11 @@ Presets are defined in PRESETS below (colour, outfit, headwear, hair, build, hei
 import os, json, math, re
 _v3 = open("D:/Faceless/models/src/build_human_v3.py", encoding="utf-8").read()
 exec(compile(_v3[:_v3.index("# ---- legs / shoes")], "v3_helpers", "exec"))
+def box(sx, sy, sz, bev=.004):     # 1 bevel segment (44 tris per box instead of 108)
+    bm = bmesh.new(); bmesh.ops.create_cube(bm, size=1)
+    for v in bm.verts: v.co.x *= sx; v.co.y *= sy; v.co.z *= sz
+    bmesh.ops.bevel(bm, geom=bm.edges[:], offset=bev, segments=1)
+    return bm
 _head = open("D:/Faceless/models/src/build_human_v4_head.py", encoding="utf-8").read()
 FACE_CODE = _head[_head.index("face_code = '''") + len("face_code = '''"):_head.index("'''\npre = pre[:a]")]
 
@@ -28,7 +33,7 @@ OUTFITS = {
 }
 # colour tuples are linear-ish RGB (muted noir palette, as the rest of the game)
 PRESETS = {
- "militia_patrol": dict(outfit='uniform', hat='peaked', hair='short', height=1.84, build=1.06, skin=(.33, .26, .21), hair_c=(.03, .025, .02), top=(.09, .13, .17), trim=(.03, .04, .06), pants=(.05, .07, .1), shoes=(.01, .01, .012), hat_c=(.07, .1, .14), iris=(.1, .15, .2), acc=['radio_pouch']),
+ "militia_patrol": dict(outfit='uniform', hat='peaked', hair='short', height=1.84, build=1.06, skin=(.33, .26, .21), hair_c=(.03, .025, .02), top=(.09, .13, .17), trim=(.03, .04, .06), pants=(.05, .07, .1), shoes=(.01, .01, .012), hat_c=(.07, .1, .14), iris=(.1, .15, .2), acc=['radio_pouch', 'baton', 'holster', 'shoulder_radio']),
  "militia_inspector": dict(outfit='coat', hat='flat_cap', hair='short', height=1.78, build=1.0, skin=(.32, .26, .22), hair_c=(.2, .19, .18), top=(.1, .08, .06), trim=(.04, .03, .025), pants=(.05, .045, .04), shoes=(.015, .01, .008), hat_c=(.08, .07, .06), shirt=(.45, .44, .4), iris=(.12, .1, .06), acc=['briefcase_hint']),
  "guard_black": dict(outfit='jacket', hat='flat_cap', hair='short', height=1.86, build=1.14, skin=(.3, .24, .2), hair_c=(.02, .02, .02), top=(.02, .02, .025), trim=(.01, .01, .012), pants=(.015, .015, .02), shoes=(.005, .005, .006), hat_c=(.015, .015, .018), iris=(.05, .06, .07), acc=['radio_pouch', 'sunglasses']),
  "electrician": dict(outfit='work', hat='hardhat', hair='short', height=1.76, build=1.04, skin=(.31, .25, .2), hair_c=(.08, .05, .03), top=(.08, .12, .16), trim=(.04, .06, .08), pants=(.07, .1, .13), shoes=(.025, .02, .015), hat_c=(.62, .42, .03), iris=(.14, .1, .06), acc=['tool_belt']),
@@ -41,11 +46,29 @@ PRESETS = {
  "resident_young_f": dict(outfit='puffer', hat='beret', hair='long', gender='f', height=1.68, build=.92, skin=(.36, .29, .24), hair_c=(.1, .06, .03), top=(.05, .1, .14), trim=(.03, .06, .09), pants=(.03, .03, .04), shoes=(.06, .06, .06), hat_c=(.3, .08, .08), iris=(.08, .11, .09), acc=[]),
  "resident_man": dict(outfit='leather', hat='none', hair='short', height=1.79, build=1.02, skin=(.33, .27, .22), hair_c=(.06, .04, .03), top=(.035, .03, .03), trim=(.015, .012, .012), pants=(.04, .05, .07), shoes=(.015, .012, .01), hat_c=(.05, .05, .05), iris=(.1, .08, .05), acc=[]),
  "bodyguard": dict(outfit='suit', hat='none', hair='short', height=1.92, build=1.2, skin=(.3, .24, .2), hair_c=(.015, .015, .015), top=(.012, .012, .015), trim=(.006, .006, .008), pants=(.012, .012, .015), shoes=(.004, .004, .005), hat_c=(.01, .01, .01), shirt=(.5, .5, .5), iris=(.04, .05, .06), acc=['sunglasses']),
- "janitor": dict(outfit='puffer', hat='beanie', hair='short', height=1.72, build=1.1, skin=(.34, .27, .22), hair_c=(.2, .2, .2), top=(.1, .13, .08), trim=(.05, .07, .04), pants=(.05, .06, .09), shoes=(.025, .02, .015), hat_c=(.15, .06, .03), iris=(.1, .11, .07), acc=[]),
+ "janitor": dict(outfit='puffer', hat='beanie', hair='short', height=1.72, build=1.1, skin=(.34, .27, .22), hair_c=(.2, .2, .2), top=(.1, .13, .08), trim=(.05, .07, .04), pants=(.05, .06, .09), shoes=(.025, .02, .015), hat_c=(.15, .06, .03), iris=(.1, .11, .07), acc=['broom']),
  "cleaner_f": dict(outfit='work', hat='headscarf', hair='short', gender='f', height=1.62, build=1.05, skin=(.37, .3, .25), hair_c=(.2, .15, .1), top=(.1, .17, .22), trim=(.05, .09, .12), pants=(.08, .13, .17), shoes=(.04, .04, .04), hat_c=(.12, .2, .26), iris=(.08, .1, .1), acc=['apron']),
  "kiosk_seller_f": dict(outfit='puffer', hat='beanie', hair='long', gender='f', height=1.64, build=1.0, skin=(.37, .3, .25), hair_c=(.12, .07, .04), top=(.2, .1, .08), trim=(.1, .05, .04), pants=(.02, .02, .03), shoes=(.02, .02, .02), hat_c=(.2, .2, .22), iris=(.1, .09, .06), acc=[]),
  "schoolchild": dict(outfit='hoodie', hat='none', hair='short', height=1.3, build=.8, head_scale=1.22, skin=(.36, .29, .24), hair_c=(.12, .08, .05), top=(.12, .06, .06), trim=(.07, .035, .035), pants=(.04, .05, .08), shoes=(.1, .1, .1), hat_c=(.05, .05, .05), iris=(.08, .1, .12), acc=['backpack']),
 }
+
+# distinct faces on the shared head topology (all keys optional, default 1.0): see FACE_CODE in build_human_v4_head.py
+FACES = {
+ 'square':   dict(jaw=1.14, chin=1.35, chin_w=1.3, brow_r=1.5, brow_t=1.35, brow_tilt=.06, eye_s=.9, cheek=1.0, ear=1.0, lip_f=.9, lip_w=1.05, nose=1.0, nose_w=1.1),
+ 'hawk':     dict(jaw=.94, chin=1.15, chin_w=.85, nose=1.38, nose_w=.85, nose_z=-.004, hollow=1.6, cheek=1.2, eye_s=.92, eye_sep=.96, brow_r=1.3, brow_tilt=.1, brow_t=1.1, lip_f=.8, lip_w=.95, ear=1.1, age=.25),
+ 'broad':    dict(head_w=1.07, jaw=1.1, chin=.9, chin_w=1.3, nose=.82, nose_w=1.45, cheek=1.35, eye_sep=1.1, eye_s=.95, brow_r=.9, lip_f=1.1, lip_w=1.15, ear=1.05),
+ 'round':    dict(head_w=1.04, jaw=.92, chin=.75, chin_w=1.0, nose=.72, nose_w=1.0, cheek=1.35, hollow=.4, eye_s=1.15, eye_sep=1.04, brow_r=.6, brow_t=.8, brow_tilt=-.05, lip_f=1.1, ear=.95),
+ 'angular_f': dict(head_w=.96, jaw=.9, chin=.95, chin_w=.78, nose=.88, nose_w=.85, cheek=1.45, hollow=1.2, eye_s=1.08, eye_z=.002, brow_r=.6, brow_t=.55, brow_w=.9, brow_z=.003, brow_tilt=-.08, lip_f=1.35, lip_w=1.05, ear=.85),
+ 'old_m':    dict(age=1.0, nose=1.3, nose_w=1.15, hollow=1.4, cheek=.9, jaw=1.0, chin=1.05, eye_s=.88, lid_heavy=.0012, brow_r=1.2, brow_t=1.5, brow_w=1.1, brow_tilt=.04, lip_f=.65, lip_w=.95, ear=1.3),
+ 'old_f':    dict(age=.9, head_w=1.02, nose=.95, nose_w=.95, hollow=1.3, cheek=.8, jaw=.95, chin=.9, chin_w=.9, eye_s=.9, lid_heavy=.001, brow_r=.5, brow_t=.55, brow_z=.004, brow_tilt=-.03, lip_f=.7, lip_w=.9, ear=1.15),
+ 'heavy':    dict(head_w=1.06, jaw=1.15, chin=.85, chin_w=1.4, nose=.9, nose_w=1.25, cheek=1.5, hollow=.2, eye_s=.85, eye_sep=1.03, lid_heavy=.0008, brow_r=.9, lip_f=1.15, lip_w=1.1, ear=1.0, age=.2),
+ 'sharp':    dict(head_w=.95, jaw=.9, chin=1.2, chin_w=.75, nose=1.25, nose_w=.8, cheek=1.1, hollow=1.3, eye_s=.82, eye_sep=.93, brow_r=1.1, brow_t=1.0, brow_tilt=.12, brow_z=-.002, lip_f=.75, lip_w=.9, ear=1.15),
+ 'aquiline': dict(jaw=1.02, chin=1.1, chin_w=1.0, nose=1.2, nose_w=.9, nose_z=-.003, cheek=1.1, hollow=.9, eye_s=1.0, brow_r=1.2, brow_t=1.15, brow_tilt=.05, lip_f=.9, lip_w=1.0, ear=1.0),
+ 'child':    dict(head_w=1.03, jaw=.9, chin=.65, chin_w=.9, nose=.6, nose_w=.9, cheek=1.2, hollow=0, eye_s=1.3, eye_sep=1.08, eye_z=-.002, brow_r=.4, brow_t=.8, lip_f=1.05, ear=1.1),
+}
+FACE_OF = {"militia_patrol": 'square', "militia_inspector": 'hawk', "guard_black": 'broad', "electrician": 'sharp', "courier": 'round', "barista_f": 'round',
+           "medic_f": 'angular_f', "medic_m": 'aquiline', "resident_old_m": 'old_m', "resident_old_f": 'old_f', "resident_young_f": 'angular_f', "resident_man": 'aquiline',
+           "bodyguard": 'square', "janitor": 'heavy', "cleaner_f": 'heavy', "kiosk_seller_f": 'broad', "schoolchild": 'child'}
 
 def dec(o, ratio):
     sel(o); m_ = o.modifiers.new('d', 'DECIMATE'); m_.ratio = ratio; bpy.ops.object.modifier_apply(modifier='d'); return o
@@ -53,6 +76,7 @@ PN = os.environ.get("PRESET", "militia_patrol"); PR = PRESETS[PN]; LOD = os.envi
 OF = dict(hem=.8, thick=1.0); OF.update(OUTFITS[PR['outfit']])
 FEM = PR.get('gender') == 'f'; BUILD = PR.get('build', 1.0) * (.92 if FEM else 1.0); HEADS = PR.get('head_scale', 1.0)
 SUB = 1 if FAR else 2
+FP = FACES[FACE_OF[PN]]
 
 # ---- materials
 col(M['coat'], PR['top'], .9 if not OF.get('shine') else .35); col(M['coat_dark'], PR['trim']); col(M['pants'], PR['pants']); col(M['shoes'], PR['shoes'])
@@ -65,7 +89,7 @@ cuffs = not FAR
 chain("pants", [(0, 0, .9, .105 * BUILD, .085), (-.082, 0, .8, .088 * BUILD, .083), (-.095, 0, .5, .075, .07), (-.1, 0, .025, .058, .055),
                 (.082, 0, .8, .088 * BUILD, .083), (.095, 0, .5, .075, .07), (.1, 0, .025, .058, .055)],
       [(0, 1), (1, 2), (2, 3), (0, 4), (4, 5), (5, 6)], M['pants'], SUB)
-dec(objs[-1], .55 if not FAR else .8)
+dec(objs[-1], .5 if not FAR else .8)
 chain("shoes", [(-.1, -.02, .07, .05, .055), (-.1, .06, .05, .052, .045), (-.1, .15, .038, .046, .034), (.1, -.02, .07, .05, .055), (.1, .06, .05, .052, .045), (.1, .15, .038, .046, .034)],
       [(0, 1), (1, 2), (3, 4), (4, 5)], M['shoes'], 1 if FAR else 2)
 dec(objs[-1], .6 if not FAR else .9)
@@ -91,7 +115,7 @@ ed = [(i, i + 1) for i in range(n - 1)]
 ed += [(0, n), (n, n + 1), (n, n + 2), (n + 2, n + 3), (n + 3, n + 4), (n, n + 5), (n + 5, n + 6), (n + 6, n + 7)]
 chain("coat", pts, ed, M['coat'], SUB, hem)
 coat_o = objs[-1]
-dec(coat_o, .72 if not FAR else .9)
+dec(coat_o, .55 if not FAR else .9)
 def fy(x, z, off=.008):
     h = coat_o.ray_cast(Vector((x, 1.0, z)), Vector((0, -1, 0)))
     return (h[1].y if h[0] else .1) + off
@@ -179,6 +203,10 @@ head_start = len(objs)
 if not FAR:
     exec(FACE_CODE)
     col(M['iris'], PR['iris'], .4)
+    for sx in (-1, 1):
+        bm = bmesh.new(); bmesh.ops.create_uvsphere(bm, u_segments=10, v_segments=6, radius=.03)
+        for v in bm.verts: v.co.x *= .3; v.co.y *= .7; v.co.z *= FP.get('ear', 1.0)
+        bm_obj("ear", bm, M['skin'], (sx * .083 * FP.get('head_w', 1.0), 0, 1.655))
 else:
     hb = bmesh.new(); bmesh.ops.create_uvsphere(hb, u_segments=16, v_segments=10, radius=.1)
     for v in hb.verts:
@@ -279,7 +307,22 @@ if not FAR:
     if 'radio_pouch' in acc: bm_obj("radio_pouch", box(.05, .03, .08, .006), M['coat_dark'], (.16, fy(.16, 1.16, .012) - .02, 1.16))
     if 'tool_belt' in acc:
         for k, x in enumerate((-.14, -.05, .06, .15)): bm_obj("tool", box(.03, .03, .07 + .01 * (k % 2), .004), M['shoes'], (x, fy(x * .6, .98, .01), .93))
-    if 'briefcase_hint' in acc: pass
+    if 'briefcase_hint' in acc:
+        bm_obj("briefcase", box(.07, .36, .26, .008), M['shoes'], (-.375, .11, .72))
+        bm_obj("briefcase_handle", box(.02, .1, .02, .004), M['gold'], (-.375, .11, .86))
+    if 'baton' in acc:
+        o = bm_obj("baton", lathe([(.0, -.3), (.017, -.3), (.017, .26), (.022, .27), (.022, .3), (.0, .3)], 10), M['shoes'], (-.375, .12, .84)); o.rotation_euler[0] = -.45
+    if 'holster' in acc:
+        bm_obj("holster", box(.05, .07, .15, .008), M['shoes'], (-.185, fy(-.185, .93, .02), .88))
+        bm_obj("holster_flap", box(.052, .074, .03, .006), M['coat_dark'], (-.185, fy(-.185, .93, .02), .96))
+    if 'shoulder_radio' in acc:
+        bm_obj("sh_radio", box(.045, .025, .07, .005), M['shoes'], (.09, fy(.09, 1.34, .02), 1.33))
+        bm_obj("sh_antenna", box(.006, .006, .12, .001), M['shoes'], (.09, fy(.09, 1.34, .02) + .004, 1.42))
+        bm_obj("sh_cord", box(.005, .005, .2, .001), M['shoes'], (.075, fy(.075, 1.3, .015), 1.22))
+    if 'broom' in acc:
+        o = bm_obj("broom_handle", lathe([(.0, -.78), (.012, -.78), (.012, .78), (.0, .78)], 8), HAT, (-.375, .1, .82)); o.rotation_euler[0] = .3
+        o = bm_obj("broom_head", box(.36, .05, .1, .005), M['coat_dark'], (-.375, .335, .06)); o.rotation_euler[0] = .3
+        o = bm_obj("broom_bristles", box(.34, .07, .07, .004), mat("bristle", (.25, .2, .1, 1), .9) if 'bristle' not in bpy.data.materials else bpy.data.materials['bristle'], (-.375, .335, .03))
 # head scale for children
 if HEADS != 1.0:
     c = Vector((0, .005, 1.66))

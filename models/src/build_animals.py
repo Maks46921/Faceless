@@ -237,6 +237,7 @@ def quadruped(name):
     empty("ip_use", (0, -s, 0), size=.15); empty("ip_hit", (0, 0, h / 2), size=.1)
     smooth_angle([o for o in bpy.data.objects if o.type == 'MESH' and o.name == name], 60)
     for o in bpy.data.objects: o.select_set(True)
+    [setattr(_o, 'name', _o.name + 'only') for _o in list(bpy.data.objects) if _o.name.endswith(('-col', '-convcol'))]  # Godot: -colonly = collider only, no visible mesh
     bpy.ops.export_scene.gltf(filepath=f"{OUT}/{name}.glb", export_format='GLB', use_selection=True, export_animations=True, export_animation_mode='NLA_TRACKS', export_skins=True)
     print("RES", name, "tris", sum(len(p.vertices) - 2 for p in objs.data.polygons), "bones", len(arm.data.bones), "acts", len(ps.acts))
 
@@ -313,6 +314,7 @@ def bird(name):
     ps.finish()
     box((.3 * k, .5 * k, .35 * k), None, loc=(0, 0, .17 * k), bev=0, name=f"{name}-convcol"); empty("ip_use", (0, -.6, 0), size=.1); empty("ip_hit", (0, 0, .17 * k), size=.08)
     for o in bpy.data.objects: o.select_set(True)
+    [setattr(_o, 'name', _o.name + 'only') for _o in list(bpy.data.objects) if _o.name.endswith(('-col', '-convcol'))]  # Godot: -colonly = collider only, no visible mesh
     bpy.ops.export_scene.gltf(filepath=f"{OUT}/{name}.glb", export_format='GLB', use_selection=True, export_animations=True, export_animation_mode='NLA_TRACKS', export_skins=True)
     print("RES", name, "tris", sum(len(p.vertices) - 2 for p in j.data.polygons), "bones", len(arm.data.bones), "acts", len(ps.acts))
 

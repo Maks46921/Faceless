@@ -149,6 +149,7 @@ def export(name, objs=None, anims=False, out_dir=None):
     kw = dict(filepath=path, export_format='GLB', use_selection=True, export_apply=True)
     if anims: kw.update(export_animations=True, export_animation_mode='NLA_TRACKS')
     else: kw.update(export_animations=False)
+    [setattr(_o, 'name', _o.name + 'only') for _o in list(bpy.data.objects) if _o.name.endswith(('-col', '-convcol'))]  # Godot: -colonly = collider only, no visible mesh
     bpy.ops.export_scene.gltf(**kw)
     tris = 0; names = []
     for o in bpy.data.objects:

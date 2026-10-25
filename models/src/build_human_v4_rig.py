@@ -584,6 +584,7 @@ for name in order:
 for o in bpy.data.objects: o.select_set(o in (arm, j))
 bpy.context.view_layer.objects.active = arm
 OUT = os.environ.get("OUTGLB", "D:/Faceless/models/human_noir_v4.glb")
+[setattr(_o, 'name', _o.name + 'only') for _o in list(bpy.data.objects) if _o.name.endswith(('-col', '-convcol'))]  # Godot: -colonly = collider only, no visible mesh
 bpy.ops.export_scene.gltf(filepath=OUT, export_format='GLB', use_selection=True, export_animations=True,
                           export_animation_mode='NLA_TRACKS', export_skins=True, export_morph=True, export_apply=False)
 print("TRIS", sum(len(p.vertices) - 2 for p in j.data.polygons), "VERTS", len(j.data.vertices), "BONES", len(arm.data.bones), "S", round(S, 3),

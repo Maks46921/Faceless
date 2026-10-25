@@ -2,18 +2,18 @@
 Run: BLD=<name|all> D:\\Cosmoteer\\blender.exe -b -P build_buildings.py -> models/city/buildings/<name>.glb
 Conventions: metres, floor height 2.8, front facade towards -Y in Blender (+Z in glTF), origin at ground centre of the footprint. Collision `<name>-col`. ip_use at the main entrance.
 Modules (src: `module_*`): wall_row (one bay, 3 floors), wall_corner, entrance_bay, end_wall, roof_cap: built from the same functions, bay width 3.0 m."""
-import os
+import os, random
 exec(open("D:/Faceless/models/src/lib_props.py", encoding="utf-8").read())
 OUT = "D:/Faceless/models/city/buildings"; os.makedirs(OUT, exist_ok=True)
 FH = 2.8
 
 def bmats():
     fresh(); palette()
-    mat("building_window", (.03, .045, .06), .1, 0.0); mat("window_frame", (.3, .3, .28), .6); mat("panel_wall", (.34, .33, .3), .95); mat("panel_wall_b", (.3, .31, .32), .95)
+    mat("building_window", (.03, .045, .06), .1, 0.0, emit=(.16, .22, .3), emit_strength=.6); mat("building_window_b", (.04, .055, .07), .1, 0.0, emit=(.3, .36, .44), emit_strength=.6); mat("building_window_lit", (.3, .22, .1), .5, 0.0, emit=(1, .7, .36), emit_strength=1.6); mat("window_frame", (.3, .3, .28), .6); mat("panel_wall", (.34, .33, .3), .95); mat("panel_wall_b", (.3, .31, .32), .95)
     mat("brick_wall", (.24, .11, .08), .95); mat("stalin_wall", (.4, .34, .24), .95); mat("stucco", (.42, .4, .34), .95); mat("glass_curtain", (.07, .11, .13), .1, .4)
     mat("roof_tar", (.05, .05, .055), .95); mat("balcony_slab", (.28, .28, .26), .95); mat("balcony_rail", (.12, .13, .14), .7); mat("loggia_glass", (.2, .28, .3), .15)
     mat("door_steel", (.1, .12, .11), .6); mat("sign_red_glow", (.4, .03, .03), .5, 0.0, emit=(1, .1, .05), emit_strength=2.0); mat("column_white", (.5, .5, .46), .9)
-    mat("metal_roof", (.2, .22, .23), .6, .6); mat("insulator", (.4, .45, .4), .4); mat("granite", (.12, .12, .13), .35); mat("awning_a", (.4, .08, .06), .8); mat("awning_b", (.5, .45, .35), .8); mat("cafe_sign", (.55, .4, .1), .5, 0.0, emit=(1, .6, .2), emit_strength=1.5)
+    mat("metal_roof", (.2, .22, .23), .6, .6); mat("insulator", (.4, .45, .4), .4); mat("granite", (.12, .12, .13), .35); mat("awning_a", (.4, .08, .06), .8); mat("awning_b", (.5, .45, .35), .8); mat("cafe_sign", (.55, .4, .1), .5, 0.0, emit=(1, .6, .2), emit_strength=.8)
 
 def perforated(name, nx, ny, cw, ch, ww, wh, sill, wall_m, glass_m, frame_m, depth=.22, skip=None, x0=0.0, z0=0.0, parent=None, window_fn=None, frame_w=.05):
     """Facade plane in XZ facing -Y; each cell has a recessed window with reveal and frame. window_fn(i,j)->(ww,wh,sill) overrides sizes."""
@@ -40,9 +40,13 @@ def perforated(name, nx, ny, cw, ch, ww, wh, sill, wall_m, glass_m, frame_m, dep
             quad([(wx1, depth, wz0), (wx1, depth, wz1), (wx1 - fw, depth, wz1 - fw), (wx1 - fw, depth, wz0 + fw)], 2, Vector((0, -1, 0)))
             quad([(wx1, depth, wz1), (wx0, depth, wz1), (wx0 + fw, depth, wz1 - fw), (wx1 - fw, depth, wz1 - fw)], 2, Vector((0, -1, 0)))
             quad([(wx0, depth, wz1), (wx0, depth, wz0), (wx0 + fw, depth, wz0 + fw), (wx0 + fw, depth, wz1 - fw)], 2, Vector((0, -1, 0)))
-            quad([(wx0 + fw, depth, wz0 + fw), (wx1 - fw, depth, wz0 + fw), (wx1 - fw, depth, wz1 - fw), (wx0 + fw, depth, wz1 - fw)], 1, Vector((0, -1, 0)))
+            pane_mi = 1
+            if glass_m.name == "building_window":
+                r_ = random.Random(f"{name}{i}{j}").random(); pane_mi = 3 if r_ < .12 else 4 if r_ < .42 else 1      # lit / lighter reflection / base glass
+            quad([(wx0 + fw, depth, wz0 + fw), (wx1 - fw, depth, wz0 + fw), (wx1 - fw, depth, wz1 - fw), (wx0 + fw, depth, wz1 - fw)], pane_mi, Vector((0, -1, 0)))
     bm.to_mesh(me); bm.free()
     for m in (wall_m, glass_m, frame_m): me.materials.append(m)
+    if glass_m.name == "building_window": me.materials.append(MATS["building_window_lit"]); me.materials.append(MATS["building_window_b"])
     o = bpy.data.objects.new(name, me); collection().objects.link(o); o.parent = parent
     for p in me.polygons: p.use_smooth = False
     return o
@@ -83,6 +87,33 @@ def entrance(parent, x, y_front, w=2.2):
     for k in range(3): box((w + .2 + k * .0, .35, .16), MATS["concrete"], loc=(x, y_front - .45 - k * .35, .08 + (2 - k) * .0 + (2 - k) * .0), bev=0, parent=parent, name="step") if False else None
     for k in range(3): box((w + .1, .35, .17 * (3 - k)), MATS["concrete"], loc=(x, y_front - .22 - k * .35, .085 * (3 - k)), bev=0, parent=parent, name="step")
 
+SIGN_COLS = [("sign_a", (.55, .12, .08)), ("sign_b", (.1, .25, .4)), ("sign_c", (.5, .42, .1)), ("sign_d", (.12, .35, .2))]
+def details(root, W, D, H, floors, bays, bay_w, entrances, tech):
+    """cornice, downpipes, AC units, shop signs, roof clutter (hatch, vents, tank, antennas, dishes)"""
+    rnd = random.Random(f"det{W}{D}{H}")
+    for nm, c in SIGN_COLS:
+        if nm not in MATS: mat(nm, c, .6, 0.0, emit=tuple(x * .5 for x in c), emit_strength=.5)
+    box((W + .2, D + .2, .3), MATS["concrete"], loc=(0, 0, H - .15), bev=0, parent=root, name="cornice")            # eaves band under the roof slab
+    for sx in (-1, 1):
+        tube((sx * (W / 2 + .12), -D / 2 - .05, .3), (sx * (W / 2 + .12), -D / 2 - .05, H - .1), .05, MATS["steel_dark"], root, "downpipe", 6)   # downpipes at the corners
+        box((.2, .2, .35), MATS["steel_dark"], loc=(sx * (W / 2 + .12), -D / 2 - .05, .25), bev=0, parent=root, name="downpipe_shoe")
+    for i in range(bays):                                           # shop signs over ground-floor shop windows
+        if floors >= 5 and i % 3 == 0 and i not in entrances:
+            nm, _ = SIGN_COLS[(i // 3) % 4]
+            box((bay_w - .8, .12, .45), MATS[nm], loc=(-W / 2 + (i + .5) * bay_w, -D / 2 - .06, 2.55), bev=0, parent=root, name="shop_sign")
+    for j in range(1, floors):                                      # a few split air conditioners under random windows
+        for i in range(bays):
+            if rnd.random() < .08:
+                box((.65, .3, .45), MATS["column_white"], loc=(-W / 2 + (i + .5) * bay_w + .55, -D / 2 - .12, j * FH + .55), bev=0, parent=root, name="ac_unit")
+    if tech:
+        box((1.0, 1.0, .55), MATS["steel_dark"], loc=(W * .35, -D * .2, H + .75), bev=0, parent=root, name="roof_hatch")
+        cyl(1.1, 2.0, MATS["metal_roof"], loc=(-W * .1, D * .2, H + 1.4), seg=12, parent=root, name="water_tank")
+        for k in range(3): box((.9, .9, .9), MATS["panel_wall"], loc=(W * .05 + k * 1.6, -D * .25, H + .75), bev=0, parent=root, name="roof_vent")
+        for k in range(3):
+            x = -W * .3 + k * 2.0; tube((x, D * .3, H + .2), (x, D * .3, H + 6.0), .03, MATS["steel_dark"], root, "tv_mast", 5)
+            for z in (4.0, 5.0, 5.8): box((1.2, .04, .04), MATS["steel_dark"], loc=(x, D * .3, H + z), bev=0, parent=root, name="tv_arm")
+        for k in range(2): cyl(.35, .12, MATS["column_white"], loc=(W * .3 + k * 2.2, D * .2, H + .9), seg=10, parent=root, name="dish").rotation_euler = (1.2, 0, 0)
+
 def panel_building(name, floors, bays, bay_w=3.0, depth=11.5, wall="panel_wall", balcony_mode="none", entrances=(), tech=True, ground_h=None, pitched=False, win=(1.5, 1.3, .9)):
     bmats(); root = empty("building", size=.5)
     W = bays * bay_w; H = floors * FH; wall_m = MATS[wall]
@@ -90,12 +121,14 @@ def panel_building(name, floors, bays, bay_w=3.0, depth=11.5, wall="panel_wall",
     ww, wh, sill = win
     def skip_ground(i, j): return False
     for side, nx_, wid in (("front", bays, bay_w), ("back", bays, bay_w)):
-        o = perforated("facade_" + side, nx_, floors, wid, FH, ww, wh, sill, wall_m, MATS["building_window"], MATS["window_frame"], parent=root, skip=lambda i, j, side=side: (j == 0 and (i in entrances) and side == "front"))
+        o = perforated("facade_" + side, nx_, floors, wid, FH, ww, wh, sill, wall_m, MATS["building_window"], MATS["window_frame"], parent=root, skip=lambda i, j, side=side: (j == 0 and (i in entrances) and side == "front"),
+                       window_fn=(lambda i, j: (bay_w - .7, 1.7, .55) if (j == 0 and i % 3 == 0 and floors >= 5) else (ww, wh, sill)))
         place_facade(o, side, W, depth)
     nd = max(1, int(depth // 3.0))
-    for side in ("left", "right"):                                   # gable ends: mostly blank with a few small windows
-        o = perforated("facade_" + side, 1, floors, depth, FH, 1.0, 1.2, .9, wall_m, MATS["building_window"], MATS["window_frame"], parent=root, skip=lambda i, j: (j % 3 != 1))
+    for side in ("left", "right"):                                   # gable ends: stairwell windows on every floor, blank wall around them
+        o = perforated("facade_" + side, 3, floors, depth / 3, FH, .9, 1.2, .9, wall_m, MATS["building_window"], MATS["window_frame"], parent=root, skip=lambda i, j: i != 1 or j == 0)
         place_facade(o, side, W, depth)
+    details(root, W, depth, H, floors, bays, bay_w, entrances, tech)
     # balconies
     if balcony_mode != "none":
         for j in range(1, floors):
@@ -133,10 +166,13 @@ def stalin():
     box((9.5, 1.8, .5), MATS["column_white"], loc=(0, -D / 2 - .7, .25), bev=0, parent=root, name="stylobate")
     box((1.6, .15, 2.6), MATS["door_steel"], loc=(-.9, -D / 2 + .08, 1.3), bev=0, parent=root, name="door_l"); box((1.6, .15, 2.6), MATS["door_steel"], loc=(.9, -D / 2 + .08, 1.3), bev=0, parent=root, name="door_r")
     t = [(10.0, 9.0, 6.0), (7.0, 6.6, 6.0), (4.6, 4.2, 4.0)]; z = H + .5
-    for w_, d_, h_ in t:
-        box((w_, d_, h_), wm, loc=(0, 0, z + h_ / 2), bev=0, parent=root, name="tower_tier"); box((w_ + .5, d_ + .5, .3), MATS["column_white"], loc=(0, 0, z + h_), bev=0, parent=root, name="tower_cornice"); z += h_
-    for k in range(3):
-        o = perforated("tower_win", 4, 2, 2.2 - k * .3, 2.2, .9, 1.3, .5, wm, MATS["building_window"], MATS["window_frame"], parent=root, skip=lambda i, j: False)
+    for kk, (w_, d_, h_) in enumerate(t):
+        box((w_ - .5, d_ - .5, h_), wm, loc=(0, 0, z + h_ / 2), bev=0, parent=root, name="tower_tier"); box((w_ + .5, d_ + .5, .3), MATS["column_white"], loc=(0, 0, z + h_), bev=0, parent=root, name="tower_cornice")
+        for side, wid_total in (("front", w_), ("back", w_), ("left", d_), ("right", d_)):     # windows on every face of the tier, flush with its walls
+            nx_ = max(1, int(wid_total // 2.4)); ch_ = h_ / 2
+            o = perforated(f"tower_win_{kk}_{side}", nx_, 2, wid_total / nx_, ch_, min(1.0, wid_total / nx_ - .8), ch_ * .55, ch_ * .2, wm, MATS["building_window"], MATS["window_frame"], parent=root, depth=.15)
+            place_facade(o, side, w_, d_); o.location.z += z
+        z += h_
     cyl_ = lathe([(0, 0), (1.3, 0), (.9, 3.0), (.3, 8.0), (.08, 13.0), (0, 13.5)], MATS["metal_roof"], loc=(0, 0, z + .1), seg=8, parent=root, name="spire")
     box((.7, .7, .7), MATS["gold_glow"], loc=(0, 0, z + 13.9), bev=0, parent=root, name="star")
     box((W, D, H + 28), None, loc=(0, 0, (H + 28) / 2), bev=0, name=name + "-col")
@@ -164,7 +200,7 @@ def pavilion(name, W, D, H, kind):
     box((W - .5, D - .5, H), wm, loc=(0, 0, H / 2), bev=0, parent=root, name="mass")
     o = perforated("shopfront", max(1, int(W // 3)), 1, W / max(1, int(W // 3)), H, W / max(1, int(W // 3)) - .5, H - 1.2, .8, wm, MATS["building_window"], MATS["window_frame"], parent=root, depth=.15); place_facade(o, "front", W, D)
     box((W + .6, D + .6, .3), MATS["roof_tar"], loc=(0, 0, H + .15), bev=0, parent=root, name="roof")
-    box((W * .5, .1, 1.0), MATS["sign_red_glow"] if kind == "metro" else MATS["cafe_sign"], loc=(0, -D / 2 - .12, H + .85), bev=0, parent=root, name="sign_board") if kind != "metro" else None
+    box((W * .45, .1, .7), MATS["sign_red_glow"] if kind == "metro" else MATS["cafe_sign"], loc=(0, -D / 2 - .12, H + .65), bev=0, parent=root, name="sign_board") if kind != "metro" else None
     box((1.4, .12, 2.1), MATS["door_steel"], loc=(0, -D / 2 + .04, 1.05), bev=.01, parent=root, name="door")
     if kind == "metro":
         # big M on a pylon + canopy

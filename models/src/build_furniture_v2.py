@@ -23,6 +23,7 @@ def finish(name, out):
     bpy.context.view_layer.objects.active = objs[0]; bpy.ops.object.join()
     j = bpy.context.object; j.name = name; j.data.name = name
     bpy.ops.object.shade_smooth_by_angle(angle=math.radians(35))
+    [setattr(_o, 'name', _o.name + 'only') for _o in list(bpy.data.objects) if _o.name.endswith(('-col', '-convcol'))]  # Godot: -colonly = collider only, no visible mesh
     bpy.ops.export_scene.gltf(filepath=f"{ROOT}/{out}.glb", export_format='GLB', use_selection=True)
     bb = [j.matrix_world @ Vector(c) for c in j.bound_box]
     print("RES", out, "dims", [round(max(p[i] for p in bb) - min(p[i] for p in bb), 3) for i in range(3)], "verts", len(j.data.vertices),

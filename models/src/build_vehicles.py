@@ -20,7 +20,7 @@ def tube(p0, p1, r, material, parent=None, name="tube", seg=8):
 def veh_mats(body=(.12, .14, .17), body2=None):
     palette()
     mat("paint_body", body, .45, .25); mat("paint_body2", body2 or (.5, .5, .48), .45, .25)
-    mat("glass_car", (.03, .045, .055), .08, 0.0); mat("chrome", (.5, .52, .55), .25, .95); mat("trim_black", (.015, .015, .018), .7)
+    mat("glass_car", (.04, .06, .075), .08, 0.0, emit=(.2, .28, .36), emit_strength=.5); mat("chrome", (.5, .52, .55), .25, .95); mat("trim_black", (.015, .015, .018), .7)
     mat("tire", (.012, .012, .014), .9); mat("rim_steel", (.28, .3, .32), .4, .8); mat("plate_white", (.55, .55, .5), .5); mat("seat_cloth", (.1, .07, .05), .9)
     mat("lamp_head", (.6, .55, .4), .2, 0.0, emit=(1.0, .9, .6), emit_strength=2.0); mat("lamp_tail", (.4, .02, .02), .3, 0.0, emit=(1.0, .05, .03), emit_strength=2.0)
     mat("lamp_amber", (.5, .25, .02), .3, 0.0, emit=(1.0, .55, .05), emit_strength=2.0); mat("lamp_white", (.5, .5, .5), .3, 0.0, emit=(1, 1, 1), emit_strength=1.5)

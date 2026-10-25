@@ -162,6 +162,7 @@ bpy.context.scene.render.fps = 24
 empty("ip_head", (0, 0, 1.78), size=.1); empty("ip_enter", (0, -1.2, 1.6), size=.12)
 # ---- export spirit (+ thread node)
 for o in bpy.data.objects: o.select_set(True)
+[setattr(_o, 'name', _o.name + 'only') for _o in list(bpy.data.objects) if _o.name.endswith(('-col', '-convcol'))]  # Godot: -colonly = collider only, no visible mesh
 bpy.ops.export_scene.gltf(filepath=f"{ROOT}/spirit_gold.glb", export_format='GLB', use_selection=True, export_animations=True, export_animation_mode='NLA_TRACKS', export_skins=True, export_apply=False)
 print("RES spirit_gold tris", sum(len(p.vertices) - 2 for o in (spirit, double, halo, thread) for p in o.data.polygons), "bones", len(arm.data.bones))
 bpy.ops.wm.save_as_mainfile(filepath=f"{ROOT}/src/spirit_gold.blend")
