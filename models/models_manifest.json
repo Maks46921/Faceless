@@ -1,0 +1,7106 @@
+{
+ "generated": "2026-10-25",
+ "count": 281,
+ "total_bytes": 62697120,
+ "files": [
+  {
+   "path": "barrel_stripe.glb",
+   "size": 26920,
+   "triangles": 788,
+   "node_count": 5,
+   "top_nodes": [
+    "barrel",
+    "barrel-convcol",
+    "ip_hit",
+    "ip_use"
+   ],
+   "animations": [],
+   "materials": [
+    "tank_blue",
+    "yellow_paint",
+    "steel",
+    "steel_dark"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "barrier_gate.glb",
+   "size": 46572,
+   "triangles": 872,
+   "node_count": 12,
+   "top_nodes": [
+    "arm",
+    "barrier_arm-col",
+    "barrier_post",
+    "barrier_post-col",
+    "ip_hand",
+    "ip_use",
+    "state_loose",
+    "state_ok"
+   ],
+   "animations": [
+    "open",
+    "close"
+   ],
+   "materials": [
+    "steel_dark",
+    "barrier_red",
+    "barrier_white",
+    "paint_gray",
+    "concrete_dark",
+    "led_red",
+    "led_green"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "canopy.glb",
+   "size": 164752,
+   "triangles": 2744,
+   "node_count": 90,
+   "top_nodes": [
+    "canopy-convcol",
+    "canopy_fall",
+    "debris",
+    "ip_hit",
+    "ip_use",
+    "state_broken",
+    "state_loose",
+    "state_ok",
+    "wall_stub",
+    "wall_stub-col"
+   ],
+   "animations": [
+    "collapse"
+   ],
+   "materials": [
+    "rebar_rust",
+    "concrete",
+    "steel_dark",
+    "concrete_dark",
+    "steel"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "cctv_dome.glb",
+   "size": 22436,
+   "triangles": 536,
+   "node_count": 9,
+   "top_nodes": [
+    "cam_head",
+    "cctv_dome-convcol",
+    "dome_base",
+    "state_broken",
+    "state_ok"
+   ],
+   "animations": [
+    "sweep_loop"
+   ],
+   "materials": [
+    "steel_dark",
+    "glass",
+    "glass_dark",
+    "paint_gray",
+    "crt_off",
+    "led_red"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "cctv_wall.glb",
+   "size": 40224,
+   "triangles": 812,
+   "node_count": 10,
+   "top_nodes": [
+    "cctv_wall-convcol",
+    "ip_use",
+    "state_broken",
+    "state_ok",
+    "wall_bracket"
+   ],
+   "animations": [
+    "sweep_loop"
+   ],
+   "materials": [
+    "soot",
+    "paint_gray",
+    "glass",
+    "steel_dark",
+    "crt_off",
+    "led_red"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "chair_noir.glb",
+   "size": 9788,
+   "triangles": 108,
+   "node_count": 1,
+   "top_nodes": [
+    "chair_noir"
+   ],
+   "animations": [],
+   "materials": [
+    "wood",
+    "wood_dark"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "chair_noir_v2.glb",
+   "size": 65968,
+   "triangles": 1384,
+   "node_count": 1,
+   "top_nodes": [
+    "chair_noir"
+   ],
+   "animations": [],
+   "materials": [
+    "wood_dark",
+    "wood"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/animals/cat.glb",
+   "size": 208204,
+   "triangles": 2164,
+   "node_count": 29,
+   "top_nodes": [
+    "cat-convcol",
+    "cat_rig",
+    "ip_hit",
+    "ip_use"
+   ],
+   "animations": [
+    "idle_loop",
+    "walk_loop",
+    "run_loop",
+    "sit",
+    "sit_idle_loop",
+    "sleep_loop",
+    "lie_loop"
+   ],
+   "materials": [
+    "cat_fur",
+    "animal_eye",
+    "animal_black",
+    "cat_belly"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/animals/crow.glb",
+   "size": 91720,
+   "triangles": 672,
+   "node_count": 19,
+   "top_nodes": [
+    "crow-convcol",
+    "crow_rig",
+    "ip_hit",
+    "ip_use"
+   ],
+   "animations": [
+    "idle_loop",
+    "peck",
+    "walk_loop",
+    "fly_loop",
+    "take_off",
+    "land"
+   ],
+   "materials": [
+    "crow_body",
+    "crow_head",
+    "beak",
+    "bird_eye",
+    "crow_wing",
+    "bird_leg"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/animals/dog_dachshund.glb",
+   "size": 186480,
+   "triangles": 2036,
+   "node_count": 29,
+   "top_nodes": [
+    "dog_dachshund-convcol",
+    "dog_dachshund_rig",
+    "ip_hit",
+    "ip_use"
+   ],
+   "animations": [
+    "idle_loop",
+    "walk_loop",
+    "run_loop",
+    "sit",
+    "sit_idle_loop",
+    "bark"
+   ],
+   "materials": [
+    "dog_dachshund_fur",
+    "animal_eye",
+    "animal_black",
+    "dog_dachshund_belly"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/animals/dog_mutt.glb",
+   "size": 175104,
+   "triangles": 1656,
+   "node_count": 29,
+   "top_nodes": [
+    "dog_mutt-convcol",
+    "dog_mutt_rig",
+    "ip_hit",
+    "ip_use"
+   ],
+   "animations": [
+    "idle_loop",
+    "walk_loop",
+    "run_loop",
+    "sit",
+    "sit_idle_loop",
+    "bark"
+   ],
+   "materials": [
+    "dog_mutt_fur",
+    "animal_eye",
+    "animal_black",
+    "dog_mutt_belly"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/animals/dog_shepherd.glb",
+   "size": 169096,
+   "triangles": 1596,
+   "node_count": 29,
+   "top_nodes": [
+    "dog_shepherd-convcol",
+    "dog_shepherd_rig",
+    "ip_hit",
+    "ip_use"
+   ],
+   "animations": [
+    "idle_loop",
+    "walk_loop",
+    "run_loop",
+    "sit",
+    "sit_idle_loop",
+    "bark"
+   ],
+   "materials": [
+    "dog_shepherd_fur",
+    "animal_eye",
+    "animal_black",
+    "dog_shepherd_belly"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/animals/pigeon.glb",
+   "size": 91148,
+   "triangles": 672,
+   "node_count": 19,
+   "top_nodes": [
+    "ip_hit",
+    "ip_use",
+    "pigeon-convcol",
+    "pigeon_rig"
+   ],
+   "animations": [
+    "idle_loop",
+    "peck",
+    "walk_loop",
+    "fly_loop",
+    "take_off",
+    "land"
+   ],
+   "materials": [
+    "pigeon_body",
+    "pigeon_head",
+    "beak",
+    "bird_eye",
+    "pigeon_wing",
+    "bird_leg"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/buildings/brick5.glb",
+   "size": 155976,
+   "triangles": 2532,
+   "node_count": 30,
+   "top_nodes": [
+    "brick5-col",
+    "building",
+    "ip_use"
+   ],
+   "animations": [],
+   "materials": [
+    "concrete_dark",
+    "door_steel",
+    "steel",
+    "brick_wall",
+    "building_window",
+    "window_frame",
+    "panel_wall",
+    "roof_tar",
+    "concrete"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/buildings/cafe_vstrecha.glb",
+   "size": 20316,
+   "triangles": 234,
+   "node_count": 12,
+   "top_nodes": [
+    "building",
+    "cafe_vstrecha-col",
+    "ip_use"
+   ],
+   "animations": [],
+   "materials": [
+    "awning_a",
+    "door_steel",
+    "panel_wall",
+    "cafe_sign",
+    "roof_tar",
+    "building_window",
+    "window_frame"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/buildings/chp_plant.glb",
+   "size": 65156,
+   "triangles": 1160,
+   "node_count": 20,
+   "top_nodes": [
+    "building",
+    "chp_plant-col",
+    "ip_use"
+   ],
+   "animations": [],
+   "materials": [
+    "panel_wall_b",
+    "panel_wall",
+    "building_window",
+    "window_frame",
+    "door_steel",
+    "steel_dark",
+    "roof_tar",
+    "concrete_dark",
+    "sign_red_glow"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/buildings/factory.glb",
+   "size": 55240,
+   "triangles": 896,
+   "node_count": 21,
+   "top_nodes": [
+    "building",
+    "factory-col",
+    "ip_use"
+   ],
+   "animations": [],
+   "materials": [
+    "brick_wall",
+    "steel_dark",
+    "building_window",
+    "window_frame",
+    "door_steel",
+    "roof_tar",
+    "metal_roof"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/buildings/lobby_granit.glb",
+   "size": 27460,
+   "triangles": 400,
+   "node_count": 13,
+   "top_nodes": [
+    "building",
+    "ip_use",
+    "lobby_granit-col"
+   ],
+   "animations": [],
+   "materials": [
+    "column_white",
+    "door_steel",
+    "granite",
+    "roof_tar",
+    "building_window",
+    "window_frame",
+    "cafe_sign"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/buildings/market.glb",
+   "size": 244008,
+   "triangles": 4184,
+   "node_count": 124,
+   "top_nodes": [
+    "building",
+    "ip_use",
+    "market-col"
+   ],
+   "animations": [],
+   "materials": [
+    "awning_a",
+    "awning_b",
+    "steel_dark",
+    "wood",
+    "concrete_dark",
+    "goods_0",
+    "goods_1",
+    "goods_2",
+    "goods_3",
+    "goods_4"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/buildings/metro_entrance.glb",
+   "size": 22984,
+   "triangles": 302,
+   "node_count": 11,
+   "top_nodes": [
+    "building",
+    "ip_use",
+    "metro_entrance-col"
+   ],
+   "animations": [],
+   "materials": [
+    "concrete_dark",
+    "steel_dark",
+    "door_steel",
+    "sign_red_glow",
+    "panel_wall",
+    "roof_tar",
+    "building_window",
+    "window_frame"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/buildings/module_corner.glb",
+   "size": 14324,
+   "triangles": 180,
+   "node_count": 5,
+   "top_nodes": [
+    "module",
+    "module_corner-col"
+   ],
+   "animations": [],
+   "materials": [
+    "panel_wall",
+    "building_window",
+    "window_frame"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/buildings/module_entrance_bay.glb",
+   "size": 20096,
+   "triangles": 222,
+   "node_count": 12,
+   "top_nodes": [
+    "module",
+    "module_entrance_bay-col"
+   ],
+   "animations": [],
+   "materials": [
+    "concrete_dark",
+    "door_steel",
+    "steel",
+    "panel_wall",
+    "building_window",
+    "window_frame",
+    "concrete"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/buildings/module_roof_cap.glb",
+   "size": 7424,
+   "triangles": 72,
+   "node_count": 7,
+   "top_nodes": [
+    "module",
+    "module_roof_cap-col"
+   ],
+   "animations": [],
+   "materials": [
+    "panel_wall",
+    "roof_tar"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/buildings/module_wall_row.glb",
+   "size": 9168,
+   "triangles": 102,
+   "node_count": 4,
+   "top_nodes": [
+    "module",
+    "module_wall_row-col"
+   ],
+   "animations": [],
+   "materials": [
+    "panel_wall",
+    "building_window",
+    "window_frame"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/buildings/office_glass.glb",
+   "size": 549784,
+   "triangles": 10544,
+   "node_count": 14,
+   "top_nodes": [
+    "building",
+    "ip_use",
+    "office_glass-col"
+   ],
+   "animations": [],
+   "materials": [
+    "steel_dark",
+    "window_frame",
+    "building_window",
+    "metal_roof",
+    "concrete_dark",
+    "glass_curtain",
+    "concrete"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/buildings/panel5_khrushchev.glb",
+   "size": 288172,
+   "triangles": 4132,
+   "node_count": 118,
+   "top_nodes": [
+    "building",
+    "ip_use",
+    "panel5_khrushchev-col"
+   ],
+   "animations": [],
+   "materials": [
+    "balcony_rail",
+    "balcony_slab",
+    "concrete_dark",
+    "door_steel",
+    "steel",
+    "panel_wall",
+    "building_window",
+    "window_frame",
+    "roof_tar",
+    "concrete"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/buildings/panel9_a.glb",
+   "size": 366780,
+   "triangles": 6324,
+   "node_count": 43,
+   "top_nodes": [
+    "building",
+    "ip_use",
+    "panel9_a-col"
+   ],
+   "animations": [],
+   "materials": [
+    "steel_dark",
+    "concrete_dark",
+    "door_steel",
+    "steel",
+    "panel_wall",
+    "building_window",
+    "window_frame",
+    "roof_tar",
+    "concrete",
+    "brick_wall"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/buildings/panel9_b.glb",
+   "size": 650732,
+   "triangles": 9204,
+   "node_count": 283,
+   "top_nodes": [
+    "building",
+    "ip_use",
+    "panel9_b-col"
+   ],
+   "animations": [],
+   "materials": [
+    "steel_dark",
+    "balcony_slab",
+    "concrete_dark",
+    "door_steel",
+    "steel",
+    "panel_wall_b",
+    "building_window",
+    "window_frame",
+    "loggia_glass",
+    "balcony_rail",
+    "panel_wall",
+    "roof_tar",
+    "concrete",
+    "brick_wall"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/buildings/residential_tower.glb",
+   "size": 739636,
+   "triangles": 10484,
+   "node_count": 320,
+   "top_nodes": [
+    "building",
+    "ip_use",
+    "residential_tower-col"
+   ],
+   "animations": [],
+   "materials": [
+    "steel_dark",
+    "balcony_slab",
+    "concrete_dark",
+    "door_steel",
+    "steel",
+    "panel_wall_b",
+    "building_window",
+    "window_frame",
+    "loggia_glass",
+    "balcony_rail",
+    "panel_wall",
+    "roof_tar",
+    "concrete",
+    "brick_wall"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/buildings/school.glb",
+   "size": 214080,
+   "triangles": 3788,
+   "node_count": 16,
+   "top_nodes": [
+    "building",
+    "ip_use",
+    "school-col"
+   ],
+   "animations": [],
+   "materials": [
+    "column_white",
+    "door_steel",
+    "stucco",
+    "building_window",
+    "window_frame",
+    "roof_tar",
+    "cafe_sign"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/buildings/shop_pavilion.glb",
+   "size": 16908,
+   "triangles": 212,
+   "node_count": 8,
+   "top_nodes": [
+    "building",
+    "ip_use",
+    "shop_pavilion-col"
+   ],
+   "animations": [],
+   "materials": [
+    "door_steel",
+    "panel_wall",
+    "roof_tar",
+    "building_window",
+    "window_frame",
+    "cafe_sign"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/buildings/stalin_house.glb",
+   "size": 465244,
+   "triangles": 8400,
+   "node_count": 30,
+   "top_nodes": [
+    "building",
+    "ip_use",
+    "stalin_house-col"
+   ],
+   "animations": [],
+   "materials": [
+    "column_white",
+    "door_steel",
+    "stalin_wall",
+    "building_window",
+    "window_frame",
+    "metal_roof",
+    "gold_glow"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/buildings/substation.glb",
+   "size": 17740,
+   "triangles": 208,
+   "node_count": 15,
+   "top_nodes": [
+    "building",
+    "ip_spark",
+    "ip_use",
+    "substation-col"
+   ],
+   "animations": [],
+   "materials": [
+    "door_steel",
+    "insulator",
+    "brick_wall",
+    "roof_tar",
+    "steel_dark",
+    "paint_yellow"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/buildings/warehouse.glb",
+   "size": 28420,
+   "triangles": 396,
+   "node_count": 11,
+   "top_nodes": [
+    "building",
+    "ip_use",
+    "warehouse-col"
+   ],
+   "animations": [],
+   "materials": [
+    "panel_wall",
+    "building_window",
+    "window_frame",
+    "door_steel",
+    "steel_dark",
+    "roof_tar"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/people/barista_f.glb",
+   "size": 1544084,
+   "triangles": 11764,
+   "node_count": 42,
+   "top_nodes": [
+    "human_rig"
+   ],
+   "animations": [
+    "idle_loop",
+    "idle_look_loop",
+    "idle_cold_loop",
+    "walk_loop",
+    "walk_old_loop",
+    "run_loop",
+    "talk_loop",
+    "phone_loop",
+    "smoke_loop",
+    "confused_loop",
+    "startled",
+    "shove",
+    "point",
+    "knock",
+    "pick_up",
+    "open_door",
+    "fall",
+    "down_loop",
+    "carried_loop",
+    "climb_ladder_loop",
+    "jump",
+    "vault",
+    "sit_down",
+    "sit_idle_loop",
+    "stand_up"
+   ],
+   "materials": [
+    "pants",
+    "shoes",
+    "coat_dark",
+    "coat",
+    "skin",
+    "hair",
+    "shirt",
+    "iris",
+    "lips",
+    "apron"
+   ],
+   "morph_targets": [
+    "blink",
+    "mouth_open",
+    "smile",
+    "frown",
+    "brow_up",
+    "brow_down",
+    "look_l",
+    "look_r",
+    "look_up",
+    "look_down"
+   ]
+  },
+  {
+   "path": "city/people/barista_f_far.glb",
+   "size": 953064,
+   "triangles": 2574,
+   "node_count": 42,
+   "top_nodes": [
+    "human_rig"
+   ],
+   "animations": [
+    "idle_loop",
+    "idle_look_loop",
+    "idle_cold_loop",
+    "walk_loop",
+    "walk_old_loop",
+    "run_loop",
+    "talk_loop",
+    "phone_loop",
+    "smoke_loop",
+    "confused_loop",
+    "startled",
+    "shove",
+    "point",
+    "knock",
+    "pick_up",
+    "open_door",
+    "fall",
+    "down_loop",
+    "carried_loop",
+    "climb_ladder_loop",
+    "jump",
+    "vault",
+    "sit_down",
+    "sit_idle_loop",
+    "stand_up"
+   ],
+   "materials": [
+    "pants",
+    "shoes",
+    "coat_dark",
+    "coat",
+    "skin",
+    "iris",
+    "hair"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/people/bodyguard.glb",
+   "size": 1654352,
+   "triangles": 13300,
+   "node_count": 42,
+   "top_nodes": [
+    "human_rig"
+   ],
+   "animations": [
+    "idle_loop",
+    "idle_look_loop",
+    "idle_cold_loop",
+    "walk_loop",
+    "walk_old_loop",
+    "run_loop",
+    "talk_loop",
+    "phone_loop",
+    "smoke_loop",
+    "confused_loop",
+    "startled",
+    "shove",
+    "point",
+    "knock",
+    "pick_up",
+    "open_door",
+    "fall",
+    "down_loop",
+    "carried_loop",
+    "climb_ladder_loop",
+    "jump",
+    "vault",
+    "sit_down",
+    "sit_idle_loop",
+    "stand_up"
+   ],
+   "materials": [
+    "pants",
+    "shoes",
+    "coat_dark",
+    "coat",
+    "shirt",
+    "gold_accent",
+    "skin",
+    "hair",
+    "iris",
+    "lips"
+   ],
+   "morph_targets": [
+    "blink",
+    "mouth_open",
+    "smile",
+    "frown",
+    "brow_up",
+    "brow_down",
+    "look_l",
+    "look_r",
+    "look_up",
+    "look_down"
+   ]
+  },
+  {
+   "path": "city/people/bodyguard_far.glb",
+   "size": 952532,
+   "triangles": 2532,
+   "node_count": 42,
+   "top_nodes": [
+    "human_rig"
+   ],
+   "animations": [
+    "idle_loop",
+    "idle_look_loop",
+    "idle_cold_loop",
+    "walk_loop",
+    "walk_old_loop",
+    "run_loop",
+    "talk_loop",
+    "phone_loop",
+    "smoke_loop",
+    "confused_loop",
+    "startled",
+    "shove",
+    "point",
+    "knock",
+    "pick_up",
+    "open_door",
+    "fall",
+    "down_loop",
+    "carried_loop",
+    "climb_ladder_loop",
+    "jump",
+    "vault",
+    "sit_down",
+    "sit_idle_loop",
+    "stand_up"
+   ],
+   "materials": [
+    "pants",
+    "shoes",
+    "coat_dark",
+    "coat",
+    "skin",
+    "iris",
+    "hair"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/people/cleaner_f.glb",
+   "size": 1631436,
+   "triangles": 12720,
+   "node_count": 42,
+   "top_nodes": [
+    "human_rig"
+   ],
+   "animations": [
+    "idle_loop",
+    "idle_look_loop",
+    "idle_cold_loop",
+    "walk_loop",
+    "walk_old_loop",
+    "run_loop",
+    "talk_loop",
+    "phone_loop",
+    "smoke_loop",
+    "confused_loop",
+    "startled",
+    "shove",
+    "point",
+    "knock",
+    "pick_up",
+    "open_door",
+    "fall",
+    "down_loop",
+    "carried_loop",
+    "climb_ladder_loop",
+    "jump",
+    "vault",
+    "sit_down",
+    "sit_idle_loop",
+    "stand_up"
+   ],
+   "materials": [
+    "pants",
+    "shoes",
+    "coat_dark",
+    "coat",
+    "shirt",
+    "gold_accent",
+    "skin",
+    "iris",
+    "hair",
+    "lips",
+    "headwear",
+    "apron"
+   ],
+   "morph_targets": [
+    "blink",
+    "mouth_open",
+    "smile",
+    "frown",
+    "brow_up",
+    "brow_down",
+    "look_l",
+    "look_r",
+    "look_up",
+    "look_down"
+   ]
+  },
+  {
+   "path": "city/people/cleaner_f_far.glb",
+   "size": 954276,
+   "triangles": 2714,
+   "node_count": 42,
+   "top_nodes": [
+    "human_rig"
+   ],
+   "animations": [
+    "idle_loop",
+    "idle_look_loop",
+    "idle_cold_loop",
+    "walk_loop",
+    "walk_old_loop",
+    "run_loop",
+    "talk_loop",
+    "phone_loop",
+    "smoke_loop",
+    "confused_loop",
+    "startled",
+    "shove",
+    "point",
+    "knock",
+    "pick_up",
+    "open_door",
+    "fall",
+    "down_loop",
+    "carried_loop",
+    "climb_ladder_loop",
+    "jump",
+    "vault",
+    "sit_down",
+    "sit_idle_loop",
+    "stand_up"
+   ],
+   "materials": [
+    "pants",
+    "shoes",
+    "coat_dark",
+    "coat",
+    "skin",
+    "iris",
+    "headwear"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/people/courier.glb",
+   "size": 1600488,
+   "triangles": 12480,
+   "node_count": 42,
+   "top_nodes": [
+    "human_rig"
+   ],
+   "animations": [
+    "idle_loop",
+    "idle_look_loop",
+    "idle_cold_loop",
+    "walk_loop",
+    "walk_old_loop",
+    "run_loop",
+    "talk_loop",
+    "phone_loop",
+    "smoke_loop",
+    "confused_loop",
+    "startled",
+    "shove",
+    "point",
+    "knock",
+    "pick_up",
+    "open_door",
+    "fall",
+    "down_loop",
+    "carried_loop",
+    "climb_ladder_loop",
+    "jump",
+    "vault",
+    "sit_down",
+    "sit_idle_loop",
+    "stand_up"
+   ],
+   "materials": [
+    "pants",
+    "shoes",
+    "coat_dark",
+    "coat",
+    "shirt",
+    "skin",
+    "hair",
+    "iris",
+    "lips",
+    "headwear"
+   ],
+   "morph_targets": [
+    "blink",
+    "mouth_open",
+    "smile",
+    "frown",
+    "brow_up",
+    "brow_down",
+    "look_l",
+    "look_r",
+    "look_up",
+    "look_down"
+   ]
+  },
+  {
+   "path": "city/people/courier_far.glb",
+   "size": 961728,
+   "triangles": 2754,
+   "node_count": 42,
+   "top_nodes": [
+    "human_rig"
+   ],
+   "animations": [
+    "idle_loop",
+    "idle_look_loop",
+    "idle_cold_loop",
+    "walk_loop",
+    "walk_old_loop",
+    "run_loop",
+    "talk_loop",
+    "phone_loop",
+    "smoke_loop",
+    "confused_loop",
+    "startled",
+    "shove",
+    "point",
+    "knock",
+    "pick_up",
+    "open_door",
+    "fall",
+    "down_loop",
+    "carried_loop",
+    "climb_ladder_loop",
+    "jump",
+    "vault",
+    "sit_down",
+    "sit_idle_loop",
+    "stand_up"
+   ],
+   "materials": [
+    "pants",
+    "shoes",
+    "coat_dark",
+    "coat",
+    "skin",
+    "iris",
+    "hair",
+    "headwear"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/people/electrician.glb",
+   "size": 1675960,
+   "triangles": 13652,
+   "node_count": 42,
+   "top_nodes": [
+    "human_rig"
+   ],
+   "animations": [
+    "idle_loop",
+    "idle_look_loop",
+    "idle_cold_loop",
+    "walk_loop",
+    "walk_old_loop",
+    "run_loop",
+    "talk_loop",
+    "phone_loop",
+    "smoke_loop",
+    "confused_loop",
+    "startled",
+    "shove",
+    "point",
+    "knock",
+    "pick_up",
+    "open_door",
+    "fall",
+    "down_loop",
+    "carried_loop",
+    "climb_ladder_loop",
+    "jump",
+    "vault",
+    "sit_down",
+    "sit_idle_loop",
+    "stand_up"
+   ],
+   "materials": [
+    "pants",
+    "shoes",
+    "coat_dark",
+    "coat",
+    "shirt",
+    "gold_accent",
+    "skin",
+    "hair",
+    "iris",
+    "lips",
+    "headwear"
+   ],
+   "morph_targets": [
+    "blink",
+    "mouth_open",
+    "smile",
+    "frown",
+    "brow_up",
+    "brow_down",
+    "look_l",
+    "look_r",
+    "look_up",
+    "look_down"
+   ]
+  },
+  {
+   "path": "city/people/electrician_far.glb",
+   "size": 971500,
+   "triangles": 2918,
+   "node_count": 42,
+   "top_nodes": [
+    "human_rig"
+   ],
+   "animations": [
+    "idle_loop",
+    "idle_look_loop",
+    "idle_cold_loop",
+    "walk_loop",
+    "walk_old_loop",
+    "run_loop",
+    "talk_loop",
+    "phone_loop",
+    "smoke_loop",
+    "confused_loop",
+    "startled",
+    "shove",
+    "point",
+    "knock",
+    "pick_up",
+    "open_door",
+    "fall",
+    "down_loop",
+    "carried_loop",
+    "climb_ladder_loop",
+    "jump",
+    "vault",
+    "sit_down",
+    "sit_idle_loop",
+    "stand_up"
+   ],
+   "materials": [
+    "pants",
+    "shoes",
+    "coat_dark",
+    "coat",
+    "skin",
+    "iris",
+    "hair",
+    "headwear"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/people/guard_black.glb",
+   "size": 1654080,
+   "triangles": 12972,
+   "node_count": 42,
+   "top_nodes": [
+    "human_rig"
+   ],
+   "animations": [
+    "idle_loop",
+    "idle_look_loop",
+    "idle_cold_loop",
+    "walk_loop",
+    "walk_old_loop",
+    "run_loop",
+    "talk_loop",
+    "phone_loop",
+    "smoke_loop",
+    "confused_loop",
+    "startled",
+    "shove",
+    "point",
+    "knock",
+    "pick_up",
+    "open_door",
+    "fall",
+    "down_loop",
+    "carried_loop",
+    "climb_ladder_loop",
+    "jump",
+    "vault",
+    "sit_down",
+    "sit_idle_loop",
+    "stand_up"
+   ],
+   "materials": [
+    "pants",
+    "shoes",
+    "coat_dark",
+    "coat",
+    "skin",
+    "hair",
+    "shirt",
+    "iris",
+    "lips",
+    "headwear"
+   ],
+   "morph_targets": [
+    "blink",
+    "mouth_open",
+    "smile",
+    "frown",
+    "brow_up",
+    "brow_down",
+    "look_l",
+    "look_r",
+    "look_up",
+    "look_down"
+   ]
+  },
+  {
+   "path": "city/people/guard_black_far.glb",
+   "size": 970528,
+   "triangles": 2840,
+   "node_count": 42,
+   "top_nodes": [
+    "human_rig"
+   ],
+   "animations": [
+    "idle_loop",
+    "idle_look_loop",
+    "idle_cold_loop",
+    "walk_loop",
+    "walk_old_loop",
+    "run_loop",
+    "talk_loop",
+    "phone_loop",
+    "smoke_loop",
+    "confused_loop",
+    "startled",
+    "shove",
+    "point",
+    "knock",
+    "pick_up",
+    "open_door",
+    "fall",
+    "down_loop",
+    "carried_loop",
+    "climb_ladder_loop",
+    "jump",
+    "vault",
+    "sit_down",
+    "sit_idle_loop",
+    "stand_up"
+   ],
+   "materials": [
+    "pants",
+    "shoes",
+    "coat_dark",
+    "coat",
+    "skin",
+    "iris",
+    "hair",
+    "headwear"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/people/janitor.glb",
+   "size": 1569832,
+   "triangles": 12044,
+   "node_count": 42,
+   "top_nodes": [
+    "human_rig"
+   ],
+   "animations": [
+    "idle_loop",
+    "idle_look_loop",
+    "idle_cold_loop",
+    "walk_loop",
+    "walk_old_loop",
+    "run_loop",
+    "talk_loop",
+    "phone_loop",
+    "smoke_loop",
+    "confused_loop",
+    "startled",
+    "shove",
+    "point",
+    "knock",
+    "pick_up",
+    "open_door",
+    "fall",
+    "down_loop",
+    "carried_loop",
+    "climb_ladder_loop",
+    "jump",
+    "vault",
+    "sit_down",
+    "sit_idle_loop",
+    "stand_up"
+   ],
+   "materials": [
+    "pants",
+    "shoes",
+    "coat_dark",
+    "coat",
+    "skin",
+    "hair",
+    "shirt",
+    "iris",
+    "lips",
+    "headwear"
+   ],
+   "morph_targets": [
+    "blink",
+    "mouth_open",
+    "smile",
+    "frown",
+    "brow_up",
+    "brow_down",
+    "look_l",
+    "look_r",
+    "look_up",
+    "look_down"
+   ]
+  },
+  {
+   "path": "city/people/janitor_far.glb",
+   "size": 959276,
+   "triangles": 2660,
+   "node_count": 42,
+   "top_nodes": [
+    "human_rig"
+   ],
+   "animations": [
+    "idle_loop",
+    "idle_look_loop",
+    "idle_cold_loop",
+    "walk_loop",
+    "walk_old_loop",
+    "run_loop",
+    "talk_loop",
+    "phone_loop",
+    "smoke_loop",
+    "confused_loop",
+    "startled",
+    "shove",
+    "point",
+    "knock",
+    "pick_up",
+    "open_door",
+    "fall",
+    "down_loop",
+    "carried_loop",
+    "climb_ladder_loop",
+    "jump",
+    "vault",
+    "sit_down",
+    "sit_idle_loop",
+    "stand_up"
+   ],
+   "materials": [
+    "pants",
+    "shoes",
+    "coat_dark",
+    "coat",
+    "skin",
+    "iris",
+    "hair",
+    "headwear"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/people/kiosk_seller_f.glb",
+   "size": 1584680,
+   "triangles": 12456,
+   "node_count": 42,
+   "top_nodes": [
+    "human_rig"
+   ],
+   "animations": [
+    "idle_loop",
+    "idle_look_loop",
+    "idle_cold_loop",
+    "walk_loop",
+    "walk_old_loop",
+    "run_loop",
+    "talk_loop",
+    "phone_loop",
+    "smoke_loop",
+    "confused_loop",
+    "startled",
+    "shove",
+    "point",
+    "knock",
+    "pick_up",
+    "open_door",
+    "fall",
+    "down_loop",
+    "carried_loop",
+    "climb_ladder_loop",
+    "jump",
+    "vault",
+    "sit_down",
+    "sit_idle_loop",
+    "stand_up"
+   ],
+   "materials": [
+    "pants",
+    "shoes",
+    "coat_dark",
+    "coat",
+    "skin",
+    "hair",
+    "shirt",
+    "iris",
+    "lips",
+    "headwear"
+   ],
+   "morph_targets": [
+    "blink",
+    "mouth_open",
+    "smile",
+    "frown",
+    "brow_up",
+    "brow_down",
+    "look_l",
+    "look_r",
+    "look_up",
+    "look_down"
+   ]
+  },
+  {
+   "path": "city/people/kiosk_seller_f_far.glb",
+   "size": 971840,
+   "triangles": 3072,
+   "node_count": 42,
+   "top_nodes": [
+    "human_rig"
+   ],
+   "animations": [
+    "idle_loop",
+    "idle_look_loop",
+    "idle_cold_loop",
+    "walk_loop",
+    "walk_old_loop",
+    "run_loop",
+    "talk_loop",
+    "phone_loop",
+    "smoke_loop",
+    "confused_loop",
+    "startled",
+    "shove",
+    "point",
+    "knock",
+    "pick_up",
+    "open_door",
+    "fall",
+    "down_loop",
+    "carried_loop",
+    "climb_ladder_loop",
+    "jump",
+    "vault",
+    "sit_down",
+    "sit_idle_loop",
+    "stand_up"
+   ],
+   "materials": [
+    "pants",
+    "shoes",
+    "coat_dark",
+    "coat",
+    "skin",
+    "iris",
+    "hair",
+    "headwear"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/people/medic_f.glb",
+   "size": 1630468,
+   "triangles": 13116,
+   "node_count": 42,
+   "top_nodes": [
+    "human_rig"
+   ],
+   "animations": [
+    "idle_loop",
+    "idle_look_loop",
+    "idle_cold_loop",
+    "walk_loop",
+    "walk_old_loop",
+    "run_loop",
+    "talk_loop",
+    "phone_loop",
+    "smoke_loop",
+    "confused_loop",
+    "startled",
+    "shove",
+    "point",
+    "knock",
+    "pick_up",
+    "open_door",
+    "fall",
+    "down_loop",
+    "carried_loop",
+    "climb_ladder_loop",
+    "jump",
+    "vault",
+    "sit_down",
+    "sit_idle_loop",
+    "stand_up"
+   ],
+   "materials": [
+    "pants",
+    "shoes",
+    "coat_dark",
+    "coat",
+    "shirt",
+    "skin",
+    "hair",
+    "iris",
+    "lips",
+    "headwear",
+    "gold_accent",
+    "red_cross"
+   ],
+   "morph_targets": [
+    "blink",
+    "mouth_open",
+    "smile",
+    "frown",
+    "brow_up",
+    "brow_down",
+    "look_l",
+    "look_r",
+    "look_up",
+    "look_down"
+   ]
+  },
+  {
+   "path": "city/people/medic_f_far.glb",
+   "size": 960160,
+   "triangles": 2832,
+   "node_count": 42,
+   "top_nodes": [
+    "human_rig"
+   ],
+   "animations": [
+    "idle_loop",
+    "idle_look_loop",
+    "idle_cold_loop",
+    "walk_loop",
+    "walk_old_loop",
+    "run_loop",
+    "talk_loop",
+    "phone_loop",
+    "smoke_loop",
+    "confused_loop",
+    "startled",
+    "shove",
+    "point",
+    "knock",
+    "pick_up",
+    "open_door",
+    "fall",
+    "down_loop",
+    "carried_loop",
+    "climb_ladder_loop",
+    "jump",
+    "vault",
+    "sit_down",
+    "sit_idle_loop",
+    "stand_up"
+   ],
+   "materials": [
+    "pants",
+    "shoes",
+    "coat_dark",
+    "coat",
+    "skin",
+    "iris",
+    "hair",
+    "headwear"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/people/medic_m.glb",
+   "size": 1616760,
+   "triangles": 12816,
+   "node_count": 42,
+   "top_nodes": [
+    "human_rig"
+   ],
+   "animations": [
+    "idle_loop",
+    "idle_look_loop",
+    "idle_cold_loop",
+    "walk_loop",
+    "walk_old_loop",
+    "run_loop",
+    "talk_loop",
+    "phone_loop",
+    "smoke_loop",
+    "confused_loop",
+    "startled",
+    "shove",
+    "point",
+    "knock",
+    "pick_up",
+    "open_door",
+    "fall",
+    "down_loop",
+    "carried_loop",
+    "climb_ladder_loop",
+    "jump",
+    "vault",
+    "sit_down",
+    "sit_idle_loop",
+    "stand_up"
+   ],
+   "materials": [
+    "pants",
+    "shoes",
+    "coat_dark",
+    "coat",
+    "shirt",
+    "skin",
+    "hair",
+    "iris",
+    "lips",
+    "gold_accent",
+    "red_cross"
+   ],
+   "morph_targets": [
+    "blink",
+    "mouth_open",
+    "smile",
+    "frown",
+    "brow_up",
+    "brow_down",
+    "look_l",
+    "look_r",
+    "look_up",
+    "look_down"
+   ]
+  },
+  {
+   "path": "city/people/medic_m_far.glb",
+   "size": 952900,
+   "triangles": 2532,
+   "node_count": 42,
+   "top_nodes": [
+    "human_rig"
+   ],
+   "animations": [
+    "idle_loop",
+    "idle_look_loop",
+    "idle_cold_loop",
+    "walk_loop",
+    "walk_old_loop",
+    "run_loop",
+    "talk_loop",
+    "phone_loop",
+    "smoke_loop",
+    "confused_loop",
+    "startled",
+    "shove",
+    "point",
+    "knock",
+    "pick_up",
+    "open_door",
+    "fall",
+    "down_loop",
+    "carried_loop",
+    "climb_ladder_loop",
+    "jump",
+    "vault",
+    "sit_down",
+    "sit_idle_loop",
+    "stand_up"
+   ],
+   "materials": [
+    "pants",
+    "shoes",
+    "coat_dark",
+    "coat",
+    "skin",
+    "iris",
+    "hair"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/people/militia_inspector.glb",
+   "size": 1694924,
+   "triangles": 13892,
+   "node_count": 42,
+   "top_nodes": [
+    "human_rig"
+   ],
+   "animations": [
+    "idle_loop",
+    "idle_look_loop",
+    "idle_cold_loop",
+    "walk_loop",
+    "walk_old_loop",
+    "run_loop",
+    "talk_loop",
+    "phone_loop",
+    "smoke_loop",
+    "confused_loop",
+    "startled",
+    "shove",
+    "point",
+    "knock",
+    "pick_up",
+    "open_door",
+    "fall",
+    "down_loop",
+    "carried_loop",
+    "climb_ladder_loop",
+    "jump",
+    "vault",
+    "sit_down",
+    "sit_idle_loop",
+    "stand_up"
+   ],
+   "materials": [
+    "pants",
+    "shoes",
+    "coat_dark",
+    "coat",
+    "shirt",
+    "gold_accent",
+    "skin",
+    "hair",
+    "iris",
+    "lips",
+    "headwear"
+   ],
+   "morph_targets": [
+    "blink",
+    "mouth_open",
+    "smile",
+    "frown",
+    "brow_up",
+    "brow_down",
+    "look_l",
+    "look_r",
+    "look_up",
+    "look_down"
+   ]
+  },
+  {
+   "path": "city/people/militia_inspector_far.glb",
+   "size": 973032,
+   "triangles": 2868,
+   "node_count": 42,
+   "top_nodes": [
+    "human_rig"
+   ],
+   "animations": [
+    "idle_loop",
+    "idle_look_loop",
+    "idle_cold_loop",
+    "walk_loop",
+    "walk_old_loop",
+    "run_loop",
+    "talk_loop",
+    "phone_loop",
+    "smoke_loop",
+    "confused_loop",
+    "startled",
+    "shove",
+    "point",
+    "knock",
+    "pick_up",
+    "open_door",
+    "fall",
+    "down_loop",
+    "carried_loop",
+    "climb_ladder_loop",
+    "jump",
+    "vault",
+    "sit_down",
+    "sit_idle_loop",
+    "stand_up"
+   ],
+   "materials": [
+    "pants",
+    "shoes",
+    "coat_dark",
+    "coat",
+    "skin",
+    "iris",
+    "hair",
+    "headwear"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/people/militia_patrol.glb",
+   "size": 1743468,
+   "triangles": 14216,
+   "node_count": 42,
+   "top_nodes": [
+    "human_rig"
+   ],
+   "animations": [
+    "idle_loop",
+    "idle_look_loop",
+    "idle_cold_loop",
+    "walk_loop",
+    "walk_old_loop",
+    "run_loop",
+    "talk_loop",
+    "phone_loop",
+    "smoke_loop",
+    "confused_loop",
+    "startled",
+    "shove",
+    "point",
+    "knock",
+    "pick_up",
+    "open_door",
+    "fall",
+    "down_loop",
+    "carried_loop",
+    "climb_ladder_loop",
+    "jump",
+    "vault",
+    "sit_down",
+    "sit_idle_loop",
+    "stand_up"
+   ],
+   "materials": [
+    "pants",
+    "shoes",
+    "coat_dark",
+    "coat",
+    "shirt",
+    "gold_accent",
+    "skin",
+    "hair",
+    "iris",
+    "lips",
+    "headwear"
+   ],
+   "morph_targets": [
+    "blink",
+    "mouth_open",
+    "smile",
+    "frown",
+    "brow_up",
+    "brow_down",
+    "look_l",
+    "look_r",
+    "look_up",
+    "look_down"
+   ]
+  },
+  {
+   "path": "city/people/militia_patrol_far.glb",
+   "size": 982324,
+   "triangles": 3016,
+   "node_count": 42,
+   "top_nodes": [
+    "human_rig"
+   ],
+   "animations": [
+    "idle_loop",
+    "idle_look_loop",
+    "idle_cold_loop",
+    "walk_loop",
+    "walk_old_loop",
+    "run_loop",
+    "talk_loop",
+    "phone_loop",
+    "smoke_loop",
+    "confused_loop",
+    "startled",
+    "shove",
+    "point",
+    "knock",
+    "pick_up",
+    "open_door",
+    "fall",
+    "down_loop",
+    "carried_loop",
+    "climb_ladder_loop",
+    "jump",
+    "vault",
+    "sit_down",
+    "sit_idle_loop",
+    "stand_up"
+   ],
+   "materials": [
+    "pants",
+    "shoes",
+    "coat_dark",
+    "coat",
+    "skin",
+    "iris",
+    "hair",
+    "headwear",
+    "gold_accent"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/people/resident_man.glb",
+   "size": 1582376,
+   "triangles": 12200,
+   "node_count": 42,
+   "top_nodes": [
+    "human_rig"
+   ],
+   "animations": [
+    "idle_loop",
+    "idle_look_loop",
+    "idle_cold_loop",
+    "walk_loop",
+    "walk_old_loop",
+    "run_loop",
+    "talk_loop",
+    "phone_loop",
+    "smoke_loop",
+    "confused_loop",
+    "startled",
+    "shove",
+    "point",
+    "knock",
+    "pick_up",
+    "open_door",
+    "fall",
+    "down_loop",
+    "carried_loop",
+    "climb_ladder_loop",
+    "jump",
+    "vault",
+    "sit_down",
+    "sit_idle_loop",
+    "stand_up"
+   ],
+   "materials": [
+    "pants",
+    "shoes",
+    "coat_dark",
+    "coat",
+    "gold_accent",
+    "skin",
+    "hair",
+    "shirt",
+    "iris",
+    "lips"
+   ],
+   "morph_targets": [
+    "blink",
+    "mouth_open",
+    "smile",
+    "frown",
+    "brow_up",
+    "brow_down",
+    "look_l",
+    "look_r",
+    "look_up",
+    "look_down"
+   ]
+  },
+  {
+   "path": "city/people/resident_man_far.glb",
+   "size": 948060,
+   "triangles": 2446,
+   "node_count": 42,
+   "top_nodes": [
+    "human_rig"
+   ],
+   "animations": [
+    "idle_loop",
+    "idle_look_loop",
+    "idle_cold_loop",
+    "walk_loop",
+    "walk_old_loop",
+    "run_loop",
+    "talk_loop",
+    "phone_loop",
+    "smoke_loop",
+    "confused_loop",
+    "startled",
+    "shove",
+    "point",
+    "knock",
+    "pick_up",
+    "open_door",
+    "fall",
+    "down_loop",
+    "carried_loop",
+    "climb_ladder_loop",
+    "jump",
+    "vault",
+    "sit_down",
+    "sit_idle_loop",
+    "stand_up"
+   ],
+   "materials": [
+    "pants",
+    "shoes",
+    "coat_dark",
+    "coat",
+    "skin",
+    "iris",
+    "hair"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/people/resident_old_f.glb",
+   "size": 1565120,
+   "triangles": 11892,
+   "node_count": 42,
+   "top_nodes": [
+    "human_rig"
+   ],
+   "animations": [
+    "idle_loop",
+    "idle_look_loop",
+    "idle_cold_loop",
+    "walk_loop",
+    "walk_old_loop",
+    "run_loop",
+    "talk_loop",
+    "phone_loop",
+    "smoke_loop",
+    "confused_loop",
+    "startled",
+    "shove",
+    "point",
+    "knock",
+    "pick_up",
+    "open_door",
+    "fall",
+    "down_loop",
+    "carried_loop",
+    "climb_ladder_loop",
+    "jump",
+    "vault",
+    "sit_down",
+    "sit_idle_loop",
+    "stand_up"
+   ],
+   "materials": [
+    "pants",
+    "shoes",
+    "coat_dark",
+    "coat",
+    "skin",
+    "shirt",
+    "iris",
+    "hair",
+    "lips",
+    "headwear"
+   ],
+   "morph_targets": [
+    "blink",
+    "mouth_open",
+    "smile",
+    "frown",
+    "brow_up",
+    "brow_down",
+    "look_l",
+    "look_r",
+    "look_up",
+    "look_down"
+   ]
+  },
+  {
+   "path": "city/people/resident_old_f_far.glb",
+   "size": 959372,
+   "triangles": 2742,
+   "node_count": 42,
+   "top_nodes": [
+    "human_rig"
+   ],
+   "animations": [
+    "idle_loop",
+    "idle_look_loop",
+    "idle_cold_loop",
+    "walk_loop",
+    "walk_old_loop",
+    "run_loop",
+    "talk_loop",
+    "phone_loop",
+    "smoke_loop",
+    "confused_loop",
+    "startled",
+    "shove",
+    "point",
+    "knock",
+    "pick_up",
+    "open_door",
+    "fall",
+    "down_loop",
+    "carried_loop",
+    "climb_ladder_loop",
+    "jump",
+    "vault",
+    "sit_down",
+    "sit_idle_loop",
+    "stand_up"
+   ],
+   "materials": [
+    "pants",
+    "shoes",
+    "coat_dark",
+    "coat",
+    "skin",
+    "iris",
+    "headwear"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/people/resident_old_m.glb",
+   "size": 1611252,
+   "triangles": 12540,
+   "node_count": 42,
+   "top_nodes": [
+    "human_rig"
+   ],
+   "animations": [
+    "idle_loop",
+    "idle_look_loop",
+    "idle_cold_loop",
+    "walk_loop",
+    "walk_old_loop",
+    "run_loop",
+    "talk_loop",
+    "phone_loop",
+    "smoke_loop",
+    "confused_loop",
+    "startled",
+    "shove",
+    "point",
+    "knock",
+    "pick_up",
+    "open_door",
+    "fall",
+    "down_loop",
+    "carried_loop",
+    "climb_ladder_loop",
+    "jump",
+    "vault",
+    "sit_down",
+    "sit_idle_loop",
+    "stand_up"
+   ],
+   "materials": [
+    "pants",
+    "shoes",
+    "coat_dark",
+    "coat",
+    "skin",
+    "hair",
+    "shirt",
+    "iris",
+    "lips",
+    "headwear"
+   ],
+   "morph_targets": [
+    "blink",
+    "mouth_open",
+    "smile",
+    "frown",
+    "brow_up",
+    "brow_down",
+    "look_l",
+    "look_r",
+    "look_up",
+    "look_down"
+   ]
+  },
+  {
+   "path": "city/people/resident_old_m_far.glb",
+   "size": 968904,
+   "triangles": 2840,
+   "node_count": 42,
+   "top_nodes": [
+    "human_rig"
+   ],
+   "animations": [
+    "idle_loop",
+    "idle_look_loop",
+    "idle_cold_loop",
+    "walk_loop",
+    "walk_old_loop",
+    "run_loop",
+    "talk_loop",
+    "phone_loop",
+    "smoke_loop",
+    "confused_loop",
+    "startled",
+    "shove",
+    "point",
+    "knock",
+    "pick_up",
+    "open_door",
+    "fall",
+    "down_loop",
+    "carried_loop",
+    "climb_ladder_loop",
+    "jump",
+    "vault",
+    "sit_down",
+    "sit_idle_loop",
+    "stand_up"
+   ],
+   "materials": [
+    "pants",
+    "shoes",
+    "coat_dark",
+    "coat",
+    "skin",
+    "iris",
+    "hair",
+    "headwear"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/people/resident_young_f.glb",
+   "size": 1585424,
+   "triangles": 12376,
+   "node_count": 42,
+   "top_nodes": [
+    "human_rig"
+   ],
+   "animations": [
+    "idle_loop",
+    "idle_look_loop",
+    "idle_cold_loop",
+    "walk_loop",
+    "walk_old_loop",
+    "run_loop",
+    "talk_loop",
+    "phone_loop",
+    "smoke_loop",
+    "confused_loop",
+    "startled",
+    "shove",
+    "point",
+    "knock",
+    "pick_up",
+    "open_door",
+    "fall",
+    "down_loop",
+    "carried_loop",
+    "climb_ladder_loop",
+    "jump",
+    "vault",
+    "sit_down",
+    "sit_idle_loop",
+    "stand_up"
+   ],
+   "materials": [
+    "pants",
+    "shoes",
+    "coat_dark",
+    "coat",
+    "skin",
+    "hair",
+    "shirt",
+    "iris",
+    "lips",
+    "headwear"
+   ],
+   "morph_targets": [
+    "blink",
+    "mouth_open",
+    "smile",
+    "frown",
+    "brow_up",
+    "brow_down",
+    "look_l",
+    "look_r",
+    "look_up",
+    "look_down"
+   ]
+  },
+  {
+   "path": "city/people/resident_young_f_far.glb",
+   "size": 965672,
+   "triangles": 2992,
+   "node_count": 42,
+   "top_nodes": [
+    "human_rig"
+   ],
+   "animations": [
+    "idle_loop",
+    "idle_look_loop",
+    "idle_cold_loop",
+    "walk_loop",
+    "walk_old_loop",
+    "run_loop",
+    "talk_loop",
+    "phone_loop",
+    "smoke_loop",
+    "confused_loop",
+    "startled",
+    "shove",
+    "point",
+    "knock",
+    "pick_up",
+    "open_door",
+    "fall",
+    "down_loop",
+    "carried_loop",
+    "climb_ladder_loop",
+    "jump",
+    "vault",
+    "sit_down",
+    "sit_idle_loop",
+    "stand_up"
+   ],
+   "materials": [
+    "pants",
+    "shoes",
+    "coat_dark",
+    "coat",
+    "skin",
+    "iris",
+    "hair",
+    "headwear"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/people/schoolchild.glb",
+   "size": 1589100,
+   "triangles": 12342,
+   "node_count": 42,
+   "top_nodes": [
+    "human_rig"
+   ],
+   "animations": [
+    "idle_loop",
+    "idle_look_loop",
+    "idle_cold_loop",
+    "walk_loop",
+    "walk_old_loop",
+    "run_loop",
+    "talk_loop",
+    "phone_loop",
+    "smoke_loop",
+    "confused_loop",
+    "startled",
+    "shove",
+    "point",
+    "knock",
+    "pick_up",
+    "open_door",
+    "fall",
+    "down_loop",
+    "carried_loop",
+    "climb_ladder_loop",
+    "jump",
+    "vault",
+    "sit_down",
+    "sit_idle_loop",
+    "stand_up"
+   ],
+   "materials": [
+    "pants",
+    "shoes",
+    "coat_dark",
+    "coat",
+    "shirt",
+    "skin",
+    "hair",
+    "iris",
+    "lips",
+    "headwear"
+   ],
+   "morph_targets": [
+    "blink",
+    "mouth_open",
+    "smile",
+    "frown",
+    "brow_up",
+    "brow_down",
+    "look_l",
+    "look_r",
+    "look_up",
+    "look_down"
+   ]
+  },
+  {
+   "path": "city/people/schoolchild_far.glb",
+   "size": 950688,
+   "triangles": 2526,
+   "node_count": 42,
+   "top_nodes": [
+    "human_rig"
+   ],
+   "animations": [
+    "idle_loop",
+    "idle_look_loop",
+    "idle_cold_loop",
+    "walk_loop",
+    "walk_old_loop",
+    "run_loop",
+    "talk_loop",
+    "phone_loop",
+    "smoke_loop",
+    "confused_loop",
+    "startled",
+    "shove",
+    "point",
+    "knock",
+    "pick_up",
+    "open_door",
+    "fall",
+    "down_loop",
+    "carried_loop",
+    "climb_ladder_loop",
+    "jump",
+    "vault",
+    "sit_down",
+    "sit_idle_loop",
+    "stand_up"
+   ],
+   "materials": [
+    "pants",
+    "shoes",
+    "coat_dark",
+    "coat",
+    "skin",
+    "iris",
+    "hair"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/props/ad_column.glb",
+   "size": 15068,
+   "triangles": 444,
+   "node_count": 4,
+   "top_nodes": [
+    "ad_column",
+    "ad_column-convcol",
+    "ip_use"
+   ],
+   "animations": [],
+   "materials": [
+    "paint_green",
+    "poster",
+    "steel_dark"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/props/antenna_tower.glb",
+   "size": 41228,
+   "triangles": 768,
+   "node_count": 4,
+   "top_nodes": [
+    "antenna_tower",
+    "antenna_tower-col",
+    "ip_use"
+   ],
+   "animations": [],
+   "materials": [
+    "lamp_red",
+    "steel_dark"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/props/bench.glb",
+   "size": 66504,
+   "triangles": 1392,
+   "node_count": 7,
+   "top_nodes": [
+    "bench-convcol",
+    "ip_hand",
+    "ip_use",
+    "state_broken",
+    "state_ok"
+   ],
+   "animations": [],
+   "materials": [
+    "wood",
+    "steel_dark"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/props/billboard.glb",
+   "size": 22616,
+   "triangles": 504,
+   "node_count": 5,
+   "top_nodes": [
+    "billboard",
+    "billboard-col",
+    "billboard_b-col",
+    "ip_use"
+   ],
+   "animations": [],
+   "materials": [
+    "steel_dark",
+    "paint_gray",
+    "billboard_panel",
+    "lamp_head"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/props/bus_stop.glb",
+   "size": 34032,
+   "triangles": 640,
+   "node_count": 4,
+   "top_nodes": [
+    "bus_stop",
+    "bus_stop-convcol",
+    "ip_use"
+   ],
+   "animations": [],
+   "materials": [
+    "glass_light",
+    "steel_dark",
+    "blue_paint",
+    "wood",
+    "sign_blue",
+    "sign_white",
+    "poster"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/props/bush_a.glb",
+   "size": 7708,
+   "triangles": 132,
+   "node_count": 3,
+   "top_nodes": [
+    "bush",
+    "bush-convcol"
+   ],
+   "animations": [],
+   "materials": [
+    "foliage"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/props/bush_b.glb",
+   "size": 9412,
+   "triangles": 172,
+   "node_count": 3,
+   "top_nodes": [
+    "bush",
+    "bush-convcol"
+   ],
+   "animations": [],
+   "materials": [
+    "foliage"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/props/carpet_beater.glb",
+   "size": 10544,
+   "triangles": 188,
+   "node_count": 4,
+   "top_nodes": [
+    "carpet_beater",
+    "carpet_beater-col",
+    "ip_use"
+   ],
+   "animations": [],
+   "materials": [
+    "steel_dark"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/props/crate_stack.glb",
+   "size": 29976,
+   "triangles": 540,
+   "node_count": 8,
+   "top_nodes": [
+    "crate_stack",
+    "crate_stack-convcol",
+    "ip_hand"
+   ],
+   "animations": [],
+   "materials": [
+    "steel_dark",
+    "wood"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/props/downpipe.glb",
+   "size": 7708,
+   "triangles": 116,
+   "node_count": 3,
+   "top_nodes": [
+    "downpipe",
+    "downpipe-col"
+   ],
+   "animations": [],
+   "materials": [
+    "steel_dark"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/props/dumpster.glb",
+   "size": 24168,
+   "triangles": 432,
+   "node_count": 8,
+   "top_nodes": [
+    "dumpster-convcol",
+    "ip_hand",
+    "ip_use",
+    "lid_anim",
+    "state_ok"
+   ],
+   "animations": [
+    "open",
+    "close"
+   ],
+   "materials": [
+    "steel_dark",
+    "green_paint",
+    "rubber"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/props/fence_concrete.glb",
+   "size": 32552,
+   "triangles": 672,
+   "node_count": 3,
+   "top_nodes": [
+    "fence",
+    "fence_concrete-col"
+   ],
+   "animations": [],
+   "materials": [
+    "concrete_dark",
+    "concrete"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/props/fence_mesh.glb",
+   "size": 26532,
+   "triangles": 468,
+   "node_count": 3,
+   "top_nodes": [
+    "fence",
+    "fence_mesh-col"
+   ],
+   "animations": [],
+   "materials": [
+    "steel_dark"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/props/fence_picket.glb",
+   "size": 61072,
+   "triangles": 1332,
+   "node_count": 3,
+   "top_nodes": [
+    "fence",
+    "fence_picket-col"
+   ],
+   "animations": [],
+   "materials": [
+    "wood"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/props/fire_escape.glb",
+   "size": 57532,
+   "triangles": 1196,
+   "node_count": 6,
+   "top_nodes": [
+    "fire_escape",
+    "fire_escape-convcol",
+    "ip_hand",
+    "ip_hit",
+    "ip_use"
+   ],
+   "animations": [],
+   "materials": [
+    "steel_dark"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/props/garage_gate.glb",
+   "size": 21948,
+   "triangles": 384,
+   "node_count": 5,
+   "top_nodes": [
+    "garage_gate",
+    "garage_gate-col",
+    "ip_hand",
+    "ip_use"
+   ],
+   "animations": [],
+   "materials": [
+    "garage_door",
+    "brick",
+    "steel_dark",
+    "steel",
+    "concrete_dark",
+    "asphalt"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/props/garage_row.glb",
+   "size": 82496,
+   "triangles": 1632,
+   "node_count": 5,
+   "top_nodes": [
+    "garage_row",
+    "garage_row-col",
+    "ip_hand",
+    "ip_use"
+   ],
+   "animations": [],
+   "materials": [
+    "garage_door",
+    "brick",
+    "steel_dark",
+    "steel",
+    "concrete_dark",
+    "asphalt"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/props/kiosk.glb",
+   "size": 17948,
+   "triangles": 276,
+   "node_count": 5,
+   "top_nodes": [
+    "ip_hand",
+    "ip_use",
+    "kiosk",
+    "kiosk-col"
+   ],
+   "animations": [],
+   "materials": [
+    "green_paint",
+    "steel_dark",
+    "glass_light",
+    "wood",
+    "sign_blue",
+    "sign_white",
+    "poster"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/props/laundry_line.glb",
+   "size": 19452,
+   "triangles": 320,
+   "node_count": 3,
+   "top_nodes": [
+    "laundry_line",
+    "laundry_line-col"
+   ],
+   "animations": [],
+   "materials": [
+    "cloth_0",
+    "steel_dark",
+    "steel",
+    "cloth_1",
+    "cloth_2",
+    "cloth_3"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/props/phone_booth.glb",
+   "size": 30548,
+   "triangles": 552,
+   "node_count": 5,
+   "top_nodes": [
+    "ip_hand",
+    "ip_use",
+    "phone_booth",
+    "phone_booth-convcol"
+   ],
+   "animations": [],
+   "materials": [
+    "glass_light",
+    "booth_red",
+    "concrete_dark",
+    "paint_gray",
+    "lamp_green",
+    "steel_dark"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/props/plank_bridge.glb",
+   "size": 21116,
+   "triangles": 432,
+   "node_count": 4,
+   "top_nodes": [
+    "ip_use",
+    "plank_bridge",
+    "plank_bridge-convcol"
+   ],
+   "animations": [],
+   "materials": [
+    "wood"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/props/power_pole.glb",
+   "size": 29484,
+   "triangles": 552,
+   "node_count": 6,
+   "top_nodes": [
+    "ip_hit",
+    "ip_spark",
+    "ip_use",
+    "power_pole",
+    "power_pole-col"
+   ],
+   "animations": [],
+   "materials": [
+    "steel_dark",
+    "pole_concrete",
+    "wood",
+    "insulator"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/props/pullup_bar.glb",
+   "size": 8596,
+   "triangles": 124,
+   "node_count": 5,
+   "top_nodes": [
+    "ip_hand",
+    "ip_use",
+    "pullup_bar",
+    "pullup_bar-col"
+   ],
+   "animations": [],
+   "materials": [
+    "steel",
+    "steel_dark"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/props/roof_hatch.glb",
+   "size": 12600,
+   "triangles": 192,
+   "node_count": 9,
+   "top_nodes": [
+    "ip_hand",
+    "ip_use",
+    "roof_hatch",
+    "roof_hatch-col",
+    "state_loose",
+    "state_ok"
+   ],
+   "animations": [
+    "open",
+    "close"
+   ],
+   "materials": [
+    "concrete",
+    "steel",
+    "steel_dark"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/props/sandbox.glb",
+   "size": 14240,
+   "triangles": 264,
+   "node_count": 3,
+   "top_nodes": [
+    "sandbox",
+    "sandbox-col"
+   ],
+   "animations": [],
+   "materials": [
+    "wood",
+    "sand"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/props/satellite_dish.glb",
+   "size": 12896,
+   "triangles": 368,
+   "node_count": 3,
+   "top_nodes": [
+    "satellite_dish",
+    "satellite_dish-col"
+   ],
+   "animations": [],
+   "materials": [
+    "steel_dark",
+    "paint_gray"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/props/shop_sign.glb",
+   "size": 8556,
+   "triangles": 124,
+   "node_count": 2,
+   "top_nodes": [
+    "shop_sign"
+   ],
+   "animations": [],
+   "materials": [
+    "sign_blue",
+    "sign_white",
+    "steel_dark"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/props/sign_crossing.glb",
+   "size": 8540,
+   "triangles": 108,
+   "node_count": 4,
+   "top_nodes": [
+    "ip_use",
+    "sign_crossing",
+    "sign_crossing-col"
+   ],
+   "animations": [],
+   "materials": [
+    "black_paint",
+    "steel_dark",
+    "sign_blue"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/props/sign_noentry.glb",
+   "size": 10580,
+   "triangles": 204,
+   "node_count": 4,
+   "top_nodes": [
+    "ip_use",
+    "sign_noentry",
+    "sign_noentry-col"
+   ],
+   "animations": [],
+   "materials": [
+    "sign_white",
+    "steel_dark",
+    "sign_red"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/props/sign_speed.glb",
+   "size": 9532,
+   "triangles": 192,
+   "node_count": 4,
+   "top_nodes": [
+    "ip_use",
+    "sign_speed",
+    "sign_speed-col"
+   ],
+   "animations": [],
+   "materials": [
+    "sign_red",
+    "steel_dark",
+    "sign_white"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/props/sign_stop.glb",
+   "size": 7256,
+   "triangles": 96,
+   "node_count": 4,
+   "top_nodes": [
+    "ip_use",
+    "sign_stop",
+    "sign_stop-col"
+   ],
+   "animations": [],
+   "materials": [
+    "sign_red",
+    "steel_dark"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/props/sign_street.glb",
+   "size": 8488,
+   "triangles": 112,
+   "node_count": 4,
+   "top_nodes": [
+    "ip_use",
+    "sign_street",
+    "sign_street-col"
+   ],
+   "animations": [],
+   "materials": [
+    "sign_blue",
+    "steel_dark",
+    "sign_white"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/props/sign_yield.glb",
+   "size": 6144,
+   "triangles": 56,
+   "node_count": 4,
+   "top_nodes": [
+    "ip_use",
+    "sign_yield",
+    "sign_yield-col"
+   ],
+   "animations": [],
+   "materials": [
+    "sign_red",
+    "steel_dark",
+    "sign_white"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/props/slide.glb",
+   "size": 29376,
+   "triangles": 552,
+   "node_count": 4,
+   "top_nodes": [
+    "ip_use",
+    "slide",
+    "slide-convcol"
+   ],
+   "animations": [],
+   "materials": [
+    "paint_yellow",
+    "wood",
+    "steel"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/props/standpipe.glb",
+   "size": 12920,
+   "triangles": 224,
+   "node_count": 5,
+   "top_nodes": [
+    "ip_hand",
+    "ip_use",
+    "standpipe",
+    "standpipe-col"
+   ],
+   "animations": [],
+   "materials": [
+    "steel_dark",
+    "steel",
+    "concrete_dark"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/props/street_lamp.glb",
+   "size": 22816,
+   "triangles": 408,
+   "node_count": 10,
+   "top_nodes": [
+    "ip_hit",
+    "ip_spark",
+    "ip_use",
+    "lamp_base",
+    "state_broken",
+    "state_ok",
+    "street_lamp-col"
+   ],
+   "animations": [],
+   "materials": [
+    "steel_dark",
+    "paint_gray",
+    "lamp_head"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/props/swing.glb",
+   "size": 23056,
+   "triangles": 364,
+   "node_count": 9,
+   "top_nodes": [
+    "ip_hand",
+    "ip_use",
+    "seat_pivot",
+    "swing",
+    "swing-col"
+   ],
+   "animations": [
+    "swing_loop"
+   ],
+   "materials": [
+    "steel",
+    "wood",
+    "paint_yellow"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/props/tower_crane.glb",
+   "size": 26400,
+   "triangles": 384,
+   "node_count": 11,
+   "top_nodes": [
+    "ip_use",
+    "tower_crane",
+    "tower_crane-col"
+   ],
+   "animations": [
+    "slew_loop"
+   ],
+   "materials": [
+    "concrete_dark",
+    "paint_yellow",
+    "steel_dark",
+    "concrete"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/props/traffic_light_car.glb",
+   "size": 24948,
+   "triangles": 492,
+   "node_count": 5,
+   "top_nodes": [
+    "ip_spark",
+    "ip_use",
+    "traffic_light",
+    "traffic_light-col"
+   ],
+   "animations": [],
+   "materials": [
+    "steel_dark",
+    "paint_gray",
+    "black_paint",
+    "lamp_red",
+    "lamp_amber",
+    "lamp_green",
+    "sign_white"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/props/traffic_light_ped.glb",
+   "size": 18968,
+   "triangles": 368,
+   "node_count": 5,
+   "top_nodes": [
+    "ip_spark",
+    "ip_use",
+    "traffic_light",
+    "traffic_light-col"
+   ],
+   "animations": [],
+   "materials": [
+    "steel_dark",
+    "paint_gray",
+    "black_paint",
+    "lamp_red",
+    "lamp_green"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/props/transformer_booth.glb",
+   "size": 27640,
+   "triangles": 468,
+   "node_count": 10,
+   "top_nodes": [
+    "door_anim",
+    "ip_hand",
+    "ip_spark",
+    "ip_use",
+    "state_loose",
+    "state_ok",
+    "transformer_booth",
+    "transformer_booth-col"
+   ],
+   "animations": [
+    "open",
+    "close"
+   ],
+   "materials": [
+    "steel_dark",
+    "brick",
+    "concrete_dark",
+    "sign_yellow",
+    "steel",
+    "insulator"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/props/tree_bare.glb",
+   "size": 29352,
+   "triangles": 564,
+   "node_count": 5,
+   "top_nodes": [
+    "ip_hit",
+    "ip_use",
+    "tree_bare",
+    "tree_bare-col"
+   ],
+   "animations": [],
+   "materials": [
+    "bark",
+    "leaves_autumn"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/props/tree_birch.glb",
+   "size": 28344,
+   "triangles": 752,
+   "node_count": 5,
+   "top_nodes": [
+    "ip_hit",
+    "ip_use",
+    "tree_birch",
+    "tree_birch-col"
+   ],
+   "animations": [],
+   "materials": [
+    "soot",
+    "bark_birch",
+    "foliage"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/props/tree_maple.glb",
+   "size": 32076,
+   "triangles": 892,
+   "node_count": 5,
+   "top_nodes": [
+    "ip_hit",
+    "ip_use",
+    "tree_maple",
+    "tree_maple-col"
+   ],
+   "animations": [],
+   "materials": [
+    "bark",
+    "foliage"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/props/tree_poplar.glb",
+   "size": 21144,
+   "triangles": 632,
+   "node_count": 5,
+   "top_nodes": [
+    "ip_hit",
+    "ip_use",
+    "tree_poplar",
+    "tree_poplar-col"
+   ],
+   "animations": [],
+   "materials": [
+    "foliage",
+    "bark"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/props/urn_street.glb",
+   "size": 8088,
+   "triangles": 180,
+   "node_count": 5,
+   "top_nodes": [
+    "ip_hand",
+    "ip_use",
+    "urn",
+    "urn-convcol"
+   ],
+   "animations": [],
+   "materials": [
+    "concrete_dark",
+    "steel_dark"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/props/vent_shaft.glb",
+   "size": 15576,
+   "triangles": 264,
+   "node_count": 4,
+   "top_nodes": [
+    "ip_use",
+    "vent_shaft",
+    "vent_shaft-col"
+   ],
+   "animations": [],
+   "materials": [
+    "concrete_dark",
+    "brick",
+    "steel_dark",
+    "paint_gray"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/vehicles/ambulance.glb",
+   "size": 165208,
+   "triangles": 3440,
+   "node_count": 76,
+   "top_nodes": [
+    "ambulance-convcol",
+    "ip_hand",
+    "ip_hit",
+    "ip_use",
+    "van_body",
+    "wheel_fl",
+    "wheel_fr",
+    "wheel_rl",
+    "wheel_rr"
+   ],
+   "animations": [
+    "beacon_loop",
+    "drive_loop"
+   ],
+   "materials": [
+    "trim_black",
+    "lamp_beacon_blue",
+    "paint_body",
+    "chrome",
+    "glass_car",
+    "stripe_red",
+    "body_white",
+    "rim_steel",
+    "lamp_head",
+    "lamp_amber",
+    "plate_white",
+    "lamp_tail",
+    "tire"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/vehicles/bus_city.glb",
+   "size": 191368,
+   "triangles": 4392,
+   "node_count": 81,
+   "top_nodes": [
+    "bus_body",
+    "bus_city-convcol",
+    "ip_hand",
+    "ip_hit",
+    "ip_use",
+    "wheel_fl",
+    "wheel_fr",
+    "wheel_rl",
+    "wheel_rl2",
+    "wheel_rr",
+    "wheel_rr2"
+   ],
+   "animations": [
+    "drive_loop"
+   ],
+   "materials": [
+    "paint_body2",
+    "paint_body",
+    "chrome",
+    "glass_car",
+    "trim_black",
+    "lamp_head",
+    "lamp_amber",
+    "plate_white",
+    "lamp_white",
+    "lamp_tail",
+    "rim_steel",
+    "tire"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/vehicles/car_militia.glb",
+   "size": 245176,
+   "triangles": 5168,
+   "node_count": 108,
+   "top_nodes": [
+    "car_body",
+    "car_militia-convcol",
+    "ip_hand",
+    "ip_hand_hood",
+    "ip_hit",
+    "ip_use",
+    "wheel_fl",
+    "wheel_fr",
+    "wheel_rl",
+    "wheel_rr"
+   ],
+   "animations": [
+    "alarm_loop",
+    "beacon_loop",
+    "drive_loop"
+   ],
+   "materials": [
+    "lamp_amber",
+    "trim_black",
+    "lamp_beacon_blue",
+    "lamp_beacon_red",
+    "chrome",
+    "rim_steel",
+    "glass_car",
+    "lamp_head",
+    "stripe_blue",
+    "stripe_yellow",
+    "paint_body",
+    "plate_white",
+    "seat_cloth",
+    "lamp_white",
+    "dent_paint",
+    "lamp_tail",
+    "tire"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/vehicles/car_moskvich.glb",
+   "size": 229564,
+   "triangles": 4916,
+   "node_count": 99,
+   "top_nodes": [
+    "car_body",
+    "car_moskvich-convcol",
+    "ip_hand",
+    "ip_hand_hood",
+    "ip_hit",
+    "ip_use",
+    "wheel_fl",
+    "wheel_fr",
+    "wheel_rl",
+    "wheel_rr"
+   ],
+   "animations": [
+    "alarm_loop",
+    "drive_loop"
+   ],
+   "materials": [
+    "lamp_amber",
+    "chrome",
+    "trim_black",
+    "rim_steel",
+    "glass_car",
+    "lamp_head",
+    "paint_body",
+    "plate_white",
+    "seat_cloth",
+    "lamp_white",
+    "dent_paint",
+    "lamp_tail",
+    "tire"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/vehicles/car_sedan.glb",
+   "size": 229616,
+   "triangles": 4928,
+   "node_count": 99,
+   "top_nodes": [
+    "car_body",
+    "car_sedan-convcol",
+    "ip_hand",
+    "ip_hand_hood",
+    "ip_hit",
+    "ip_use",
+    "wheel_fl",
+    "wheel_fr",
+    "wheel_rl",
+    "wheel_rr"
+   ],
+   "animations": [
+    "alarm_loop",
+    "drive_loop"
+   ],
+   "materials": [
+    "lamp_amber",
+    "chrome",
+    "trim_black",
+    "rim_steel",
+    "glass_car",
+    "lamp_head",
+    "paint_body",
+    "plate_white",
+    "seat_cloth",
+    "lamp_white",
+    "dent_paint",
+    "lamp_tail",
+    "tire"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/vehicles/car_sedan_green.glb",
+   "size": 229628,
+   "triangles": 4928,
+   "node_count": 99,
+   "top_nodes": [
+    "car_body",
+    "car_sedan_green-convcol",
+    "ip_hand",
+    "ip_hand_hood",
+    "ip_hit",
+    "ip_use",
+    "wheel_fl",
+    "wheel_fr",
+    "wheel_rl",
+    "wheel_rr"
+   ],
+   "animations": [
+    "alarm_loop",
+    "drive_loop"
+   ],
+   "materials": [
+    "lamp_amber",
+    "chrome",
+    "trim_black",
+    "rim_steel",
+    "glass_car",
+    "lamp_head",
+    "paint_body",
+    "plate_white",
+    "seat_cloth",
+    "lamp_white",
+    "dent_paint",
+    "lamp_tail",
+    "tire"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/vehicles/car_sedan_roofrack.glb",
+   "size": 247272,
+   "triangles": 5288,
+   "node_count": 105,
+   "top_nodes": [
+    "car_body",
+    "car_sedan_roofrack-convcol",
+    "ip_hand",
+    "ip_hand_hood",
+    "ip_hit",
+    "ip_use",
+    "wheel_fl",
+    "wheel_fr",
+    "wheel_rl",
+    "wheel_rr"
+   ],
+   "animations": [
+    "alarm_loop",
+    "drive_loop"
+   ],
+   "materials": [
+    "lamp_amber",
+    "chrome",
+    "trim_black",
+    "rim_steel",
+    "glass_car",
+    "lamp_head",
+    "paint_body",
+    "seat_cloth",
+    "wood",
+    "plate_white",
+    "lamp_white",
+    "dent_paint",
+    "lamp_tail",
+    "tire"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/vehicles/car_wagon.glb",
+   "size": 229660,
+   "triangles": 4928,
+   "node_count": 99,
+   "top_nodes": [
+    "car_body",
+    "car_wagon-convcol",
+    "ip_hand",
+    "ip_hand_hood",
+    "ip_hit",
+    "ip_use",
+    "wheel_fl",
+    "wheel_fr",
+    "wheel_rl",
+    "wheel_rr"
+   ],
+   "animations": [
+    "alarm_loop",
+    "drive_loop"
+   ],
+   "materials": [
+    "lamp_amber",
+    "chrome",
+    "trim_black",
+    "rim_steel",
+    "glass_car",
+    "lamp_head",
+    "paint_body",
+    "plate_white",
+    "seat_cloth",
+    "lamp_white",
+    "dent_paint",
+    "lamp_tail",
+    "tire"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/vehicles/tow_truck.glb",
+   "size": 117788,
+   "triangles": 2628,
+   "node_count": 51,
+   "top_nodes": [
+    "ip_hand",
+    "ip_hit",
+    "ip_use",
+    "tow_body",
+    "tow_truck-convcol",
+    "wheel_fl",
+    "wheel_fr",
+    "wheel_rl",
+    "wheel_rr"
+   ],
+   "animations": [
+    "boom_lift",
+    "drive_loop"
+   ],
+   "materials": [
+    "lamp_amber",
+    "trim_black",
+    "steel_dark",
+    "paint_yellow",
+    "chrome",
+    "paint_body",
+    "lamp_head",
+    "plate_white",
+    "lamp_tail",
+    "glass_car",
+    "rim_steel",
+    "tire"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/vehicles/trolleybus.glb",
+   "size": 187396,
+   "triangles": 4012,
+   "node_count": 80,
+   "top_nodes": [
+    "bus_body",
+    "ip_hand",
+    "ip_hit",
+    "ip_use",
+    "trolleybus-convcol",
+    "wheel_fl",
+    "wheel_fr",
+    "wheel_rl",
+    "wheel_rr"
+   ],
+   "animations": [
+    "pole_sway",
+    "drive_loop"
+   ],
+   "materials": [
+    "paint_body2",
+    "paint_body",
+    "chrome",
+    "glass_car",
+    "trim_black",
+    "lamp_head",
+    "lamp_amber",
+    "plate_white",
+    "lamp_white",
+    "lamp_tail",
+    "rim_steel",
+    "tire"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/vehicles/truck_zil.glb",
+   "size": 162972,
+   "triangles": 3776,
+   "node_count": 66,
+   "top_nodes": [
+    "ip_hand",
+    "ip_hit",
+    "ip_use",
+    "truck_body",
+    "truck_zil-convcol",
+    "wheel_fl",
+    "wheel_fr",
+    "wheel_rl",
+    "wheel_rl2",
+    "wheel_rr",
+    "wheel_rr2"
+   ],
+   "animations": [
+    "drive_loop"
+   ],
+   "materials": [
+    "trim_black",
+    "chrome",
+    "paint_body",
+    "glass_car",
+    "wood_deck",
+    "lamp_head",
+    "lamp_amber",
+    "plate_white",
+    "lamp_tail",
+    "rim_steel",
+    "tire"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "city/vehicles/van_gazelle.glb",
+   "size": 147232,
+   "triangles": 3164,
+   "node_count": 64,
+   "top_nodes": [
+    "ip_hand",
+    "ip_hit",
+    "ip_use",
+    "van_body",
+    "van_gazelle-convcol",
+    "wheel_fl",
+    "wheel_fr",
+    "wheel_rl",
+    "wheel_rr"
+   ],
+   "animations": [
+    "drive_loop"
+   ],
+   "materials": [
+    "trim_black",
+    "paint_body",
+    "chrome",
+    "glass_car",
+    "rim_steel",
+    "lamp_head",
+    "lamp_amber",
+    "plate_white",
+    "lamp_tail",
+    "tire"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "decal_blood.glb",
+   "size": 4396,
+   "triangles": 70,
+   "node_count": 2,
+   "top_nodes": [
+    "decal_blood",
+    "ip_hit"
+   ],
+   "animations": [],
+   "materials": [
+    "decal_blood"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "decal_blood2.glb",
+   "size": 4400,
+   "triangles": 70,
+   "node_count": 2,
+   "top_nodes": [
+    "decal_blood2",
+    "ip_hit"
+   ],
+   "animations": [],
+   "materials": [
+    "decal_blood"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "decal_oil.glb",
+   "size": 3236,
+   "triangles": 46,
+   "node_count": 2,
+   "top_nodes": [
+    "decal_oil",
+    "ip_hit"
+   ],
+   "animations": [],
+   "materials": [
+    "decal_oil"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "decal_oil2.glb",
+   "size": 3236,
+   "triangles": 46,
+   "node_count": 2,
+   "top_nodes": [
+    "decal_oil2",
+    "ip_hit"
+   ],
+   "animations": [],
+   "materials": [
+    "decal_oil"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "decal_puddle.glb",
+   "size": 2360,
+   "triangles": 28,
+   "node_count": 2,
+   "top_nodes": [
+    "decal_puddle",
+    "ip_hit"
+   ],
+   "animations": [],
+   "materials": [
+    "decal_puddle"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "decal_puddle2.glb",
+   "size": 2364,
+   "triangles": 28,
+   "node_count": 2,
+   "top_nodes": [
+    "decal_puddle2",
+    "ip_hit"
+   ],
+   "animations": [],
+   "materials": [
+    "decal_puddle"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "desk_security.glb",
+   "size": 128976,
+   "triangles": 2696,
+   "node_count": 11,
+   "top_nodes": [
+    "desk_body",
+    "desk_security-convcol",
+    "ip_hand",
+    "ip_use",
+    "monitor_rack",
+    "state_loose",
+    "state_ok"
+   ],
+   "animations": [],
+   "materials": [
+    "paint_gray",
+    "wood",
+    "steel_dark",
+    "beige",
+    "plastic_black",
+    "black_paint",
+    "steel",
+    "paint_yellow",
+    "crt_off",
+    "crt_screen"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "door_lockable.glb",
+   "size": 81588,
+   "triangles": 1452,
+   "node_count": 16,
+   "top_nodes": [
+    "door_anim",
+    "door_frame-col",
+    "frame",
+    "ip_hand",
+    "ip_use",
+    "state_broken",
+    "state_loose",
+    "state_ok"
+   ],
+   "animations": [
+    "open",
+    "close",
+    "kick"
+   ],
+   "materials": [
+    "steel",
+    "door_brown",
+    "wood",
+    "steel_dark",
+    "paint_gray",
+    "concrete_dark",
+    "soot"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "human_noir.glb",
+   "size": 44168,
+   "triangles": 516,
+   "node_count": 1,
+   "top_nodes": [
+    "human_noir"
+   ],
+   "animations": [],
+   "materials": [
+    "shoes",
+    "pants",
+    "coat",
+    "coat_dark",
+    "skin",
+    "hair",
+    "gold_accent"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "human_noir_v2.glb",
+   "size": 165312,
+   "triangles": 6524,
+   "node_count": 1,
+   "top_nodes": [
+    "human_noir"
+   ],
+   "animations": [],
+   "materials": [
+    "pants",
+    "shoes",
+    "coat",
+    "skin",
+    "shirt",
+    "gold_accent",
+    "coat_dark"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "human_noir_v3.glb",
+   "size": 294936,
+   "triangles": 13676,
+   "node_count": 1,
+   "top_nodes": [
+    "human_noir"
+   ],
+   "animations": [],
+   "materials": [
+    "pants",
+    "shoes",
+    "coat_dark",
+    "coat",
+    "shirt",
+    "gold_accent",
+    "skin",
+    "hair"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "human_noir_v4.glb",
+   "size": 1831140,
+   "triangles": 17240,
+   "node_count": 42,
+   "top_nodes": [
+    "human_rig"
+   ],
+   "animations": [
+    "idle_loop",
+    "idle_look_loop",
+    "idle_cold_loop",
+    "walk_loop",
+    "walk_old_loop",
+    "run_loop",
+    "talk_loop",
+    "phone_loop",
+    "smoke_loop",
+    "confused_loop",
+    "startled",
+    "shove",
+    "point",
+    "knock",
+    "pick_up",
+    "open_door",
+    "fall",
+    "down_loop",
+    "carried_loop",
+    "climb_ladder_loop",
+    "jump",
+    "vault",
+    "sit_down",
+    "sit_idle_loop",
+    "stand_up"
+   ],
+   "materials": [
+    "pants",
+    "shoes",
+    "coat_dark",
+    "coat",
+    "shirt",
+    "gold_accent",
+    "skin",
+    "hair",
+    "iris",
+    "lips"
+   ],
+   "morph_targets": [
+    "blink",
+    "mouth_open",
+    "smile",
+    "frown",
+    "brow_up",
+    "brow_down",
+    "look_l",
+    "look_r",
+    "look_up",
+    "look_down"
+   ]
+  },
+  {
+   "path": "item_briefcase_ground.glb",
+   "size": 21000,
+   "triangles": 552,
+   "node_count": 3,
+   "top_nodes": [
+    "briefcase_ground",
+    "briefcase_ground-convcol",
+    "ip_hand"
+   ],
+   "animations": [],
+   "materials": [
+    "leather_tan",
+    "leather",
+    "brass",
+    "steel_dark"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "item_briefcase_hand.glb",
+   "size": 19984,
+   "triangles": 540,
+   "node_count": 2,
+   "top_nodes": [
+    "briefcase",
+    "ip_hand"
+   ],
+   "animations": [],
+   "materials": [
+    "leather_tan",
+    "leather",
+    "brass",
+    "steel_dark"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "item_crowbar_ground.glb",
+   "size": 40956,
+   "triangles": 1408,
+   "node_count": 3,
+   "top_nodes": [
+    "crowbar_ground",
+    "crowbar_ground-convcol",
+    "ip_hand"
+   ],
+   "animations": [],
+   "materials": [
+    "steel_dark",
+    "steel"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "item_crowbar_hand.glb",
+   "size": 39908,
+   "triangles": 1396,
+   "node_count": 2,
+   "top_nodes": [
+    "crowbar",
+    "ip_hand"
+   ],
+   "animations": [],
+   "materials": [
+    "steel_dark",
+    "steel"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "item_folder_docs_ground.glb",
+   "size": 6720,
+   "triangles": 92,
+   "node_count": 3,
+   "top_nodes": [
+    "folder_docs_ground",
+    "folder_docs_ground-convcol",
+    "ip_hand"
+   ],
+   "animations": [],
+   "materials": [
+    "cardboard",
+    "paper",
+    "rubber"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "item_folder_docs_hand.glb",
+   "size": 5668,
+   "triangles": 80,
+   "node_count": 2,
+   "top_nodes": [
+    "folder_docs",
+    "ip_hand"
+   ],
+   "animations": [],
+   "materials": [
+    "cardboard",
+    "paper",
+    "rubber"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "item_holster.glb",
+   "size": 20612,
+   "triangles": 412,
+   "node_count": 2,
+   "top_nodes": [
+    "holster",
+    "ip_hand"
+   ],
+   "animations": [],
+   "materials": [
+    "leather",
+    "steel",
+    "grip_brown",
+    "steel_dark"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "item_id_booklet_ground.glb",
+   "size": 9104,
+   "triangles": 140,
+   "node_count": 3,
+   "top_nodes": [
+    "id_booklet_ground",
+    "id_booklet_ground-convcol",
+    "ip_hand"
+   ],
+   "animations": [],
+   "materials": [
+    "red_cloth",
+    "paper",
+    "brass"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "item_id_booklet_hand.glb",
+   "size": 8092,
+   "triangles": 128,
+   "node_count": 2,
+   "top_nodes": [
+    "id_booklet",
+    "ip_hand"
+   ],
+   "animations": [],
+   "materials": [
+    "red_cloth",
+    "paper",
+    "brass"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "item_keys_ring_ground.glb",
+   "size": 14088,
+   "triangles": 372,
+   "node_count": 3,
+   "top_nodes": [
+    "ip_hand",
+    "keys_ring_ground",
+    "keys_ring_ground-convcol"
+   ],
+   "animations": [],
+   "materials": [
+    "steel",
+    "brass"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "item_keys_ring_hand.glb",
+   "size": 13044,
+   "triangles": 360,
+   "node_count": 2,
+   "top_nodes": [
+    "ip_hand",
+    "keys_ring"
+   ],
+   "animations": [],
+   "materials": [
+    "steel",
+    "brass"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "item_knife_ground.glb",
+   "size": 12172,
+   "triangles": 256,
+   "node_count": 3,
+   "top_nodes": [
+    "ip_hand",
+    "knife_ground",
+    "knife_ground-convcol"
+   ],
+   "animations": [],
+   "materials": [
+    "steel",
+    "plastic_black"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "item_knife_hand.glb",
+   "size": 11136,
+   "triangles": 244,
+   "node_count": 2,
+   "top_nodes": [
+    "ip_hand",
+    "knife"
+   ],
+   "animations": [],
+   "materials": [
+    "steel",
+    "plastic_black"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "item_notebook_ground.glb",
+   "size": 15120,
+   "triangles": 272,
+   "node_count": 3,
+   "top_nodes": [
+    "ip_hand",
+    "notebook_ground",
+    "notebook_ground-convcol"
+   ],
+   "animations": [],
+   "materials": [
+    "notebook_blue",
+    "paper",
+    "steel",
+    "wood"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "item_notebook_hand.glb",
+   "size": 14088,
+   "triangles": 260,
+   "node_count": 2,
+   "top_nodes": [
+    "ip_hand",
+    "notebook"
+   ],
+   "animations": [],
+   "materials": [
+    "notebook_blue",
+    "paper",
+    "steel",
+    "wood"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "item_pass_card_ground.glb",
+   "size": 7448,
+   "triangles": 92,
+   "node_count": 3,
+   "top_nodes": [
+    "ip_hand",
+    "pass_card_ground",
+    "pass_card_ground-convcol"
+   ],
+   "animations": [],
+   "materials": [
+    "card_white",
+    "photo_gray",
+    "card_blue",
+    "rubber"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "item_pass_card_hand.glb",
+   "size": 6400,
+   "triangles": 80,
+   "node_count": 2,
+   "top_nodes": [
+    "ip_hand",
+    "pass_card"
+   ],
+   "animations": [],
+   "materials": [
+    "card_white",
+    "photo_gray",
+    "card_blue",
+    "rubber"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "item_pistol_ground.glb",
+   "size": 37652,
+   "triangles": 896,
+   "node_count": 3,
+   "top_nodes": [
+    "ip_hand",
+    "pistol_ground",
+    "pistol_ground-convcol"
+   ],
+   "animations": [],
+   "materials": [
+    "gun_metal",
+    "grip_brown",
+    "steel"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "item_pistol_hand.glb",
+   "size": 36572,
+   "triangles": 884,
+   "node_count": 2,
+   "top_nodes": [
+    "ip_hand",
+    "pistol"
+   ],
+   "animations": [],
+   "materials": [
+    "gun_metal",
+    "grip_brown",
+    "steel"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "item_radio_ground.glb",
+   "size": 22388,
+   "triangles": 404,
+   "node_count": 3,
+   "top_nodes": [
+    "ip_hand",
+    "radio_ground",
+    "radio_ground-convcol"
+   ],
+   "animations": [],
+   "materials": [
+    "radio_body",
+    "steel_dark",
+    "radio_dial",
+    "rubber",
+    "plastic_black",
+    "steel"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "item_radio_hand.glb",
+   "size": 21372,
+   "triangles": 392,
+   "node_count": 2,
+   "top_nodes": [
+    "ip_hand",
+    "radio"
+   ],
+   "animations": [],
+   "materials": [
+    "radio_body",
+    "steel_dark",
+    "radio_dial",
+    "rubber",
+    "plastic_black",
+    "steel"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "item_syringe_ground.glb",
+   "size": 16940,
+   "triangles": 348,
+   "node_count": 3,
+   "top_nodes": [
+    "ip_hand",
+    "syringe_ground",
+    "syringe_ground-convcol"
+   ],
+   "animations": [],
+   "materials": [
+    "glass",
+    "liquid_amber",
+    "plastic_black",
+    "steel",
+    "rubber"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "item_syringe_hand.glb",
+   "size": 15912,
+   "triangles": 336,
+   "node_count": 2,
+   "top_nodes": [
+    "ip_hand",
+    "syringe"
+   ],
+   "animations": [],
+   "materials": [
+    "glass",
+    "liquid_amber",
+    "plastic_black",
+    "steel",
+    "rubber"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "item_videotape_ground.glb",
+   "size": 11180,
+   "triangles": 196,
+   "node_count": 3,
+   "top_nodes": [
+    "ip_hand",
+    "videotape_ground",
+    "videotape_ground-convcol"
+   ],
+   "animations": [],
+   "materials": [
+    "tape_black",
+    "paper",
+    "rubber",
+    "glass",
+    "steel_dark"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "item_videotape_hand.glb",
+   "size": 10168,
+   "triangles": 184,
+   "node_count": 2,
+   "top_nodes": [
+    "ip_hand",
+    "videotape"
+   ],
+   "animations": [],
+   "materials": [
+    "tape_black",
+    "paper",
+    "rubber",
+    "glass",
+    "steel_dark"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "lamp_noir.glb",
+   "size": 8392,
+   "triangles": 100,
+   "node_count": 1,
+   "top_nodes": [
+    "lamp_noir"
+   ],
+   "animations": [],
+   "materials": [
+    "metal",
+    "lamp_shade"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "lamp_noir_v2.glb",
+   "size": 51212,
+   "triangles": 1700,
+   "node_count": 1,
+   "top_nodes": [
+    "lamp_noir"
+   ],
+   "animations": [],
+   "materials": [
+    "metal",
+    "lamp_shade"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "manhole.glb",
+   "size": 132288,
+   "triangles": 3124,
+   "node_count": 51,
+   "top_nodes": [
+    "cover_anim",
+    "ip_hand",
+    "ip_hit",
+    "ip_use",
+    "manhole-col",
+    "manhole_frame",
+    "rung",
+    "rung.001",
+    "rung.002",
+    "rung.003",
+    "rung.004",
+    "shaft",
+    "shaft_floor",
+    "state_loose",
+    "state_ok",
+    "street_patch"
+   ],
+   "animations": [
+    "open",
+    "close"
+   ],
+   "materials": [
+    "cast_iron",
+    "soot",
+    "steel",
+    "concrete",
+    "asphalt"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "mannequin_child.glb",
+   "size": 1059044,
+   "triangles": 7064,
+   "node_count": 42,
+   "top_nodes": [
+    "human_rig"
+   ],
+   "animations": [
+    "idle_loop",
+    "idle_look_loop",
+    "idle_cold_loop",
+    "walk_loop",
+    "walk_old_loop",
+    "run_loop",
+    "talk_loop",
+    "phone_loop",
+    "smoke_loop",
+    "confused_loop",
+    "startled",
+    "shove",
+    "point",
+    "knock",
+    "pick_up",
+    "open_door",
+    "fall",
+    "down_loop",
+    "carried_loop",
+    "climb_ladder_loop",
+    "jump",
+    "vault",
+    "sit_down",
+    "sit_idle_loop",
+    "stand_up"
+   ],
+   "materials": [
+    "mannequin_gray"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "mannequin_female.glb",
+   "size": 1060416,
+   "triangles": 7064,
+   "node_count": 42,
+   "top_nodes": [
+    "human_rig"
+   ],
+   "animations": [
+    "idle_loop",
+    "idle_look_loop",
+    "idle_cold_loop",
+    "walk_loop",
+    "walk_old_loop",
+    "run_loop",
+    "talk_loop",
+    "phone_loop",
+    "smoke_loop",
+    "confused_loop",
+    "startled",
+    "shove",
+    "point",
+    "knock",
+    "pick_up",
+    "open_door",
+    "fall",
+    "down_loop",
+    "carried_loop",
+    "climb_ladder_loop",
+    "jump",
+    "vault",
+    "sit_down",
+    "sit_idle_loop",
+    "stand_up"
+   ],
+   "materials": [
+    "mannequin_gray"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "mannequin_male.glb",
+   "size": 1048320,
+   "triangles": 6776,
+   "node_count": 42,
+   "top_nodes": [
+    "human_rig"
+   ],
+   "animations": [
+    "idle_loop",
+    "idle_look_loop",
+    "idle_cold_loop",
+    "walk_loop",
+    "walk_old_loop",
+    "run_loop",
+    "talk_loop",
+    "phone_loop",
+    "smoke_loop",
+    "confused_loop",
+    "startled",
+    "shove",
+    "point",
+    "knock",
+    "pick_up",
+    "open_door",
+    "fall",
+    "down_loop",
+    "carried_loop",
+    "climb_ladder_loop",
+    "jump",
+    "vault",
+    "sit_down",
+    "sit_idle_loop",
+    "stand_up"
+   ],
+   "materials": [
+    "mannequin_gray"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "mop_wet_sign.glb",
+   "size": 33648,
+   "triangles": 708,
+   "node_count": 10,
+   "top_nodes": [
+    "bucket",
+    "ip_hand",
+    "ip_hit",
+    "ip_use",
+    "mop",
+    "mop-convcol",
+    "sign"
+   ],
+   "animations": [],
+   "materials": [
+    "bucket_blue",
+    "steel",
+    "black_paint",
+    "wood",
+    "paper",
+    "paint_yellow"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/balconies/balcony_bars.glb",
+   "size": 31500,
+   "triangles": 516,
+   "node_count": 7,
+   "top_nodes": [
+    "balcony",
+    "balcony_bars-col",
+    "ip_hand",
+    "ip_hit",
+    "ip_use"
+   ],
+   "animations": [],
+   "materials": [
+    "balcony_rail",
+    "panel_wall",
+    "wood",
+    "balcony_slab"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/balconies/balcony_danger.glb",
+   "size": 126644,
+   "triangles": 1296,
+   "node_count": 113,
+   "top_nodes": [
+    "danger_balcony",
+    "danger_balcony-col",
+    "debris",
+    "ip_hand",
+    "ip_hit",
+    "ip_use",
+    "slab_fall",
+    "state_broken",
+    "state_loose",
+    "state_ok"
+   ],
+   "animations": [
+    "collapse"
+   ],
+   "materials": [
+    "wood",
+    "panel_wall",
+    "concrete",
+    "balcony_rail",
+    "balcony_slab",
+    "rusty",
+    "rebar_rust",
+    "soot"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/balconies/balcony_door.glb",
+   "size": 31876,
+   "triangles": 432,
+   "node_count": 16,
+   "top_nodes": [
+    "balcony_door-col",
+    "door_anim",
+    "door_set",
+    "ip_hand",
+    "ip_use",
+    "state_broken",
+    "state_loose",
+    "state_ok"
+   ],
+   "animations": [
+    "open",
+    "close"
+   ],
+   "materials": [
+    "building_window",
+    "wood",
+    "steel",
+    "paint_gray"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/balconies/balcony_flowers.glb",
+   "size": 76928,
+   "triangles": 984,
+   "node_count": 64,
+   "top_nodes": [
+    "balcony",
+    "balcony_flowers-col",
+    "ip_hand",
+    "ip_hit",
+    "ip_use"
+   ],
+   "animations": [
+    "fall"
+   ],
+   "materials": [
+    "balcony_rail",
+    "wood",
+    "flower_0",
+    "flower_green",
+    "pot_clay",
+    "flower_1",
+    "flower_2",
+    "balcony_slab",
+    "panel_wall"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/balconies/balcony_glazed.glb",
+   "size": 11332,
+   "triangles": 132,
+   "node_count": 7,
+   "top_nodes": [
+    "balcony",
+    "balcony_glazed-col",
+    "ip_hand",
+    "ip_hit",
+    "ip_use"
+   ],
+   "animations": [],
+   "materials": [
+    "wood",
+    "panel_wall",
+    "balcony_slab",
+    "loggia_glass"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/balconies/balcony_junk.glb",
+   "size": 39652,
+   "triangles": 584,
+   "node_count": 28,
+   "top_nodes": [
+    "balcony",
+    "balcony_junk-col",
+    "ip_hand",
+    "ip_hit",
+    "ip_use"
+   ],
+   "animations": [],
+   "materials": [
+    "steel_dark",
+    "rubber",
+    "cardboard",
+    "wood",
+    "steel",
+    "fridge_white",
+    "panel_wall",
+    "ski_blue",
+    "balcony_slab"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/balconies/balcony_laundry.glb",
+   "size": 80528,
+   "triangles": 804,
+   "node_count": 72,
+   "top_nodes": [
+    "balcony",
+    "balcony_laundry-col",
+    "ip_hand",
+    "ip_hit",
+    "ip_use"
+   ],
+   "animations": [],
+   "materials": [
+    "balcony_rail",
+    "cloth0",
+    "cloth1",
+    "cloth2",
+    "cloth3",
+    "cloth4",
+    "wood",
+    "cloth_r0",
+    "cloth_r1",
+    "cloth_r2",
+    "cloth_r3",
+    "steel",
+    "balcony_slab",
+    "panel_wall"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/balconies/balcony_open_brick.glb",
+   "size": 7752,
+   "triangles": 84,
+   "node_count": 7,
+   "top_nodes": [
+    "balcony",
+    "balcony_open_brick-col",
+    "ip_hand",
+    "ip_hit",
+    "ip_use"
+   ],
+   "animations": [],
+   "materials": [
+    "wood",
+    "brick_wall",
+    "balcony_slab"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/balconies/balcony_open_panel.glb",
+   "size": 7752,
+   "triangles": 84,
+   "node_count": 7,
+   "top_nodes": [
+    "balcony",
+    "balcony_open_panel-col",
+    "ip_hand",
+    "ip_hit",
+    "ip_use"
+   ],
+   "animations": [],
+   "materials": [
+    "wood",
+    "panel_wall",
+    "balcony_slab"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/doors/door_emergency.glb",
+   "size": 62036,
+   "triangles": 984,
+   "node_count": 19,
+   "top_nodes": [
+    "beacon",
+    "bell",
+    "door_anim",
+    "door_emergency-col",
+    "frame",
+    "ip_hand",
+    "ip_use",
+    "push_bar_anim",
+    "state_loose",
+    "state_ok"
+   ],
+   "animations": [
+    "beacon_loop",
+    "open",
+    "close",
+    "push_bar_press"
+   ],
+   "materials": [
+    "led_red",
+    "paint_gray",
+    "brass",
+    "steel_dark",
+    "door_gray",
+    "steel",
+    "paint_yellow",
+    "black_paint",
+    "concrete_dark",
+    "sign_green_glow"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/fences/fence_bars.glb",
+   "size": 22116,
+   "triangles": 396,
+   "node_count": 7,
+   "top_nodes": [
+    "fence",
+    "fence_bars-col",
+    "ip_hand",
+    "ip_hit",
+    "ip_use",
+    "state_ok"
+   ],
+   "animations": [],
+   "materials": [
+    "steel_dark"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/fences/fence_corner.glb",
+   "size": 74776,
+   "triangles": 1512,
+   "node_count": 29,
+   "top_nodes": [
+    "corner",
+    "fence_corner-col"
+   ],
+   "animations": [],
+   "materials": [
+    "wood",
+    "concrete"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/fences/fence_high_barbed.glb",
+   "size": 71368,
+   "triangles": 1308,
+   "node_count": 10,
+   "top_nodes": [
+    "fence",
+    "fence_high_barbed-col",
+    "ip_hand",
+    "ip_hit",
+    "ip_spark",
+    "ip_use",
+    "state_loose",
+    "state_ok"
+   ],
+   "animations": [],
+   "materials": [
+    "cloth_rag",
+    "barbed",
+    "concrete",
+    "steel_dark"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/fences/fence_loose_board.glb",
+   "size": 85900,
+   "triangles": 1872,
+   "node_count": 9,
+   "top_nodes": [
+    "fence",
+    "fence_loose_board-col",
+    "ip_hand",
+    "ip_hit",
+    "ip_use",
+    "state_loose",
+    "state_ok"
+   ],
+   "animations": [],
+   "materials": [
+    "wood"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/fences/fence_low_concrete.glb",
+   "size": 15944,
+   "triangles": 312,
+   "node_count": 7,
+   "top_nodes": [
+    "fence",
+    "fence_low_concrete-col",
+    "ip_hand",
+    "ip_hit",
+    "ip_use",
+    "state_ok"
+   ],
+   "animations": [],
+   "materials": [
+    "concrete"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/fences/fence_low_picket.glb",
+   "size": 47912,
+   "triangles": 1032,
+   "node_count": 7,
+   "top_nodes": [
+    "fence",
+    "fence_low_picket-col",
+    "ip_hand",
+    "ip_hit",
+    "ip_use",
+    "state_ok"
+   ],
+   "animations": [],
+   "materials": [
+    "wood"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/fences/fence_mid_chainlink.glb",
+   "size": 24816,
+   "triangles": 444,
+   "node_count": 7,
+   "top_nodes": [
+    "fence",
+    "fence_mid_chainlink-col",
+    "ip_hand",
+    "ip_hit",
+    "ip_use",
+    "state_ok"
+   ],
+   "animations": [],
+   "materials": [
+    "steel_dark"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/fences/fence_mid_profnastil.glb",
+   "size": 17832,
+   "triangles": 300,
+   "node_count": 7,
+   "top_nodes": [
+    "fence",
+    "fence_mid_profnastil-col",
+    "ip_hand",
+    "ip_hit",
+    "ip_use",
+    "state_ok"
+   ],
+   "animations": [],
+   "materials": [
+    "steel_dark",
+    "profnastil"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/fences/fence_park_iron.glb",
+   "size": 32324,
+   "triangles": 668,
+   "node_count": 7,
+   "top_nodes": [
+    "fence",
+    "fence_park_iron-col",
+    "ip_hand",
+    "ip_hit",
+    "ip_use",
+    "state_ok"
+   ],
+   "animations": [],
+   "materials": [
+    "steel_dark"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/fences/fence_post.glb",
+   "size": 8068,
+   "triangles": 132,
+   "node_count": 4,
+   "top_nodes": [
+    "fence_post-col",
+    "ip_hand",
+    "post"
+   ],
+   "animations": [],
+   "materials": [
+    "concrete_dark",
+    "concrete"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/fences/gate_picket_closed.glb",
+   "size": 32376,
+   "triangles": 624,
+   "node_count": 8,
+   "top_nodes": [
+    "gate",
+    "gate_picket_closed-col",
+    "ip_hand",
+    "ip_use"
+   ],
+   "animations": [
+    "open"
+   ],
+   "materials": [
+    "wood",
+    "steel"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/fences/gate_picket_open.glb",
+   "size": 32060,
+   "triangles": 624,
+   "node_count": 8,
+   "top_nodes": [
+    "gate",
+    "gate_picket_open-col",
+    "ip_hand",
+    "ip_use"
+   ],
+   "animations": [],
+   "materials": [
+    "wood",
+    "steel"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/glass/glass_canopy.glb",
+   "size": 92632,
+   "triangles": 676,
+   "node_count": 80,
+   "top_nodes": [
+    "glass_canopy",
+    "glass_canopy-convcol",
+    "ip_hand",
+    "ip_hit",
+    "ip_use",
+    "shards",
+    "shatter_group",
+    "state_broken",
+    "state_loose",
+    "state_ok"
+   ],
+   "animations": [
+    "shatter"
+   ],
+   "materials": [
+    "steel_dark",
+    "loggia_glass",
+    "soot"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/glass/greenhouse_park.glb",
+   "size": 132008,
+   "triangles": 1268,
+   "node_count": 109,
+   "top_nodes": [
+    "greenhouse_park",
+    "greenhouse_park-convcol",
+    "ip_hand",
+    "ip_hit",
+    "ip_use",
+    "shards",
+    "state_broken",
+    "state_loose",
+    "state_ok"
+   ],
+   "animations": [],
+   "materials": [
+    "steel_dark",
+    "loggia_glass",
+    "soot"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/glass/skylight_stair.glb",
+   "size": 105092,
+   "triangles": 956,
+   "node_count": 91,
+   "top_nodes": [
+    "ip_hand",
+    "ip_hit",
+    "ip_use",
+    "shards",
+    "skylight_stair",
+    "skylight_stair-convcol",
+    "state_broken",
+    "state_loose",
+    "state_ok"
+   ],
+   "animations": [],
+   "materials": [
+    "loggia_glass",
+    "steel_dark",
+    "soot"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/glass/winter_garden_cafe.glb",
+   "size": 114968,
+   "triangles": 1076,
+   "node_count": 97,
+   "top_nodes": [
+    "ip_hand",
+    "ip_hit",
+    "ip_use",
+    "shards",
+    "state_broken",
+    "state_loose",
+    "state_ok",
+    "winter_garden_cafe",
+    "winter_garden_cafe-convcol"
+   ],
+   "animations": [],
+   "materials": [
+    "loggia_glass",
+    "soot",
+    "steel_dark"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/holes/decal_chalk_arrow.glb",
+   "size": 1496,
+   "triangles": 5,
+   "node_count": 2,
+   "top_nodes": [
+    "decal_chalk_arrow",
+    "ip_hit"
+   ],
+   "animations": [],
+   "materials": [
+    "decal_chalk_arrow"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/holes/decal_graffiti_garages.glb",
+   "size": 2356,
+   "triangles": 11,
+   "node_count": 2,
+   "top_nodes": [
+    "decal_graffiti_garages",
+    "ip_hit"
+   ],
+   "animations": [],
+   "materials": [
+    "decal_graffiti_garages"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/holes/decal_trodden_path.glb",
+   "size": 2372,
+   "triangles": 16,
+   "node_count": 2,
+   "top_nodes": [
+    "decal_trodden_path",
+    "ip_hit"
+   ],
+   "animations": [],
+   "materials": [
+    "decal_trodden_path"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/holes/hole_bush.glb",
+   "size": 17516,
+   "triangles": 352,
+   "node_count": 5,
+   "top_nodes": [
+    "hole_bush",
+    "hole_bush-convcol",
+    "ip_hit",
+    "ip_use"
+   ],
+   "animations": [],
+   "materials": [
+    "foliage"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/holes/hole_fence_boards.glb",
+   "size": 12308,
+   "triangles": 192,
+   "node_count": 5,
+   "top_nodes": [
+    "hole_fence_boards",
+    "hole_fence_boards-col",
+    "ip_hit",
+    "ip_use"
+   ],
+   "animations": [],
+   "materials": [
+    "wood"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/holes/hole_fence_cut.glb",
+   "size": 20980,
+   "triangles": 344,
+   "node_count": 6,
+   "top_nodes": [
+    "hole_fence_cut",
+    "hole_fence_cut-col",
+    "ip_hand",
+    "ip_hit",
+    "ip_use"
+   ],
+   "animations": [],
+   "materials": [
+    "steel_dark",
+    "flap_wire"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/holes/hole_wall_slab.glb",
+   "size": 18012,
+   "triangles": 304,
+   "node_count": 8,
+   "top_nodes": [
+    "hole_wall_slab",
+    "ip_hand",
+    "ip_hit",
+    "ip_use",
+    "slab_l-col",
+    "slab_r-col",
+    "slab_top-col"
+   ],
+   "animations": [],
+   "materials": [
+    "rebar_rust",
+    "concrete"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/holes/item_stash.glb",
+   "size": 5696,
+   "triangles": 104,
+   "node_count": 4,
+   "top_nodes": [
+    "ip_hand",
+    "stash",
+    "stash-convcol"
+   ],
+   "animations": [],
+   "materials": [
+    "bottle_glass",
+    "paper"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/items/item_bottle_ground.glb",
+   "size": 6248,
+   "triangles": 204,
+   "node_count": 3,
+   "top_nodes": [
+    "bottle_ground",
+    "bottle_ground-convcol",
+    "ip_hand"
+   ],
+   "animations": [],
+   "materials": [
+    "bottle_glass"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/items/item_bottle_hand.glb",
+   "size": 5208,
+   "triangles": 192,
+   "node_count": 2,
+   "top_nodes": [
+    "bottle",
+    "ip_hand"
+   ],
+   "animations": [],
+   "materials": [
+    "bottle_glass"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/items/item_brick_ground.glb",
+   "size": 6076,
+   "triangles": 96,
+   "node_count": 3,
+   "top_nodes": [
+    "brick_ground",
+    "brick_ground-convcol",
+    "ip_hand"
+   ],
+   "animations": [],
+   "materials": [
+    "brick_item"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/items/item_brick_hand.glb",
+   "size": 5084,
+   "triangles": 84,
+   "node_count": 2,
+   "top_nodes": [
+    "brick",
+    "ip_hand"
+   ],
+   "animations": [],
+   "materials": [
+    "brick_item"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/passage/arch_passage_brick.glb",
+   "size": 34864,
+   "triangles": 424,
+   "node_count": 19,
+   "top_nodes": [
+    "arch",
+    "arch_passage_brick_pier1-col",
+    "arch_passage_brick_pier-1-col",
+    "arch_passage_brick_top-col",
+    "cam_head",
+    "ip_hand",
+    "ip_hit",
+    "ip_use"
+   ],
+   "animations": [
+    "sweep_loop"
+   ],
+   "materials": [
+    "concrete_dark",
+    "brick_wall",
+    "building_window",
+    "window_frame",
+    "roof_tar",
+    "paint_gray",
+    "glass"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/passage/arch_passage_panel.glb",
+   "size": 34864,
+   "triangles": 424,
+   "node_count": 19,
+   "top_nodes": [
+    "arch",
+    "arch_passage_panel_pier1-col",
+    "arch_passage_panel_pier-1-col",
+    "arch_passage_panel_top-col",
+    "cam_head",
+    "ip_hand",
+    "ip_hit",
+    "ip_use"
+   ],
+   "animations": [
+    "sweep_loop"
+   ],
+   "materials": [
+    "concrete_dark",
+    "panel_wall",
+    "building_window",
+    "window_frame",
+    "roof_tar",
+    "paint_gray",
+    "glass"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/passage/gate_yard_chain.glb",
+   "size": 33076,
+   "triangles": 596,
+   "node_count": 8,
+   "top_nodes": [
+    "gate",
+    "gate_yard_chain-col",
+    "ip_hand",
+    "ip_use"
+   ],
+   "animations": [],
+   "materials": [
+    "steel_dark",
+    "steel",
+    "concrete"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/passage/gate_yard_closed.glb",
+   "size": 22652,
+   "triangles": 360,
+   "node_count": 8,
+   "top_nodes": [
+    "gate",
+    "gate_yard_closed-col",
+    "ip_hand",
+    "ip_use"
+   ],
+   "animations": [
+    "open"
+   ],
+   "materials": [
+    "steel_dark",
+    "steel",
+    "concrete"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/passage/gate_yard_code.glb",
+   "size": 29344,
+   "triangles": 504,
+   "node_count": 8,
+   "top_nodes": [
+    "gate",
+    "gate_yard_code-col",
+    "ip_hand",
+    "ip_use"
+   ],
+   "animations": [],
+   "materials": [
+    "steel_dark",
+    "plastic_black",
+    "button_gray",
+    "concrete"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/passage/gate_yard_open.glb",
+   "size": 19868,
+   "triangles": 336,
+   "node_count": 8,
+   "top_nodes": [
+    "gate",
+    "gate_yard_open-col",
+    "ip_hand",
+    "ip_use"
+   ],
+   "animations": [],
+   "materials": [
+    "steel_dark",
+    "concrete"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/passage/gate_yard_welded.glb",
+   "size": 23152,
+   "triangles": 384,
+   "node_count": 8,
+   "top_nodes": [
+    "gate",
+    "gate_yard_welded-col",
+    "ip_hand",
+    "ip_use"
+   ],
+   "animations": [],
+   "materials": [
+    "steel_dark",
+    "rusty",
+    "concrete"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/passage/intercom_panel.glb",
+   "size": 49804,
+   "triangles": 936,
+   "node_count": 25,
+   "top_nodes": [
+    "intercom",
+    "intercom-col",
+    "ip_hand",
+    "ip_use",
+    "key_press",
+    "state_loose",
+    "state_ok"
+   ],
+   "animations": [
+    "press"
+   ],
+   "materials": [
+    "paint_yellow",
+    "button_gray",
+    "steel_dark",
+    "crt_off",
+    "display_glow"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/passage/item_padlock_broken_ground.glb",
+   "size": 5324,
+   "triangles": 72,
+   "node_count": 4,
+   "top_nodes": [
+    "ip_hand",
+    "item_padlock_ground-convcol",
+    "padlock"
+   ],
+   "animations": [],
+   "materials": [
+    "steel_dark"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/passage/item_padlock_broken_hand.glb",
+   "size": 11420,
+   "triangles": 192,
+   "node_count": 3,
+   "top_nodes": [
+    "ip_hand",
+    "padlock"
+   ],
+   "animations": [],
+   "materials": [
+    "steel_dark",
+    "brass",
+    "steel"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/passage/item_padlock_closed_ground.glb",
+   "size": 5324,
+   "triangles": 72,
+   "node_count": 4,
+   "top_nodes": [
+    "ip_hand",
+    "item_padlock_ground-convcol",
+    "padlock"
+   ],
+   "animations": [],
+   "materials": [
+    "steel_dark"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/passage/item_padlock_closed_hand.glb",
+   "size": 11400,
+   "triangles": 188,
+   "node_count": 3,
+   "top_nodes": [
+    "ip_hand",
+    "padlock"
+   ],
+   "animations": [],
+   "materials": [
+    "steel_dark",
+    "brass",
+    "steel"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/passage/item_padlock_open_ground.glb",
+   "size": 5324,
+   "triangles": 72,
+   "node_count": 4,
+   "top_nodes": [
+    "ip_hand",
+    "item_padlock_ground-convcol",
+    "padlock"
+   ],
+   "animations": [],
+   "materials": [
+    "steel_dark"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/passage/item_padlock_open_hand.glb",
+   "size": 11396,
+   "triangles": 188,
+   "node_count": 3,
+   "top_nodes": [
+    "ip_hand",
+    "padlock"
+   ],
+   "animations": [],
+   "materials": [
+    "steel_dark",
+    "brass",
+    "steel"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/pipes/heating_pipe_6m.glb",
+   "size": 21968,
+   "triangles": 456,
+   "node_count": 6,
+   "top_nodes": [
+    "heating_pipe_6m",
+    "heating_pipe_6m-convcol",
+    "ip_hand",
+    "ip_hit",
+    "ip_use"
+   ],
+   "animations": [],
+   "materials": [
+    "steel_dark",
+    "pipe_foil",
+    "concrete",
+    "concrete_dark"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/pipes/heating_pipe_burst.glb",
+   "size": 28572,
+   "triangles": 322,
+   "node_count": 28,
+   "top_nodes": [
+    "heating_pipe_burst",
+    "heating_pipe_burst-convcol",
+    "ip_hand",
+    "ip_spark",
+    "ip_use",
+    "state_loose",
+    "state_ok"
+   ],
+   "animations": [
+    "steam_loop"
+   ],
+   "materials": [
+    "concrete",
+    "pipe_foil",
+    "vfx_steam",
+    "rusty"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/pipes/heating_pipe_corner.glb",
+   "size": 20280,
+   "triangles": 568,
+   "node_count": 5,
+   "top_nodes": [
+    "heating_pipe_corner",
+    "heating_pipe_corner-convcol",
+    "ip_hand",
+    "ip_use"
+   ],
+   "animations": [],
+   "materials": [
+    "steel_dark",
+    "pipe_foil",
+    "concrete"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/pipes/pipe_compensator.glb",
+   "size": 48408,
+   "triangles": 1188,
+   "node_count": 6,
+   "top_nodes": [
+    "ip_hand",
+    "ip_hit",
+    "ip_use",
+    "pipe_compensator",
+    "pipe_compensator-col"
+   ],
+   "animations": [],
+   "materials": [
+    "steel_dark",
+    "concrete",
+    "concrete_dark",
+    "pipe_foil",
+    "steel"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/roofs/roof_parapet.glb",
+   "size": 9960,
+   "triangles": 156,
+   "node_count": 5,
+   "top_nodes": [
+    "ip_hand",
+    "ip_use",
+    "parapet_piece",
+    "roof_parapet-col"
+   ],
+   "animations": [],
+   "materials": [
+    "concrete",
+    "concrete_dark"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/roofs/roof_tile_bitumen.glb",
+   "size": 9844,
+   "triangles": 132,
+   "node_count": 5,
+   "top_nodes": [
+    "ip_hit",
+    "ip_use",
+    "roof_tile",
+    "roof_tile_bitumen-col"
+   ],
+   "animations": [],
+   "materials": [
+    "concrete_dark",
+    "roof_bitumen",
+    "patch_dark"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/roofs/roof_tile_gravel.glb",
+   "size": 41152,
+   "triangles": 896,
+   "node_count": 5,
+   "top_nodes": [
+    "ip_hit",
+    "ip_use",
+    "roof_tile",
+    "roof_tile_gravel-col"
+   ],
+   "animations": [],
+   "materials": [
+    "concrete_dark",
+    "roof_gravel"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/roofs/roof_tile_planks.glb",
+   "size": 85276,
+   "triangles": 1812,
+   "node_count": 9,
+   "top_nodes": [
+    "ip_hit",
+    "ip_use",
+    "roof_tile",
+    "roof_tile_planks-col",
+    "state_loose",
+    "state_ok"
+   ],
+   "animations": [],
+   "materials": [
+    "roof_planks",
+    "concrete_dark"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/roofs/roof_tile_slate.glb",
+   "size": 20124,
+   "triangles": 336,
+   "node_count": 5,
+   "top_nodes": [
+    "ip_hit",
+    "ip_use",
+    "roof_tile",
+    "roof_tile_slate-col"
+   ],
+   "animations": [],
+   "materials": [
+    "concrete_dark",
+    "roof_slate"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/roofs/roof_tile_wet.glb",
+   "size": 8912,
+   "triangles": 120,
+   "node_count": 5,
+   "top_nodes": [
+    "ip_hit",
+    "ip_use",
+    "roof_tile",
+    "roof_tile_wet-col"
+   ],
+   "animations": [],
+   "materials": [
+    "concrete_dark",
+    "roof_wet",
+    "water"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/steps/bin_step_l.glb",
+   "size": 45440,
+   "triangles": 780,
+   "node_count": 25,
+   "top_nodes": [
+    "bin_step_l-convcol",
+    "ip_hand",
+    "ip_hit",
+    "ip_use",
+    "lid_anim",
+    "state_loose",
+    "state_ok"
+   ],
+   "animations": [
+    "lid_clang",
+    "lid_open"
+   ],
+   "materials": [
+    "steel_dark",
+    "green_paint",
+    "paint_yellow",
+    "steel",
+    "rubber"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/steps/bin_step_m.glb",
+   "size": 45300,
+   "triangles": 780,
+   "node_count": 25,
+   "top_nodes": [
+    "bin_step_m-convcol",
+    "ip_hand",
+    "ip_hit",
+    "ip_use",
+    "lid_anim",
+    "state_loose",
+    "state_ok"
+   ],
+   "animations": [
+    "lid_clang",
+    "lid_open"
+   ],
+   "materials": [
+    "steel_dark",
+    "green_paint",
+    "paint_yellow",
+    "steel",
+    "rubber"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/steps/bin_step_s.glb",
+   "size": 45484,
+   "triangles": 780,
+   "node_count": 25,
+   "top_nodes": [
+    "bin_step_s-convcol",
+    "ip_hand",
+    "ip_hit",
+    "ip_use",
+    "lid_anim",
+    "state_loose",
+    "state_ok"
+   ],
+   "animations": [
+    "lid_clang",
+    "lid_open"
+   ],
+   "materials": [
+    "steel_dark",
+    "green_paint",
+    "paint_yellow",
+    "steel",
+    "rubber"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/steps/crate_stair.glb",
+   "size": 18544,
+   "triangles": 372,
+   "node_count": 5,
+   "top_nodes": [
+    "crate_stair",
+    "crate_stair-convcol",
+    "ip_hand",
+    "ip_use"
+   ],
+   "animations": [],
+   "materials": [
+    "wood"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/steps/crate_step_110.glb",
+   "size": 11256,
+   "triangles": 168,
+   "node_count": 5,
+   "top_nodes": [
+    "crate",
+    "crate_step_110-convcol",
+    "ip_hand",
+    "ip_use"
+   ],
+   "animations": [],
+   "materials": [
+    "steel_dark",
+    "wood"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/steps/crate_step_50.glb",
+   "size": 9036,
+   "triangles": 132,
+   "node_count": 5,
+   "top_nodes": [
+    "crate",
+    "crate_step_50-convcol",
+    "ip_hand",
+    "ip_use"
+   ],
+   "animations": [],
+   "materials": [
+    "steel_dark",
+    "wood"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/steps/crate_step_80.glb",
+   "size": 9956,
+   "triangles": 144,
+   "node_count": 5,
+   "top_nodes": [
+    "crate",
+    "crate_step_80-convcol",
+    "ip_hand",
+    "ip_use"
+   ],
+   "animations": [],
+   "materials": [
+    "steel_dark",
+    "wood"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/terrain/bush_dense_a.glb",
+   "size": 14536,
+   "triangles": 292,
+   "node_count": 5,
+   "top_nodes": [
+    "bush",
+    "bush_dense_a-convcol",
+    "ip_hand",
+    "ip_use"
+   ],
+   "animations": [],
+   "materials": [
+    "foliage"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/terrain/bush_dense_b.glb",
+   "size": 15328,
+   "triangles": 292,
+   "node_count": 5,
+   "top_nodes": [
+    "bush",
+    "bush_dense_b-convcol",
+    "ip_hand",
+    "ip_use"
+   ],
+   "animations": [],
+   "materials": [
+    "foliage"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/terrain/decal_mud_ruts.glb",
+   "size": 4016,
+   "triangles": 40,
+   "node_count": 2,
+   "top_nodes": [
+    "ip_hit",
+    "ruts"
+   ],
+   "animations": [],
+   "materials": [
+    "decal_mud"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/terrain/decal_wet_prints.glb",
+   "size": 5940,
+   "triangles": 96,
+   "node_count": 2,
+   "top_nodes": [
+    "ip_hit",
+    "prints"
+   ],
+   "animations": [],
+   "materials": [
+    "decal_wet_print"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/terrain/ditch_2m.glb",
+   "size": 9896,
+   "triangles": 80,
+   "node_count": 11,
+   "top_nodes": [
+    "ditch",
+    "ditch_2m-col",
+    "ip_hit",
+    "ip_use"
+   ],
+   "animations": [],
+   "materials": [
+    "earth",
+    "stone",
+    "water"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/terrain/ditch_3m.glb",
+   "size": 13164,
+   "triangles": 120,
+   "node_count": 13,
+   "top_nodes": [
+    "ditch",
+    "ditch_3m-col",
+    "ip_hit",
+    "ip_use"
+   ],
+   "animations": [],
+   "materials": [
+    "earth",
+    "stone",
+    "water"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/terrain/park_gate.glb",
+   "size": 41880,
+   "triangles": 860,
+   "node_count": 12,
+   "top_nodes": [
+    "ip_hand",
+    "ip_use",
+    "park_gate",
+    "park_gate-col"
+   ],
+   "animations": [],
+   "materials": [
+    "concrete_dark",
+    "steel_dark",
+    "concrete"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/terrain/plank_over_ditch.glb",
+   "size": 9496,
+   "triangles": 144,
+   "node_count": 9,
+   "top_nodes": [
+    "ip_hand",
+    "ip_use",
+    "plank_over_ditch",
+    "plank_over_ditch-convcol",
+    "state_loose",
+    "state_ok"
+   ],
+   "animations": [],
+   "materials": [
+    "wood"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/terrain/tall_grass.glb",
+   "size": 41440,
+   "triangles": 732,
+   "node_count": 5,
+   "top_nodes": [
+    "bush",
+    "ip_hand",
+    "ip_use",
+    "tall_grass-convcol"
+   ],
+   "animations": [],
+   "materials": [
+    "grass"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/vehicles_extras/car_dent_overlays.glb",
+   "size": 8524,
+   "triangles": 336,
+   "node_count": 3,
+   "top_nodes": [
+    "dent_hood"
+   ],
+   "animations": [],
+   "materials": [
+    "dent_paint"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/vehicles_extras/decal_footprint.glb",
+   "size": 1668,
+   "triangles": 8,
+   "node_count": 3,
+   "top_nodes": [
+    "footprint",
+    "ip_hit"
+   ],
+   "animations": [],
+   "materials": [
+    "decal_footprint"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/vents/antenna_mast_10m.glb",
+   "size": 24896,
+   "triangles": 388,
+   "node_count": 6,
+   "top_nodes": [
+    "antenna_mast_10m",
+    "antenna_mast_10m-col",
+    "ip_hand",
+    "ip_hit",
+    "ip_use"
+   ],
+   "animations": [],
+   "materials": [
+    "concrete_dark",
+    "concrete",
+    "steel_dark",
+    "steel"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/vents/stairwell_grille.glb",
+   "size": 34376,
+   "triangles": 492,
+   "node_count": 16,
+   "top_nodes": [
+    "grille_anim",
+    "ip_hand",
+    "ip_use",
+    "stairwell_grille",
+    "stairwell_grille-col",
+    "state_loose",
+    "state_ok"
+   ],
+   "animations": [
+    "open",
+    "close"
+   ],
+   "materials": [
+    "steel_dark",
+    "steel"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/vents/vent_hatch_roof.glb",
+   "size": 27720,
+   "triangles": 272,
+   "node_count": 27,
+   "top_nodes": [
+    "grille_anim",
+    "ip_hand",
+    "ip_use",
+    "state_loose",
+    "state_ok",
+    "vent_hatch",
+    "vent_hatch-col"
+   ],
+   "animations": [
+    "open",
+    "close"
+   ],
+   "materials": [
+    "steel_dark",
+    "soot",
+    "steel",
+    "concrete"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "movement/vents/vent_shaft_ladder.glb",
+   "size": 35700,
+   "triangles": 600,
+   "node_count": 5,
+   "top_nodes": [
+    "ip_hand",
+    "ip_use",
+    "vent_shaft_ladder",
+    "vent_shaft_ladder-convcol"
+   ],
+   "animations": [],
+   "materials": [
+    "concrete_dark",
+    "concrete",
+    "steel_dark"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "panel_electric.glb",
+   "size": 235860,
+   "triangles": 4868,
+   "node_count": 94,
+   "top_nodes": [
+    "door_anim",
+    "ip_hand",
+    "ip_use",
+    "panel-col",
+    "state_loose",
+    "state_ok",
+    "wall-col",
+    "wall_section"
+   ],
+   "animations": [
+    "open",
+    "close"
+   ],
+   "materials": [
+    "steel",
+    "paint_gray",
+    "paint_yellow",
+    "copper",
+    "wire_red",
+    "wire_black",
+    "steel_dark",
+    "plastic_black",
+    "concrete_dark",
+    "paint_green",
+    "concrete"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "parapet.glb",
+   "size": 47800,
+   "triangles": 948,
+   "node_count": 10,
+   "top_nodes": [
+    "ip_hand",
+    "ip_hit",
+    "ip_use",
+    "parapet-col",
+    "roof_edge",
+    "state_broken",
+    "state_ok"
+   ],
+   "animations": [],
+   "materials": [
+    "steel_dark",
+    "concrete_dark",
+    "concrete",
+    "rebar_rust"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "railing_balcony.glb",
+   "size": 87404,
+   "triangles": 1884,
+   "node_count": 8,
+   "top_nodes": [
+    "ip_hand",
+    "ip_hit",
+    "ip_use",
+    "railing-convcol",
+    "state_broken",
+    "state_ok"
+   ],
+   "animations": [],
+   "materials": [
+    "steel_dark",
+    "soot"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "railing_stairs.glb",
+   "size": 88544,
+   "triangles": 1884,
+   "node_count": 8,
+   "top_nodes": [
+    "ip_hand",
+    "ip_hit",
+    "ip_use",
+    "railing-convcol",
+    "state_broken",
+    "state_ok"
+   ],
+   "animations": [],
+   "materials": [
+    "steel_dark",
+    "wood",
+    "soot"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "rock_throw.glb",
+   "size": 2776,
+   "triangles": 80,
+   "node_count": 2,
+   "top_nodes": [
+    "ip_hand",
+    "rock_throw"
+   ],
+   "animations": [],
+   "materials": [
+    "stone"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "rock_throw_ground.glb",
+   "size": 3612,
+   "triangles": 92,
+   "node_count": 3,
+   "top_nodes": [
+    "ip_hand",
+    "rock_throw_ground",
+    "rock_throw_ground-convcol"
+   ],
+   "animations": [],
+   "materials": [
+    "stone"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "spirit_gold.glb",
+   "size": 242668,
+   "triangles": 4768,
+   "node_count": 23,
+   "top_nodes": [
+    "ip_enter",
+    "ip_head",
+    "spirit_rig",
+    "thread_ribbon"
+   ],
+   "animations": [
+    "idle",
+    "descend",
+    "enter"
+   ],
+   "materials": [
+    "gold_glow_pale",
+    "gold_glow",
+    "thread_glow"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "spirit_thread.glb",
+   "size": 38028,
+   "triangles": 864,
+   "node_count": 5,
+   "top_nodes": [
+    "thread_curve",
+    "thread_curve_arc",
+    "thread_long",
+    "thread_mid",
+    "thread_short"
+   ],
+   "animations": [],
+   "materials": [
+    "thread_glow"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "stepladder_folded.glb",
+   "size": 36536,
+   "triangles": 732,
+   "node_count": 5,
+   "top_nodes": [
+    "ip_hand",
+    "ip_use",
+    "state_ok",
+    "stepladder_folded-convcol"
+   ],
+   "animations": [],
+   "materials": [
+    "rubber",
+    "aluminum",
+    "plastic_black"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "stepladder_open.glb",
+   "size": 53528,
+   "triangles": 1092,
+   "node_count": 5,
+   "top_nodes": [
+    "ip_hand",
+    "ip_use",
+    "state_ok",
+    "stepladder-convcol"
+   ],
+   "animations": [],
+   "materials": [
+    "aluminum",
+    "rubber",
+    "plastic_black",
+    "steel"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "table_noir.glb",
+   "size": 8044,
+   "triangles": 84,
+   "node_count": 1,
+   "top_nodes": [
+    "table_noir"
+   ],
+   "animations": [],
+   "materials": [
+    "wood_dark",
+    "wood"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "table_noir_v2.glb",
+   "size": 56956,
+   "triangles": 1280,
+   "node_count": 1,
+   "top_nodes": [
+    "table_noir"
+   ],
+   "animations": [],
+   "materials": [
+    "wood",
+    "wood_dark"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "turnstile.glb",
+   "size": 40856,
+   "triangles": 828,
+   "node_count": 12,
+   "top_nodes": [
+    "arms",
+    "ip_hand",
+    "ip_use",
+    "state_loose",
+    "state_ok",
+    "turnstile-col",
+    "turnstile_base"
+   ],
+   "animations": [
+    "pass",
+    "idle_jam"
+   ],
+   "materials": [
+    "steel",
+    "led_red",
+    "paint_yellow",
+    "led_green",
+    "steel_dark",
+    "concrete_dark",
+    "paint_gray",
+    "plastic_black",
+    "wire_black"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "vfx_camera_cone.glb",
+   "size": 3720,
+   "triangles": 24,
+   "node_count": 2,
+   "top_nodes": [
+    "beam_cone",
+    "ip_hand"
+   ],
+   "animations": [],
+   "materials": [
+    "vfx_beam"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "vfx_circle_0_5.glb",
+   "size": 21660,
+   "triangles": 288,
+   "node_count": 4,
+   "top_nodes": [
+    "disc_fill",
+    "ip_hit",
+    "ring_inner",
+    "ring_soft"
+   ],
+   "animations": [],
+   "materials": [
+    "vfx_disc",
+    "vfx_ring"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "vfx_circle_1_0.glb",
+   "size": 21644,
+   "triangles": 288,
+   "node_count": 4,
+   "top_nodes": [
+    "disc_fill",
+    "ip_hit",
+    "ring_inner",
+    "ring_soft"
+   ],
+   "animations": [],
+   "materials": [
+    "vfx_disc",
+    "vfx_ring"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "vfx_circle_2_0.glb",
+   "size": 21640,
+   "triangles": 288,
+   "node_count": 4,
+   "top_nodes": [
+    "disc_fill",
+    "ip_hit",
+    "ring_inner",
+    "ring_soft"
+   ],
+   "animations": [],
+   "materials": [
+    "vfx_disc",
+    "vfx_ring"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "vfx_circle_4_0.glb",
+   "size": 21640,
+   "triangles": 288,
+   "node_count": 4,
+   "top_nodes": [
+    "disc_fill",
+    "ip_hit",
+    "ring_inner",
+    "ring_soft"
+   ],
+   "animations": [],
+   "materials": [
+    "vfx_disc",
+    "vfx_ring"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "vfx_marker_sphere.glb",
+   "size": 6492,
+   "triangles": 288,
+   "node_count": 2,
+   "top_nodes": [
+    "ip_hand",
+    "marker"
+   ],
+   "animations": [],
+   "materials": [
+    "vfx_marker"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "vfx_rain_plane.glb",
+   "size": 1324,
+   "triangles": 2,
+   "node_count": 2,
+   "top_nodes": [
+    "ip_hit",
+    "rain_plane"
+   ],
+   "animations": [],
+   "materials": [
+    "vfx_rain"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "vfx_shockwave.glb",
+   "size": 19256,
+   "triangles": 256,
+   "node_count": 3,
+   "top_nodes": [
+    "ip_hit",
+    "shock_inner",
+    "shock_ring"
+   ],
+   "animations": [],
+   "materials": [
+    "vfx_shock_soft",
+    "vfx_shock"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "vfx_smoke_plume_1.glb",
+   "size": 2848,
+   "triangles": 6,
+   "node_count": 4,
+   "top_nodes": [
+    "ip_spark",
+    "smoke_card_0",
+    "smoke_card_1",
+    "smoke_card_2"
+   ],
+   "animations": [],
+   "materials": [
+    "vfx_smoke"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "vfx_smoke_plume_2.glb",
+   "size": 2928,
+   "triangles": 6,
+   "node_count": 4,
+   "top_nodes": [
+    "ip_spark",
+    "smoke_card_0",
+    "smoke_card_1",
+    "smoke_card_2"
+   ],
+   "animations": [],
+   "materials": [
+    "vfx_smoke"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "vfx_smoke_plume_3.glb",
+   "size": 2928,
+   "triangles": 6,
+   "node_count": 4,
+   "top_nodes": [
+    "ip_spark",
+    "smoke_card_0",
+    "smoke_card_1",
+    "smoke_card_2"
+   ],
+   "animations": [],
+   "materials": [
+    "vfx_smoke"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "vfx_smoke_puffs.glb",
+   "size": 15528,
+   "triangles": 720,
+   "node_count": 10,
+   "top_nodes": [
+    "ip_spark",
+    "smoke_puff_0",
+    "smoke_puff_1",
+    "smoke_puff_2",
+    "smoke_puff_3",
+    "smoke_puff_4",
+    "smoke_puff_5",
+    "smoke_puff_6",
+    "smoke_puff_7",
+    "smoke_puff_8"
+   ],
+   "animations": [],
+   "materials": [
+    "vfx_smoke"
+   ],
+   "morph_targets": []
+  },
+  {
+   "path": "vfx_spark_flash.glb",
+   "size": 11920,
+   "triangles": 20,
+   "node_count": 21,
+   "top_nodes": [
+    "ip_spark",
+    "spark_0_a",
+    "spark_0_b",
+    "spark_1_a",
+    "spark_1_b",
+    "spark_2_a",
+    "spark_2_b",
+    "spark_3_a",
+    "spark_3_b",
+    "spark_4_a",
+    "spark_4_b",
+    "spark_5_a",
+    "spark_5_b",
+    "spark_6_a",
+    "spark_6_b",
+    "spark_7_a",
+    "spark_7_b",
+    "spark_8_a",
+    "spark_8_b",
+    "spark_9_a",
+    "spark_9_b"
+   ],
+   "animations": [],
+   "materials": [
+    "vfx_spark"
+   ],
+   "morph_targets": []
+  }
+ ]
+}
