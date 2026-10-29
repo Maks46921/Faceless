@@ -16,7 +16,8 @@ const HOW := {"hands": "задушен руками исполнителя", "ch
 
 
 func _ready() -> void:
-	set_anchors_preset(Control.PRESET_FULL_RECT)
+	set_anchors_preset(Control.PRESET_TOP_LEFT)
+	size = Vector2(1920, 1080)  # родитель не Control: без размера клики не доходят
 	var ok: bool = res.get("ok", false)
 	if ok:
 		rep_gain = {"чисто": 3, "шумно": 2, "грязно": 1}.get(res.get("grade", ""), 1)

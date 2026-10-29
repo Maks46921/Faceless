@@ -15,7 +15,8 @@ const DIM := Color(0.6, 0.58, 0.53)
 
 
 func _ready() -> void:
-	set_anchors_preset(Control.PRESET_FULL_RECT)
+	set_anchors_preset(Control.PRESET_TOP_LEFT)
+	size = Vector2(1920, 1080)  # родитель не Control: без размера клики не доходят
 	logo = load("res://assets/ui/logo.png")
 	rng.seed = 1979
 	var x := -40.0

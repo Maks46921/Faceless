@@ -137,7 +137,7 @@ func _input(e: InputEvent) -> void:
 		if e is InputEventKey and e.pressed and not e.echo and e.physical_keycode in [KEY_ENTER, KEY_SPACE, KEY_KP_ENTER]:
 			_close_brief()
 			get_viewport().set_input_as_handled()
-		elif e is InputEventMouseButton and e.pressed and brief_btn.has_point(d.get_local_mouse_position()):
+		elif e is InputEventMouseButton and e.pressed and brief_btn.has_point(e.position):
 			_close_brief()
 			get_viewport().set_input_as_handled()
 		return
@@ -160,7 +160,7 @@ func _input(e: InputEvent) -> void:
 				help = not help
 				get_viewport().set_input_as_handled()
 	if e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT:
-		var mp: Vector2 = d.get_local_mouse_position()
+		var mp: Vector2 = e.position
 		if board:
 			for r in board_rects:
 				if (r[0] as Rect2).has_point(mp):
