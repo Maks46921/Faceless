@@ -37,6 +37,7 @@ const PROFS := {
 	"courier": {"name": "курьер", "voice": "КУРЬЕР", "skill": "run", "greet": "Бегом — это нормально. Курьера никто не провожает взглядом."},
 	"police": {"name": "милиционер", "voice": "МИЛИЦИЯ", "skill": "badge", "greet": "Форма открывает двери. И закрывает рты."},
 	"teacher": {"name": "учительница", "voice": "УЧИТЕЛЬ", "skill": "errors", "greet": "Ошибки видно сразу. Особенно чужие."},
+	"tramp": {"name": "бродяга", "voice": "ПОДЗЕМКА", "skill": "quiet", "greet": "Бродягу не замечают. А я знаю каждый люк и каждую решётку."},
 	"resident": {"name": "жилец", "voice": "ЖИЛЕЦ", "skill": "", "greet": "Обычный человек. Ничего особенного."},
 }
 
@@ -133,6 +134,11 @@ static func _uniform(l: Dictionary, prof: String, rng: RandomNumberGenerator) ->
 			pal[TOP] = Color(0.75, 0.42, 0.15)
 		"worker":
 			l["torso"] = "parka"; l["hat"] = "helmet"; pal[HAT] = Color(0.85, 0.65, 0.15); pal[TOP] = Color(0.3, 0.35, 0.4); l["item"] = "bag"
+		"tramp":
+			l["torso"] = "parka"; l["hat"] = "ushanka"; l["item"] = "bag"; l["glasses"] = false
+			pal[TOP] = Color(0.3, 0.28, 0.22); pal[BOTTOM] = Color(0.24, 0.22, 0.2)
+			if not l["female"]:
+				l["beard"] = "full"
 		"courier":
 			l["torso"] = "parka"; l["item"] = "backpack"; l["hat"] = "cap"; pal[TOP] = Color(0.25, 0.4, 0.55)
 		"office":

@@ -99,7 +99,9 @@ func snap_to(p: Vector2) -> void:
 
 func _process(dt: float) -> void:
 	t += dt
-	cam = cam.lerp(cam_target, 1.0 - exp(-dt * 6.0))
+	# по горизонтали камера догоняет мягко, по вертикали ещё мягче (лестницы, лифт)
+	cam.x = lerpf(cam.x, cam_target.x, 1.0 - exp(-dt * 3.2))
+	cam.y = lerpf(cam.y, cam_target.y, 1.0 - exp(-dt * 2.6))
 	shake = maxf(0.0, shake - dt * 2.0)
 	_apply()
 	_facades(dt)
@@ -117,7 +119,7 @@ func _apply() -> void:
 	var lo := half
 	var hi := Vector2(city.width * K.T, K.ROWS * K.T) - half
 	c.x = clampf(c.x, lo.x, hi.x)
-	c.y = clampf(c.y, float((K.GY - 62) * K.T), hi.y)
+	c.y = clampf(c.y, float(city.top_row * K.T), hi.y)
 	var tl := c - half
 	var ti := tl.floor()
 	var frac := tl - ti
@@ -145,7 +147,7 @@ func world_to_screen(p: Vector2) -> Vector2:
 	var s := size / Vector2(K.VIEW_W, K.VIEW_H)
 	var tl := cam - Vector2(K.VIEW_W, K.VIEW_H) / 2.0
 	var hi := Vector2(city.width * K.T, K.ROWS * K.T) - Vector2(K.VIEW_W, K.VIEW_H) / 2.0
-	var c := Vector2(clampf(cam.x, K.VIEW_W / 2.0, hi.x), clampf(cam.y, float((K.GY - 62) * K.T), hi.y))
+	var c := Vector2(clampf(cam.x, K.VIEW_W / 2.0, hi.x), clampf(cam.y, float(city.top_row * K.T), hi.y))
 	tl = c - Vector2(K.VIEW_W, K.VIEW_H) / 2.0
 	return (p - tl) * s
 
@@ -153,7 +155,7 @@ func world_to_screen(p: Vector2) -> Vector2:
 func screen_to_world(p: Vector2) -> Vector2:
 	var s := size / Vector2(K.VIEW_W, K.VIEW_H)
 	var hi := Vector2(city.width * K.T, K.ROWS * K.T) - Vector2(K.VIEW_W, K.VIEW_H) / 2.0
-	var c := Vector2(clampf(cam.x, K.VIEW_W / 2.0, hi.x), clampf(cam.y, float((K.GY - 62) * K.T), hi.y))
+	var c := Vector2(clampf(cam.x, K.VIEW_W / 2.0, hi.x), clampf(cam.y, float(city.top_row * K.T), hi.y))
 	var tl := c - Vector2(K.VIEW_W, K.VIEW_H) / 2.0
 	return tl + p / s
 

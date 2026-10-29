@@ -122,8 +122,17 @@ func go_portal(p: Dictionary, dir: int) -> void:
 	var to_y := float(p["yb"]) if dir > 0 else float(p["ya"])
 	var to_area: String = p["b"] if dir > 0 else p["a"]
 	var to_inside: bool = dir > 0 if p["kind"] in ["window", "vent"] else bool(city.areas[to_area]["inside"]) if city.areas.has(to_area) else not inside
-	var px := float(p["x"])
-	transit = {"pts": [global_position, Vector2(px, from_y - 10), Vector2(px, to_y - 10)], "i": 0, "t": 0.0, "to_area": to_area, "to_inside": to_inside}
+	var px := City.px_from(p, dir)
+	var pts: Array = [global_position, Vector2(px, from_y - 10)]
+	if p.has("path"):
+		var path: Array = (p["path"] as Array).duplicate()
+		if dir < 0:
+			path.reverse()
+		for v in path:
+			pts.append((v as Vector2) + Vector2(0, -10))
+	else:
+		pts.append(Vector2(px, to_y - 10))
+	transit = {"pts": pts, "i": 0, "t": 0.0, "to_area": to_area, "to_inside": to_inside}
 
 
 func _transit(dt: float) -> void:

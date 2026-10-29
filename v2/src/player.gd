@@ -14,7 +14,7 @@ const REACH := 56.0
 const ENTER_R := 170.0
 const NEAR := 20.0
 const STRANGLE_T := 3.2
-const SPEEDS := [1.0, 3.0, 6.0]
+const SPEEDS := [1.0, 4.0, 10.0]
 
 var world: Node
 var city: City
@@ -31,6 +31,8 @@ var prompts: Array = []         # [[клавиша, текст]]
 var act_e := {}                 # что сделает E
 var act_w := {}
 var act_s := {}
+var greet_t := 0.0
+var hold_kind := ""            # тип перехода, который повторяется, пока держишь W/S
 var act_q := {}
 var act_g := {}
 var strangle := {}              # {victim, t, need}
@@ -211,6 +213,12 @@ func _body(dt: float) -> void:
 		p.move_x = 0.0
 		_body_prompts()
 		return
+	_neighbours(dt)
+	if world.hud and world.hud.talk:
+		p.move_x = 0.0
+		p.mode = "walk"
+		prompts = []
+		return
 	var mx := 0.0
 	if _key(KEY_A) or _key(KEY_LEFT):
 		mx -= 1.0
@@ -220,9 +228,9 @@ func _body(dt: float) -> void:
 	if p.climbing:
 		var v := 0.0
 		if _key(KEY_W) or _key(KEY_UP):
-			v -= 52.0
+			v -= 75.0
 		if _key(KEY_S) or _key(KEY_DOWN):
-			v += 60.0
+			v += 90.0
 		p.climb_v = v
 		if mx != 0.0:
 			p.climb_stop()
@@ -235,6 +243,52 @@ func _body(dt: float) -> void:
 		wait_i = 0
 		world.env.speed = 1.0
 	_body_prompts()
+	# держишь W/S — лестница и лифт идут этаж за этажом без новых нажатий
+	if hold_kind != "" and not p.climbing and p.state == "ok":
+		var up := _key(KEY_W) or _key(KEY_UP)
+		var dn := _key(KEY_S) or _key(KEY_DOWN)
+		var a: Dictionary = act_w if up else (act_s if dn else {})
+		if not a.is_empty() and a["kind"] == "portal" and a["p"]["kind"] == hold_kind and not a["locked"]:
+			_do(a)
+		elif not up and not dn:
+			hold_kind = ""
+
+
+func _neighbours(dt: float) -> void:
+	## Соседи и коллеги здороваются с телом. Не ответишь — обидятся и запомнят.
+	var p := host
+	greet_t -= dt
+	if greet_t <= 0.0:
+		greet_t = 0.5
+		for q in world.people:
+			if q == p or q.state != "ok" or q.area != p.area or q.host or q == case.target:
+				continue
+			if absf(q.global_position.x - p.global_position.x) > 46.0 or absf(q.global_position.y - p.global_position.y) > 30.0:
+				continue
+			var nb: bool = q.home.has("bid") and p.home.has("bid") and int(q.home["bid"]) == int(p.home["bid"])
+			var col: bool = q.has_meta("work") and p.has_meta("work") and q.get_meta("work") == p.get_meta("work")
+			if not (nb or col):
+				continue
+			var k := "%d:%d" % [q.pid, p.pid]
+			if world.greeted_by.has(k):
+				continue
+			world.greeted_by[k] = true
+			q.facing = 1 if p.global_position.x > q.global_position.x else -1
+			q.say(["Здравствуй, %s!" % p.first, "О, %s, привет!" % p.first, "Доброе утро, %s." % p.first if world.env.hour < 12.0 else "Добрый вечер, %s." % p.first][randi() % 3], 3.0)
+			world.greet_wait[q.pid] = 7.0
+	for pid in world.greet_wait.keys():
+		world.greet_wait[pid] = float(world.greet_wait[pid]) - dt
+		if float(world.greet_wait[pid]) <= 0.0:
+			world.greet_wait.erase(pid)
+			var q2: Person = world.people[pid]
+			if q2.state == "ok":
+				q2.say(["Даже не поздоровался…", "Ишь, нос задрал.", "Что это с ним сегодня?"][randi() % 3] if not p.female else ["Даже не поздоровалась…", "Что это с ней сегодня?"][randi() % 2], 3.0)
+				world.susp += 6.0
+				if world.susp_why == "":
+					world.susp_why = "не ответил соседу"
+				var mem: Dictionary = world.talk_mem.get(q2.pid, {})
+				if not mem.is_empty() and (mem["mood"] as Dictionary).has(str(p.pid)):
+					mem["mood"][str(p.pid)] = maxf(0.0, float(mem["mood"][str(p.pid)]) - 8.0)
 
 
 func _strangle(dt: float) -> void:
@@ -358,6 +412,22 @@ func _portal_text(pt: Dictionary, dir: int) -> String:
 			return "залезть в окно" if dir > 0 else "вылезти в окно"
 		"vent":
 			return "в форточку" if dir > 0 else "из форточки"
+		"lift":
+			return "лифт: %d-й этаж" % (int(city.areas[to]["f"]) + 1)
+		"bridge":
+			return "по переходу в соседний дом"
+		"passage":
+			return "подвальный ход в соседний дом"
+		"roofladder":
+			return "лестница на соседнюю крышу"
+		"ladder":
+			return "скобы вниз, в дренаж" if dir > 0 else "скобы наверх, в коллектор"
+		"srvstairs":
+			return "служебная лестница на станцию" if dir > 0 else "служебная лестница вниз"
+		"ventshaft":
+			return "вентшахта вверх" if _portal_dir_word(pt, dir) == "up" else "вентшахта вниз"
+		"drain":
+			return "в водосток" if dir > 0 else "из водостока"
 	return "пройти"
 
 
@@ -377,12 +447,14 @@ func _portals_here(pos: Vector2, area: String, inside: bool, human: bool, r: flo
 			continue
 		if not human and not pt["spirit"]:
 			continue
-		if absf(float(pt["x"]) - pos.x) > r:
-			continue
 		var dir := _portal_side(pt, area, inside, pos)
 		if dir == 0:
 			continue
-		out.append({"p": pt, "dir": dir, "w": _portal_dir_word(pt, dir), "d": absf(float(pt["x"]) - pos.x)})
+		var px := City.px_from(pt, dir)
+		var d := absf(px - pos.x)
+		if d > float(pt.get("zw", r)):
+			continue
+		out.append({"p": pt, "dir": dir, "w": _portal_dir_word(pt, dir), "d": d})
 	out.sort_custom(func(a, b): return a["d"] < b["d"])
 	return out
 
@@ -426,7 +498,7 @@ func _body_prompts() -> void:
 	# трубы и пожарные лестницы
 	if act_w.is_empty() and not p.climbing:
 		for c in city.climbs:
-			if absf(float(c["x"]) - pos.x) < 9.0 and pos.y <= float(c["y1"]) + 6.0 and pos.y > float(c["y0"]):
+			if absf(float(c["x"]) - pos.x) < 14.0 and pos.y <= float(c["y1"]) + 6.0 and pos.y > float(c["y0"]):
 				act_w = {"kind": "climb", "c": c, "text": "лезть по %s" % ("трубе" if c["kind"] == "pipe" else "лестнице")}
 				break
 	if act_s.is_empty() and not p.inside and p.is_on_floor() and _on_platform(p):
@@ -486,7 +558,8 @@ func _who_word(q: Person) -> String:
 	var words := {"vendor": "киоскёрша" if q.female else "киоскёр", "barista": "буфетчица", "pharm": "аптекарша", "cashier": "кассир", "guard": "охранник",
 		"janitor": "дворник", "pensioner": "пенсионерка" if q.female else "пенсионер", "student": "студентка" if q.female else "студент",
 		"worker": "рабочий", "courier": "курьер", "police": "милиционер", "teacher": "учительница" if q.female else "учитель",
-		"office": "служащая" if q.female else "служащий", "resident": "соседка" if q.female else "сосед"}
+		"office": "служащая" if q.female else "служащий", "resident": "соседка" if q.female else "сосед",
+		"tramp": "бродяжка" if q.female else "бродяга"}
 	return words.get(q.prof, "прохожий")
 
 
@@ -602,9 +675,10 @@ func _do(a: Dictionary) -> void:
 				say("Заперто. Нужен ключ.")
 				Sfx.play("door_lock", -6.0)
 				return
-			if p.carrying and a["p"]["kind"] in ["window", "vent", "hatch", "manhole", "shaft"]:
+			if p.carrying and a["p"]["kind"] in ["window", "vent", "hatch", "manhole", "shaft", "ladder", "roofladder"]:
 				say("С телом на руках не пролезть.")
 				return
+			hold_kind = a["p"]["kind"] if a["p"]["kind"] in ["stairs", "lift"] else ""
 			p.use_portal(a["p"], a["dir"])
 		"climb":
 			if p.carrying:
@@ -674,10 +748,10 @@ func _do(a: Dictionary) -> void:
 			var o3: Dictionary = a["o"]
 			o3["open"] = true
 			(o3["node"] as Sprite2D).frame = 1
-			var bid := int(o3["bid"])
-			p.keys.append("roof%d" % bid)
-			p.keys.append("fire%d" % bid)
-			say("В ящике ключи: от крыши и пожарной лестницы.")
+			for k in o3["keys"]:
+				if not (k in p.keys):
+					p.keys.append(k)
+			say("В ящике %s." % o3["what"])
 			Sfx.play("pickup", -4.0)
 		"answer":
 			world.answer_phone(a["o"])
@@ -686,33 +760,10 @@ func _do(a: Dictionary) -> void:
 
 
 func _talk(q: Person) -> void:
-	var p := host
-	var key := "%d:%d" % [q.pid, p.pid]
-	q.facing = 1 if p.global_position.x > q.global_position.x else -1
-	if q == case.target:
-		q.say(["Мы знакомы?", "Что вам?", "Извините, я спешу."][randi() % 3], 2.5)
-		world.target_alert += 22.0
+	## Разговор: меню снизу, у собеседника свой характер и настроение (см. Talk).
+	if q.state != "ok" or not q.brain:
 		return
-	if world.told.has(key):
-		q.say(["Я же сказал(а) уже.", "Отстань.", "Ну что ещё?"][randi() % 3], 2.0)
-		return
-	world.told[key] = true
-	var line := case.informant_line(q.prof)
-	if line.is_empty() and world.gossip_people.has(q.pid):
-		line = world.gossip_people[q.pid]
-	if line.is_empty():
-		q.say(world.SMALL[randi() % world.SMALL.size()], 3.0)
-		return
-	# свои своим рассказывают охотнее
-	if q.prof == "guard" and p.prof != "guard" and p.prof != "police" and randf() < 0.4:
-		q.say("Не положено. Проходите.", 2.5)
-		return
-	q.say(line[1], 6.0)
-	var first := case.learn(line[0], 90.0, "со слов: %s" % _who_word(q))
-	if first:
-		world.hud.card_toast(case.card(line[0]), "Со слов", line[1])
-	else:
-		world.hud.voice("ПАМЯТЬ", "Совпадает. Запись снова ясна.", K.GOLD)
+	world.hud.open_talk(Talk.new(world, self, q))
 
 
 func _call_curator() -> void:
@@ -754,7 +805,17 @@ func _fuse(o: Dictionary) -> void:
 
 func _dropped(c: Person) -> void:
 	## Тело положили: в подвале и коллекторе его никто не ищет.
-	if c.area.ends_with("F-1") or c.area == "C":
+	if c.area == "D" and c.state == "dead":
+		# дренаж: тело уносит потоком — следов не остаётся
+		c.set_meta("stashed", true)
+		var tw := c.create_tween()
+		tw.tween_property(c, "position:x", c.position.x + 90.0, 3.0)
+		tw.parallel().tween_property(c, "modulate:a", 0.0, 3.0)
+		tw.tween_callback(func(): c.visible = false)
+		say("Вода подхватила тело и унесла в темноту.")
+		if c == case.target:
+			case.clear_tail("body")
+	elif c.area.ends_with("F-1") or c.area == "C" or c.area == "D":
 		c.set_meta("stashed", true)
 		if c == case.target:
 			case.clear_tail("body")
@@ -856,6 +917,10 @@ func _spirit(dt: float) -> void:
 		rate -= 16.0
 		hurt = 1.0
 		hurt_why = "собака"
+	if s.area == "C" and world.steam_at(c):
+		rate -= 12.0
+		hurt = maxf(hurt, 0.8)
+		hurt_why = "пар"
 	s.flicker = clampf(hurt, 0.0, 1.0)
 	density = clampf(density + rate * dt, 0.0, 100.0)
 	if density <= 0.0:
@@ -1218,8 +1283,8 @@ func _claw_obj(o: Dictionary, id: String, cost: float) -> void:
 			case.spend(cost)
 			o["open"] = true
 			(o["node"] as Sprite2D).frame = 1
-			spirit.held = {"kind": "keys", "keys": ["roof%d" % int(o["bid"]), "fire%d" % int(o["bid"])], "name": "ключи из ящика"}
-			say("Ключи от крыши и пожарной лестницы. Отдам телу.")
+			spirit.held = {"kind": "keys", "keys": (o["keys"] as Array).duplicate(), "name": "ключи из ящика"}
+			say("Достал %s. Отдам телу." % o["what"])
 			Sfx.play("pickup", -6.0)
 		"clue":
 			case.spend(cost)

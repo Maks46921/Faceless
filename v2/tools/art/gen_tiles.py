@@ -322,8 +322,121 @@ def facade_tiles():
     im = tile(); rect(im, (0, 0, 15, 15), hexc("3b3936")); glass(im, (1, 0, 14, 9), 95); hline(im, 0, 15, 11, hexc("57534d")); add("shopwin_bot", im)
 
 
+def tiles_v21():
+    """2.1: новые обои, ванная, вентшахта, лифт, нижний коллектор, вода, мостик между домами."""
+    r2 = random.Random(21)
+
+    def wp(name, base, motif):
+        for low in (False, True):
+            im = tile(); noise_fill(im, (0, 0, T, T), base, 0.05, r2)
+            motif(im, base)
+            if low:
+                rect(im, (0, 12, 15, 15), hexc("5b4532")); hline(im, 0, 15, 12, hexc("7a5d43"))
+            add(name + ("_low" if low else ""), im)
+
+    def check(im, b):
+        for y in range(16):
+            for x in range(16):
+                if (x // 4 + y // 4) % 2 == 0:
+                    im.putpixel((x, y), mul(b, 0.9))
+
+    def damask(im, b):
+        c = mul(b, 1.25)
+        for (x, y) in ((4, 4), (12, 12)):
+            put(im, x, y - 2, c); put(im, x - 1, y - 1, c); put(im, x + 1, y - 1, c); put(im, x - 2, y, c); put(im, x + 2, y, c)
+            put(im, x - 1, y + 1, c); put(im, x + 1, y + 1, c); put(im, x, y + 2, c); put(im, x, y, c)
+
+    def ochre(im, b):
+        for x in (3, 4, 11, 12):
+            vline(im, x, 0, 15, mul(b, 1.12))
+        for y in (2, 10):
+            put(im, 7, y, mul(b, 0.75)); put(im, 15, y + 4, mul(b, 0.75))
+
+    def kids(im, b):
+        for (x, y, c) in ((3, 3, hexc("c94a3a")), (11, 6, hexc("3d6a9a")), (6, 11, hexc("d9b640")), (13, 13, hexc("4a8a4a"))):
+            put(im, x, y, c); put(im, x + 1, y, c); put(im, x, y + 1, c); put(im, x + 1, y + 1, c)
+
+    def dots(im, b):
+        for y in range(1, 16, 4):
+            for x in range(1 + (y // 4 % 2) * 2, 16, 4):
+                put(im, x, y, mul(b, 0.78))
+
+    wp("wp_green", hexc("6f8a6a"), dots)
+    wp("wp_check", hexc("a08a6a"), check)
+    wp("wp_damask", hexc("7a3a36"), damask)
+    wp("wp_ochre", hexc("b0904a"), ochre)
+    wp("wp_kids", hexc("c8c0a8"), kids)
+    # ванная: голубая плитка
+    im = tile(); rect(im, (0, 0, 15, 15), hexc("8fb0bc"))
+    for v in range(0, 16, 4):
+        hline(im, 0, 15, v, hexc("6f909c")); vline(im, v, 0, 15, hexc("6f909c"))
+    add("bath", im)
+    # прихожая: деревянная панель снизу, обои сверху
+    im = tile(); noise_fill(im, (0, 0, T, T), hexc("8a7a5a"), 0.06, r2); add("hall", im)
+    im = tile(); noise_fill(im, (0, 0, T, T), hexc("6b4e33"), 0.08, r2)
+    for x in range(0, 16, 5):
+        vline(im, x, 0, 15, hexc("503a26"))
+    hline(im, 0, 15, 0, hexc("8a6a46")); add("hall_low", im)
+    # вентшахта: короб за стеной
+    im = tile(); noise_fill(im, (0, 0, T, T), hexc("4a5054"), 0.1, r2)
+    vline(im, 2, 0, 15, hexc("6a7074")); vline(im, 13, 0, 15, hexc("343a3e"))
+    for y in (3, 11):
+        hline(im, 3, 12, y, hexc("3a4044"))
+    add("duct_back", im)
+    # шахта лифта: тёмная, тросы
+    im = tile(); noise_fill(im, (0, 0, T, T), hexc("2e3032"), 0.12, r2)
+    vline(im, 5, 0, 15, hexc("5a5c5e")); vline(im, 10, 0, 15, hexc("5a5c5e"))
+    vline(im, 0, 0, 15, hexc("3e4042")); vline(im, 15, 0, 15, hexc("3e4042"))
+    add("lift_shaft", im)
+    # нижний коллектор: бетон с потёками
+    im = tile(); noise_fill(im, (0, 0, T, T), hexc("4e504c"), 0.18, r2)
+    for i in range(3):
+        x = r2.randrange(T)
+        vline(im, x, r2.randrange(4), r2.randrange(8, 16), hexc("3a3e38"))
+    hline(im, 0, 15, 15, hexc("3e403c"))
+    add("tunnel_conc", im)
+    im = tile(); noise_fill(im, (0, 0, T, T), hexc("3e403c"), 0.15, r2)
+    for y in range(0, 16, 4):
+        hline(im, 0, 15, y, hexc("33352f"))
+    for i in range(4):
+        put(im, r2.randrange(T), r2.randrange(T), hexc("4a5a3a"))
+    add("tunnel_conc_back", im)
+    # мокрый кирпич верхнего коллектора (мох и потёки)
+    im = tile(); noise_fill(im, (0, 0, T, T), hexc("4a3a33"), 0.2, r2)
+    for y in range(0, 16, 4):
+        hline(im, 0, 15, y, hexc("33261f"))
+    for i in range(5):
+        put(im, r2.randrange(T), r2.randrange(8, 16), hexc("4a5a34"))
+    vline(im, 9, 4, 13, hexc("3a4a44"))
+    add("tunnel_wet", im)
+    # вода в канале (полупрозрачная)
+    im = tile()
+    for y in range(16):
+        for x in range(16):
+            a = 150 if y > 1 else 200
+            c = hexc("2e4a50") if y > 1 else hexc("5a8088")
+            if y == 0 and (x // 3) % 2 == 0:
+                c = hexc("7aa0a8")
+            im.putpixel((x, y), (c[0], c[1], c[2], a))
+    add("water", im)
+    # мостик между домами: пол, остеклённая стена, крыша
+    im = tile(); rect(im, (0, 0, 15, 3), hexc("6a6e70")); rect(im, (0, 4, 15, 15), hexc("4a4e50"))
+    for x in range(0, 16, 4):
+        vline(im, x, 4, 15, hexc("3a3e40"))
+    hline(im, 0, 15, 0, hexc("8a8e90"))
+    add("bridge_floor", im)
+    im = tile(); rect(im, (0, 0, 15, 15), hexc("3a4652"))
+    glass(im, (1, 1, 14, 14), 140)
+    vline(im, 0, 0, 15, hexc("4a4e50")); hline(im, 0, 15, 15, hexc("4a4e50"))
+    add("bridge_glass", im)
+    im = tile(); rect(im, (0, 8, 15, 15), hexc("5a5e60")); hline(im, 0, 15, 8, hexc("7a7e80")); hline(im, 0, 15, 15, hexc("3a3e40"))
+    add("bridge_roof", im)
+    im = tile(); noise_fill(im, (0, 0, T, T), hexc("6a6e70"), 0.06, r2); hline(im, 0, 15, 15, hexc("4a4e50"))
+    add("bridge_wall", im)
+
+
 def main(out):
-    ground_tiles(); structure_tiles(); back_tiles(); facade_tiles()
+    ground_tiles(); structure_tiles(); back_tiles(); facade_tiles(); tiles_v21()
     rows = (len(tiles) + COLS - 1) // COLS
     atlas = new(COLS * T, rows * T)
     with open(os.path.join(out, "tiles.txt"), "w") as f:

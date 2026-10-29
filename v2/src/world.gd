@@ -43,6 +43,13 @@ var start_h := 7.8
 var target_alert := 0.0
 var target_spooked := 0
 var heat: Array = []               # следы удушения духом
+var look_x := 0.0
+var talk_mem := {}                 # pid -> память собеседника (черты, настроение к телам, о чём спрашивали)
+var greeted_by := {}               # "pid:тело" -> сосед уже здоровался
+var greet_wait := {}               # pid соседа -> секунд, пока он ждёт ответного «здравствуйте»
+var rumours: Array = []            # [ключ, заголовок, текст] — слухи о районе
+var rumours_told := {}
+var talk_after := {}               # что делает собеседник, когда разговор кончился
 var stats := {"jumps": 0, "claws": 0, "kills": 0, "extra_dead": 0}
 
 
@@ -67,6 +74,7 @@ func _ready() -> void:
 	case = Case.new()
 	case.generate(case_seed, city)
 	_spawn_people()
+	rumours = _make_rumours()
 	_items_in_home()
 	dog = Dog.new()
 	dog.setup(self, city)
@@ -123,18 +131,23 @@ func _apartments() -> Array:
 
 
 func _apt_spots(a: Dictionary) -> Dictionary:
+	## Точки квартиры по меткам комнат: диван, кровать, плита, стул на кухне.
 	var b: Dictionary = city.buildings[int(a["bid"])]
 	var out := {"area": city.area_of_floor(int(a["bid"]), int(a["f"]))}
 	for rid in b["rooms"]:
 		var rm: Dictionary = city.rooms[rid]
-		if int(rm["apt"]) == int(a["apt"]) and int(rm["f"]) == int(a["f"]):
-			var sp: Array = rm["spots"]
-			if rm["kind"] == "living" and sp.size() > 0:
-				out["sofa"] = float(sp[0]["x"])
-				out["bed"] = float(sp[sp.size() - 1]["x"])
-			elif rm["kind"] == "kitchen" and sp.size() > 0:
-				out["stove"] = float(sp[0]["x"])
-				out["sit"] = float(sp[sp.size() - 1]["x"])
+		if int(rm["apt"]) != int(a["apt"]) or int(rm["f"]) != int(a["f"]):
+			continue
+		for sp in rm["spots"]:
+			var k: String = sp["kind"]
+			if k in ["sofa", "bed", "stove"] and not out.has(k):
+				out[k] = float(sp["x"])
+			elif k == "sit" and rm["kind"] == "kitchen":
+				out["sit"] = float(sp["x"])
+	if out.has("sofa") and not out.has("bed"):
+		out["bed"] = out["sofa"]
+	if out.has("bed") and not out.has("sofa"):
+		out["sofa"] = out["bed"]
 	return out
 
 
@@ -145,7 +158,7 @@ func _room_spot(kind: String, idx: int = 0) -> Dictionary:
 			if s["kind"] == kind:
 				if n == idx:
 					var b := int(rm["bid"])
-					var area := city.area_of_floor(b, int(rm["f"])) if b >= 0 else ("C" if rm["kind"] == "collector" else "M")
+					var area: String = city.area_of_floor(b, int(rm["f"])) if b >= 0 else {"collector": "C", "drain": "D"}.get(rm["kind"], "M")
 					return {"area": area, "x": float(s["x"]), "bid": b, "f": rm["f"]}
 				n += 1
 	return {}
@@ -175,7 +188,7 @@ func _spawn_people() -> void:
 	var desks_n := _office_desks("НИИ")
 	var P: Dictionary = city.places
 	var roles := ["vendor", "barista", "pharm", "cashier", "cashier", "guard", "guard", "janitor", "pensioner", "pensioner",
-		"pensioner", "pensioner", "student", "student", "student", "worker", "worker", "worker", "courier", "teacher"]
+		"pensioner", "pensioner", "student", "student", "student", "worker", "worker", "worker", "courier", "teacher", "tramp"]
 	for i in desks_g.size() + desks_n.size():
 		roles.append("office")
 	while roles.size() < total:
@@ -194,7 +207,7 @@ func _spawn_people() -> void:
 		var lk := Looks.random_look(rng, female, age, role)
 		var p := _new_person(lk, role, female)
 		var home := {}
-		if ai < apts.size():
+		if ai < apts.size() and role != "tramp":
 			home = _apt_spots(apts[ai])
 			p.keys.append("apt%d_%d" % [apts[ai]["bid"], apts[ai]["apt"]])
 			p.home = apts[ai]
@@ -238,6 +251,7 @@ func _spawn_people() -> void:
 				for b2 in city.buildings:
 					p.keys.append("base%d" % b2["id"])
 					p.keys.append("roof%d" % b2["id"])
+				p.keys.append("grate")
 				s = [S(6, hm, "sofa"), S(6.8, P["Двор"], "work"), S(9, P["Задворки"], "work"), S(11, P["Гаражи"], "work"),
 					S(13, hk, "sit"), S(14.5, P["Площадка"], "work"), S(16.5, P["Сквер"], "work"), S(18.5, hk, "stove"), S(21, hm, "bed")]
 			"pensioner":
@@ -253,6 +267,14 @@ func _spawn_people() -> void:
 				s = [S(6, hm, "sofa"), S(8.5, e1, "idle"), S(9.6, P["Универсам"], "idle"), S(10.7, e2, "idle"), S(12, P["Кафе"], "eat"),
 					S(13.2, P["Остановка"], "idle"), S(14.4, e1, "idle"), S(15.6, P["Гаражи"], "idle"), S(17, hk, "stove"), S(19, hm, "sofa")]
 				p.base_speed = 64.0
+			"tramp":
+				# бродяга живёт в дренаже: знает подземелье и видит, кто туда спускается
+				p.keys.append("grate")
+				s = [S(0, P["Лежанка"], "sit"), S(8.5 + r, P["Насосная"], "idle"), S(10 + r, P["Гаражи"], "smoke", dx),
+					S(12.5 + r, P["Универсам"], "idle", dx), S(14 + r, P["Сквер"], "sit", dx), S(18.5 + r, P["Гаражи"], "smoke", dx),
+					S(20.5 + r, P["Лежанка"], "sit")]
+				p.base_speed = 34.0
+				commuter = false
 			"teacher":
 				s = [S(6, hm, "sofa"), S(8.0, metro, "away"), S(16 + r, P["Универсам"], "shop", dx), S(17 + r, hk, "stove"), S(20, hm, "sofa")]
 			"office":
@@ -284,7 +306,7 @@ func _spawn_people() -> void:
 		# разговорчивые соседи и коллеги знают о цели
 		var nb := not home.is_empty() and int(p.home.get("bid", -1)) == int(case.p["home_bid"])
 		var colleague: bool = role == "office" and p.get_meta("work", "") == ("Гранит" if case.p["work"] == "Офис" else "НИИ")
-		if nb or colleague or (role == "pensioner" and rng.randf() < 0.5):
+		if nb or colleague or role == "tramp" or (role == "pensioner" and rng.randf() < 0.5):
 			gossip_people[p.pid] = case.gossip_line()
 	# цель
 	var tp := _new_person(case.p["look"], "office", case.p["female"])
@@ -308,6 +330,46 @@ func _spawn_people() -> void:
 		dp.set_meta("decoy", true)
 		_place_at_goal(dp)
 		case.decoys.append(dp)
+
+
+func bname(b: Dictionary) -> String:
+	## Как жители называют дом: «Гранит» или «кирпичная двенадцатиэтажка».
+	if b["name"] != "":
+		return "«%s»" % b["name"]
+	var adj: String = {"panel": "панельная", "brick": "кирпичная", "sbrick": "кирпичная", "stucco": "жёлтая"}.get(b["mat"], "серая")
+	var words := {5: "пяти", 6: "шести", 7: "семи", 8: "восьми", 9: "девяти", 10: "десяти", 11: "одиннадцати", 12: "двенадцати",
+		13: "тринадцати", 14: "четырнадцати", 15: "пятнадцати", 16: "шестнадцати"}
+	return "%s %sэтажка" % [adj, words.get(int(b["n"]), "много")]
+
+
+func _cap(t: String) -> String:
+	return t.substr(0, 1).to_upper() + t.substr(1)
+
+
+func _make_rumours() -> Array:
+	var out := []
+	for b in city.buildings:
+		if b["kind"] == "res" and b["basement"]:
+			out.append(["lock%d" % b["id"], "Слух: ключи", "%s: в подвале ящик с ключами от крыши. Замок — смех один." % _cap(bname(b))])
+		if b.get("lift_broken", false):
+			out.append(["lift%d" % b["id"], "Слух: лифт", "%s: лифт опять стоит. Все пешком по лестнице." % _cap(bname(b))])
+		for f in b["bridge_r"]:
+			var nb := city.building_at(float(int(b["x0"]) + int(b["w"]) + 6) * K.T)
+			if not nb.is_empty():
+				out.append(["br%d_%d" % [b["id"], f], "Слух: переход", "Между домами переход на %d-м этаже: %s и %s. Можно пройти, не выходя на улицу." % [int(f) + 1, bname(b), bname(nb)]])
+	out.append(["pump", "Слух: насосная", "В дренаже, в насосной, ящик обходчика. Там ключи от решёток коллектора и от служебки метро."])
+	out.append(["jan", "Слух: дворник", "У дворника ключи от всех подвалов и чердаков. С утра он во дворе метёт."])
+	out.append(["guard", "Слух: охрана", "Охранник «Гранита» в пол-одиннадцатого курит на задворках. Пост в это время пустой."])
+	out.append(["steam", "Слух: коллектор", "В коллекторе трубы гнилые, паром бьёт. Не суйся туда без нужды."])
+	for pt in city.portals:
+		if pt["kind"] == "passage":
+			out.append(["pass", "Слух: подвалы", "Подвалы соседних домов насквозь проходные. Можно уйти, не показываясь на улице."])
+			break
+	for pt in city.portals:
+		if pt["kind"] == "roofladder":
+			out.append(["roofl", "Слух: крыши", "Мальчишки с крыши на крышу по лестницам лазают. Высоко, а им хоть бы что."])
+			break
+	return out
 
 
 func _place_at_goal(p: Person) -> void:
@@ -377,6 +439,7 @@ func _process(dt: float) -> void:
 	for p in people:
 		if p.brain:
 			p.brain.tick(dt)
+	_underworld(dt)
 	perc_t -= dt
 	if perc_t <= 0.0:
 		perc_t = 0.2
@@ -397,7 +460,12 @@ func _process(dt: float) -> void:
 		case.regen(dt * sp)
 	_check_end()
 	var fp := player.focus_pos()
-	view.cam_target = fp + Vector2(player.facing() * 40.0, -64.0)
+	# взгляд вперёд: сдвиг камеры по направлению движения нарастает плавно и только на ходу,
+	# поворот на месте камеру не дёргает
+	var mv := player.host.velocity.x if player.host else player.spirit.velocity.x
+	if absf(mv) > 6.0:
+		look_x = move_toward(look_x, signf(mv) * 36.0, dt * 30.0)
+	view.cam_target = fp + Vector2(look_x, -64.0)
 	var inside := player.focus_inside()
 	view.viewer_inside = inside
 	view.viewer_bid = city.building_at(fp.x).get("id", -1) if inside and fp.y < K.floor_y(0) + 4 else -1
@@ -472,6 +540,37 @@ func portal_unlocked(pt: Dictionary) -> bool:
 	return pt.get("opened", false)
 
 
+func _underworld(dt: float) -> void:
+	## Коллектор живёт: пар бьёт из труб, крысы бегают вдоль стен.
+	for st in city.steams:
+		st["t"] = float(st["t"]) - dt
+		if float(st["t"]) <= 0.0:
+			st["on"] = not st["on"]
+			st["t"] = randf_range(1.6, 2.6) if st["on"] else randf_range(5.0, 10.0)
+			(st["node"] as Sprite2D).visible = st["on"]
+			if st["on"]:
+				Sfx.play_at("steam", Vector2(float(st["x"]), float(st["y"])), player.focus_pos(), -8.0)
+		if st["on"]:
+			var sp := st["node"] as Sprite2D
+			sp.frame = int(t_total * 10.0) % sp.hframes
+	for r in city.rats:
+		var n := r["node"] as Sprite2D
+		var x := n.position.x + float(r["v"]) * dt
+		if x < float(r["x0"]) or x > float(r["x1"]):
+			r["v"] = -float(r["v"])
+			x = clampf(x, float(r["x0"]), float(r["x1"]))
+		n.position.x = x
+		n.flip_h = float(r["v"]) < 0.0
+		n.frame = int(t_total * 8.0) % n.hframes
+
+
+func steam_at(pos: Vector2) -> bool:
+	for st in city.steams:
+		if st["on"] and absf(pos.x - float(st["x"])) < 18.0 and absf(pos.y - float(st["y"])) < 40.0:
+			return true
+	return false
+
+
 func _lamps(force: bool) -> void:
 	var on := env.lamps_on()
 	var h := fmod(env.hour, 24.0)
@@ -483,6 +582,9 @@ func _lamps(force: bool) -> void:
 			lit = _room_lit(l, h)
 		if float(l["off_t"]) > t_total:
 			lit = false
+		if l.get("broken", false):
+			# битая лампа в коллекторе: изредка вспыхивает
+			lit = fmod(t_total * 1.3 + float((l["pos"] as Vector2).x) * 0.01, 6.0) < 0.5
 		if l["bid"] >= 0:
 			for bo in blackouts:
 				if int(bo["bid"]) == int(l["bid"]) and float(bo["until"]) > t_total:
@@ -530,6 +632,8 @@ func light_at(pos: Vector2, inside: bool) -> float:
 		if not l["on"] or bool(l["outer"]) != (not inside) and l["kind"] != "room":
 			continue
 		var lp: Vector2 = l["pos"]
+		if absf(lp.x - pos.x) > 420.0:
+			continue
 		var r := float(l["r"])
 		if l["kind"] == "room" and l.has("room"):
 			var rm: Dictionary = city.rooms[int(l["room"])]
@@ -551,6 +655,8 @@ func lamp_burn(pos: Vector2, inside: bool) -> float:
 		if bool(l["outer"]) == inside and l["kind"] != "bulb":
 			continue
 		var lp: Vector2 = l["pos"]
+		if absf(lp.x - pos.x) > 300.0:
+			continue
 		var r := float(l["r"]) * 0.75
 		var d := lp.distance_to(pos)
 		if d < r and pos.y > lp.y - 10:
@@ -728,7 +834,22 @@ func fall_hurt(p: Person, h: float) -> void:
 			hud.voice("ТЕЛО", "Больно. Колено хрустнуло.", Color(0.9, 0.6, 0.5))
 
 
-func portal_used(p: Person, pt: Dictionary) -> void:
+func portal_used(p: Person, pt: Dictionary, dir: int = 1) -> void:
+	if pt["kind"] == "lift":
+		var b: Dictionary = city.buildings[int(pt["bid"])]
+		var doors: Dictionary = b.get("lift_doors", {})
+		var fa := int(city.areas[pt["a"]]["f"])
+		var fb := int(city.areas[pt["b"]]["f"])
+		for f in [fa, fb]:
+			if doors.has(f):
+				var s: Sprite2D = doors[f]
+				s.frame = 2
+				get_tree().create_timer(1.6).timeout.connect(func(): if is_instance_valid(s): s.frame = 0)
+		if p.host:
+			Sfx.play("door", -16.0)
+		return
+	if pt["kind"] in ["ladder", "shaft", "manhole"] and p.host:
+		Sfx.play("step", -8.0)
 	if pt["kind"] in ["entrance", "backdoor"] and pt.has("sprite") and pt["sprite"]:
 		var s: Sprite2D = pt["sprite"]
 		s.frame = 1
@@ -822,7 +943,7 @@ func _overhear(p: Person, g: Array) -> void:
 		hud.card_toast(case.card(g[0]), "Подслушано")
 
 
-const SMALL := ["Опять дождь обещали.", "Свет вчера опять отключали.", "В «Универсам» колбасу завезли.", "Троллейбус не ходит, пешком шла.",
+const SMALL := ["Опять дождь обещали.", "Свет вчера опять отключали.", "В «Универсам» колбасу завезли.", "Троллейбус не ходит, пешком пришлось.",
 	"Лифт третий день стоит.", "Сосед опять сверлит.", "Холодно в этом году рано.", "Говорят, в НИИ сокращение.",
 	"Ты видел, что в газете пишут?", "Да ну его.", "Ага.", "Вот и я говорю.", "Ну и дела.", "Не знаю, не знаю…",
 	"В подвале опять трубу прорвало.", "Кошка опять на крыше орёт.", "Куда катимся…", "На заводе премию не дали."]
@@ -940,7 +1061,7 @@ func _call_police(pos: Vector2, crime: bool) -> void:
 	if police_state != "":
 		return
 	police_state = "coming"
-	police_t = 35.0
+	police_t = 60.0
 	police_target = pos
 	if crime:
 		case.add_tail("police", "Вызвали милицию. Не попадайся им на глаза с телом.")
@@ -951,7 +1072,7 @@ func _police(dt: float) -> void:
 		police_t -= dt
 		if police_t <= 0.0:
 			police_state = "here"
-			police_t = 140.0
+			police_t = 240.0
 			_spawn_police()
 	elif police_state == "here":
 		police_t -= dt
@@ -998,9 +1119,9 @@ func _spawn_police() -> void:
 func _schedule_exit() -> void:
 	var phones := city.objs.filter(func(o): return o["kind"] == "payphone")
 	var ph: Dictionary = phones[rng.randi() % phones.size()]
-	var h0 := env.hour + rng.randf_range(0.45, 0.7)
+	var h0 := _round5(env.hour + rng.randf_range(0.45, 0.7))
 	exit_ring = {"phone": ph, "h0": h0, "h1": h0 + 0.25, "tries": 1}
-	hud.voice("КУРАТОР", "Таксофон %s. Позвоню в %s. Сними трубку." % [ph["name"], case.hhmm(h0)], K.GOLD)
+	hud.voice("КУРАТОР", "Таксофон %s. Позвоню в %s. Сними трубку." % [ph["name"], K.fmt_time(h0)], K.GOLD)
 	case.line = exit_ring
 
 
@@ -1021,9 +1142,14 @@ func _exit(dt: float) -> void:
 		ph["ring"] = false
 		(ph["node"] as Sprite2D).frame = 0
 		var nph: Dictionary = phones[rng.randi() % phones.size()]
-		var h0 := env.hour + 0.5
+		var h0 := _round5(env.hour + 0.5)
 		exit_ring = {"phone": nph, "h0": h0, "h1": h0 + 0.25, "tries": int(exit_ring["tries"]) + 1}
-		hud.voice("КУРАТОР", "Пропустил. Последний раз: таксофон %s, %s." % [nph["name"], case.hhmm(h0)], Color(0.95, 0.6, 0.4))
+		hud.voice("КУРАТОР", "Пропустил. Последний раз: таксофон %s, %s." % [nph["name"], K.fmt_time(h0)], Color(0.95, 0.6, 0.4))
+
+
+func _round5(h: float) -> float:
+	## Время звонка — ровно на пять минут, чтобы часы и слова куратора совпадали.
+	return ceil(h * 12.0 - 0.001) / 12.0
 
 
 func answer_phone(ph: Dictionary) -> void:
@@ -1176,7 +1302,7 @@ func _events(dt: float) -> void:
 	events_t -= dt
 	if events_t > 0.0:
 		return
-	events_t = rng.randf_range(120.0, 220.0)
+	events_t = rng.randf_range(200.0, 320.0)
 	if rng.randf() < 0.5:
 		var b: Dictionary = city.buildings[rng.randi() % city.buildings.size()]
 		blackouts.append({"bid": b["id"], "until": t_total + 60.0})

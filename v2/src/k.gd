@@ -3,8 +3,8 @@ class_name K
 
 const T := 16                 # тайл, пикселей
 const FH := 5                 # высота этажа в тайлах (перекрытие + 4 ряда)
-const GY := 84                # ряд земли (верх тротуара = GY * T)
-const ROWS := GY + 24
+const GY := 96                # ряд земли (верх тротуара = GY * T)
+const ROWS := GY + 34
 const M := 26.0               # пикселей в метре (для перевода чисел из 3D-версии)
 
 const VIEW_W := 640           # низкое разрешение мира
@@ -50,6 +50,5 @@ static func floor_y(f: int) -> float:
 
 
 static func fmt_time(h: float) -> String:
-	var hh := int(floor(h)) % 24
-	var mm := int(floor((h - floor(h)) * 60.0))
-	return "%d:%02d" % [hh, mm]
+	var total := int(floor(h * 60.0 + 0.001))
+	return "%d:%02d" % [(total / 60) % 24, total % 60]

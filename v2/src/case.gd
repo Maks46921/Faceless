@@ -23,7 +23,7 @@ var known_ids := []
 const MORNINGS := {
 	"Киоск": {"txt": "берёт газету у киоска «Печать» в сквере", "act": "read", "dloc": "Остановка", "dtxt": "ждёт у остановки, читает расписание", "short": "газета у «Печати»"},
 	"Универсам": {"txt": "покупает хлеб в «Универсаме»", "act": "shop", "dloc": "Киоск", "dtxt": "берёт газету у киоска", "short": "хлеб в «Универсаме»"},
-	"Сквер": {"txt": "кормит голубей в сквере, у памятника", "act": "idle", "dloc": "Двор", "dtxt": "гуляет во дворе у девятиэтажки", "short": "голуби в сквере"},
+	"Сквер": {"txt": "кормит голубей в сквере, у памятника", "act": "idle", "dloc": "Двор", "dtxt": "гуляет во дворе у высотки", "short": "голуби в сквере"},
 }
 const LUNCHES := {
 	"Кафе": {"txt": "Обедает в кафе «Встреча» около {lt}. Всегда один{a}, у окна.", "act": "eat", "dloc": "Универсам",
@@ -40,7 +40,7 @@ const LUNCHES := {
 const HABITS := {
 	"Задворки": {"where": "на задворках «Гранита», у мусорных баков", "dloc": "Гаражи", "dwhere": "у гаражей"},
 	"Гаражи": {"where": "у гаражей, за трансформаторной будкой", "dloc": "Задворки", "dwhere": "за «Гранитом»"},
-	"Двор": {"where": "во дворе у первой девятиэтажки, у берёзы", "dloc": "Площадка", "dwhere": "на детской площадке"},
+	"Двор": {"where": "во дворе, у берёзы за домами", "dloc": "Площадка", "dwhere": "на детской площадке"},
 }
 const WORKS := {"Офис": "в «Граните», на третьем этаже", "НИИ": "в НИИ «Связь», на третьем этаже"}
 const EVENINGS := {
@@ -131,7 +131,8 @@ func generate(seed_v: int, c: City) -> void:
 func _home() -> void:
 	var res := city.buildings.filter(func(b): return b["kind"] == "res" and int(b["n"]) >= 5 and b["base"] == "res")
 	var b: Dictionary = res[rng.randi() % res.size()]
-	var f := rng.randi_range(1, int(b["n"]) - 1)
+	var fs := range(1, int(b["n"])).filter(func(ff): return b["floors"].has(ff) and (b["floors"][ff] as Array).size() > 0)
+	var f: int = fs[rng.randi() % fs.size()]
 	var apt: int = (b["floors"][f] as Array)[rng.randi() % (b["floors"][f] as Array).size()]
 	p["home_bid"] = b["id"]
 	p["home_f"] = f
@@ -148,7 +149,9 @@ func _home() -> void:
 	p["living"] = living
 	p["kitchen"] = kitchen
 	var n := int(b["n"])
-	p["house_word"] = ("%d-этажке" % n).replace("9-этажке", "девятиэтажке").replace("5-этажке", "пятиэтажке").replace("6-этажке", "шестиэтажке").replace("8-этажке", "восьмиэтажке")
+	var words := {5: "пяти", 6: "шести", 7: "семи", 8: "восьми", 9: "девяти", 10: "десяти", 11: "одиннадцати", 12: "двенадцати",
+		13: "тринадцати", 14: "четырнадцати", 15: "пятнадцати", 16: "шестнадцати"}
+	p["house_word"] = ("%sэтажке" % words[n]) if words.has(n) else ("%d-этажке" % n)
 	var idx := 0
 	for bb in city.buildings:
 		if bb["kind"] == "res":

@@ -99,6 +99,38 @@ func _ready() -> void:
 	pl2.spirit.area = "C"
 	await wait(1.5)
 	await shot("collector")
+	# разговор с прохожим
+	await game(31337, 10.2, "clear")
+	var pl3: PlayerCtl = w.player
+	var hh := pl3.host
+	var who: Person = null
+	for p in w.people:
+		if p.prof == "pensioner" and p.state == "ok" and p != w.case.target:
+			who = p
+			break
+	var sq: float = w.city.places["Сквер"]["x"]
+	for q in [hh, who]:
+		q.area = "S"
+		q.set_inside(false)
+	hh.global_position = Vector2(sq, K.floor_y(0) - 1)
+	who.global_position = Vector2(sq + 30, K.floor_y(0) - 1)
+	who.brain.react = {}
+	await wait(1.0)
+	pl3._talk(who)
+	w.hud.talk.choose(0)
+	await wait(0.3)
+	w.hud.talk.choose(1)
+	await wait(1.0)
+	await shot("talk")
+	w.hud.close_talk()
+	# дренаж под коллектором
+	var dd: Dictionary = w.city.areas["D"]
+	var lx := float(w.city.places["Лежанка"]["x"])
+	hh.area = "D"
+	hh.set_inside(true)
+	hh.global_position = Vector2(lx + 60, float(dd["y"]) - 1)
+	await wait(2.0)
+	await shot("drain")
 	# итог
 	var res := {"ok": true, "grade": "чисто", "tails": [], "how": "fall", "alarms": 0, "extra": 0, "hour": 13.4, "target": "Лариса Савельева", "curator": "Лиса", "seed": 808}
 	w.queue_free()

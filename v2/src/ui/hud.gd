@@ -18,6 +18,12 @@ var t := 0.0
 var pause_btns: Array = []
 var board_rects: Array = []     # [Rect2, card]
 var hint_t := 2.0
+var mark_x := 0.0
+var mark_t := 0.0
+var talk: Talk = null
+var talk_rects: Array = []      # [Rect2, индекс варианта]
+var talk_hover := -1
+var portrait_rect: TextureRect
 
 const F_HEAD := "Oswald"
 const F_BODY := "PT_Sans-Web-Bold"
@@ -37,10 +43,57 @@ func _ready() -> void:
 	d.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	d.draw.connect(_draw_all)
 	add_child(d)
+	portrait_rect = TextureRect.new()
+	portrait_rect.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	portrait_rect.stretch_mode = TextureRect.STRETCH_SCALE
+	portrait_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	portrait_rect.position = Vector2(268, 798)
+	portrait_rect.size = Vector2(128, 144)
+	portrait_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	portrait_rect.visible = false
+	add_child(portrait_rect)
 
 
 func modal() -> bool:
-	return board or map or pause or help or brief
+	return board or map or pause or help or brief or talk != null
+
+
+func open_talk(tk: Talk) -> void:
+	if talk:
+		close_talk()
+	talk = tk
+	talk_hover = -1
+	portrait_rect.texture = Talk.portrait(tk.q)
+	portrait_rect.visible = true
+	Sfx.play("ui", -10.0)
+
+
+func close_talk() -> void:
+	if talk == null:
+		return
+	talk.end()
+	var after: Dictionary = world.talk_after
+	world.talk_after = {}
+	if not after.is_empty() and is_instance_valid(after["who"]):
+		var q: Person = after["who"]
+		var host: Person = world.player.host
+		match after["kind"]:
+			"follow":
+				if host:
+					q.brain.react = {"kind": "follow", "who": host, "pos": host.global_position, "t": after["t"], "area": q.area}
+			"distract":
+				var away := q.global_position + Vector2(-240.0 if host and host.global_position.x > q.global_position.x else 240.0, 0)
+				q.brain.distract(away, after["t"])
+			"scare":
+				if host:
+					q.brain.scare(host.global_position, after["t"])
+	talk = null
+	portrait_rect.visible = false
+
+
+func mark_place(x: float, _nm: String) -> void:
+	mark_x = x
+	mark_t = 25.0
 
 
 func open_brief() -> void:
@@ -64,6 +117,10 @@ func _process(dt: float) -> void:
 	toasts = toasts.filter(func(c): return float(c["t"]) > 0.0)
 	if not end.is_empty():
 		end_t += dt
+	mark_t = maxf(0.0, mark_t - dt)
+	if talk and (pause or not talk.tick(dt)):
+		if not pause:
+			close_talk()
 	hint_t -= dt
 	if hint_t <= 0.0:
 		hint_t = 1.0
@@ -141,6 +198,35 @@ func _input(e: InputEvent) -> void:
 			_close_brief()
 			get_viewport().set_input_as_handled()
 		return
+	if talk and not pause and not help:
+		if e is InputEventKey and e.pressed and not e.echo:
+			var kc: int = e.physical_keycode
+			if kc >= KEY_1 and kc <= KEY_9:
+				talk.choose(kc - KEY_1)
+				talk_hover = -1
+				get_viewport().set_input_as_handled()
+				return
+			if kc in [KEY_ESCAPE, KEY_0, KEY_E]:
+				if talk.close_t > 0.0:
+					close_talk()
+				else:
+					talk.bye()
+				get_viewport().set_input_as_handled()
+				return
+		if e is InputEventMouseMotion:
+			talk_hover = -1
+			for r in talk_rects:
+				if (r[0] as Rect2).has_point(e.position):
+					talk_hover = r[1]
+		if e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT:
+			for r in talk_rects:
+				if (r[0] as Rect2).has_point(e.position):
+					if int(r[1]) < 0:
+						talk.bye()
+					else:
+						talk.choose(int(r[1]))
+					get_viewport().set_input_as_handled()
+					return
 	if e is InputEventKey and e.pressed and not e.echo:
 		match e.physical_keycode:
 			KEY_ESCAPE:
@@ -262,7 +348,10 @@ func _draw_all() -> void:
 	_hover()
 	_top_left()
 	_minimap()
-	_bottom()
+	if talk:
+		_talk_panel()
+	else:
+		_bottom()
 	_voices()
 	_toasts()
 	if board:
@@ -284,7 +373,7 @@ func _top_left() -> void:
 	var x := 40.0
 	d.draw_rect(Rect2(20, 18, 470, 214), BG)
 	d.draw_rect(Rect2(20, 18, 6, 214), K.GOLD)
-	_text(Vector2(x, 72), cs.hhmm(env.hour), F_MONO, 48, PAPER)
+	_text(Vector2(x, 72), K.fmt_time(env.hour), F_MONO, 48, PAPER)
 	var w := {"clear": "ясно", "cloudy": "пасмурно", "rain": "дождь", "fog": "туман"}
 	var info: String = w.get(env.weather, "")
 	if env.speed > 1.0:
@@ -292,7 +381,7 @@ func _top_left() -> void:
 	_text(Vector2(x + 150, 70), info, F_BODY, 22, DIM)
 	var tline := "Цель: найти и снять."
 	if cs.target_dead:
-		tline = "Цель снята. Ждать звонка." if world.exit_ring.is_empty() else "Таксофон %s, %s." % [world.exit_ring["phone"]["name"], cs.hhmm(world.exit_ring["h0"])]
+		tline = "Цель снята. Ждать звонка." if world.exit_ring.is_empty() else "Таксофон %s, %s." % [world.exit_ring["phone"]["name"], K.fmt_time(world.exit_ring["h0"])]
 	_text(Vector2(x, 104), tline, F_BODY, 22, K.GOLD if cs.target_dead else PAPER)
 	var mem := cs.memory()
 	var mc := K.GOLD if mem > 45.0 else (Color(0.9, 0.62, 0.3) if mem > 25.0 else RED)
@@ -447,6 +536,51 @@ func _bottom() -> void:
 		_claws()
 
 
+func _talk_panel() -> void:
+	## Разговор: портрет слева, имя и характер, реплика собеседника, варианты под номерами.
+	var tk := talk
+	var q := tk.q
+	var pr := Rect2(240, 770, 1440, 290)
+	d.draw_rect(pr, Color(0.067, 0.071, 0.078, 0.93))
+	d.draw_rect(pr, Color(K.GOLD, 0.35), false, 2.0)
+	d.draw_rect(Rect2(264, 794, 136, 152), Color(0.05, 0.05, 0.06))
+	d.draw_rect(Rect2(264, 794, 136, 152), Color(K.GOLD, 0.5), false, 2.0)
+	# настроение
+	var m := tk.mood() / 100.0
+	var mc := RED.lerp(Color(0.55, 0.75, 0.45), m)
+	d.draw_rect(Rect2(264, 958, 136, 10), Color(0, 0, 0, 0.6))
+	d.draw_rect(Rect2(264, 958, 136 * m, 10), mc)
+	var mw := "враждебно" if m < 0.2 else ("холодно" if m < 0.4 else ("ровно" if m < 0.6 else ("тепло" if m < 0.8 else "душевно")))
+	_text(Vector2(264, 994), mw, F_BODY, 18, DIM, HORIZONTAL_ALIGNMENT_CENTER, 136)
+	_text(Vector2(264, 1022), "терпение: %d" % maxi(0, tk.patience()), F_BODY, 18, DIM, HORIZONTAL_ALIGNMENT_CENTER, 136)
+	# имя, кто он тебе, характер
+	_text(Vector2(424, 822), q.full_name(), F_HEAD, 30, PAPER)
+	var nw := _font(F_HEAD).get_string_size(q.full_name(), HORIZONTAL_ALIGNMENT_LEFT, -1, 30).x
+	_text(Vector2(424 + nw + 18, 822), "%s  ·  для тебя: %s" % [world.player._who_word(q), tk.rel[0]], F_BODY, 20, DIM)
+	_text(Vector2(424, 852), "характер: " + tk.trait_words(), F_BODY, 18, Color(K.GOLD, 0.8))
+	# реплика
+	_wrap(Vector2(424, 892), "— " + tk.line, F_BODY, 24, PAPER, 1230)
+	# варианты: три столбца по три строки
+	talk_rects = []
+	var n := tk.opts.size()
+	for i in n:
+		var col := i / 3
+		var row := i % 3
+		var x := 424.0 + col * 410.0
+		var y := 978.0 + row * 30.0
+		var rr := Rect2(x - 6, y - 22, 400, 28)
+		talk_rects.append([rr, i])
+		if talk_hover == i:
+			d.draw_rect(rr, Color(K.GOLD, 0.15))
+		d.draw_rect(Rect2(x, y - 19, 22, 22), Color(K.GOLD, 0.9) if tk.close_t < 0.0 else Color(0.4, 0.4, 0.4))
+		_text(Vector2(x, y - 1), str(i + 1), F_HEAD, 18, K.INK, HORIZONTAL_ALIGNMENT_CENTER, 22)
+		_text(Vector2(x + 30, y), _short(tk.opts[i]["text"], 38), F_BODY, 20, PAPER if tk.close_t < 0.0 else DIM)
+	var bx := Rect2(1560, 1024, 110, 28)
+	talk_rects.append([bx, -1])
+	d.draw_rect(bx, Color(K.GOLD, 0.15) if talk_hover == -1 and bx.has_point(get_viewport().get_mouse_position()) else Color(0, 0, 0, 0))
+	_text(Vector2(1566, 1046), "Esc — уйти", F_BODY, 20, DIM)
+
+
 func _keyw(k: String) -> float:
 	return maxf(32.0, _font(F_HEAD).get_string_size(k, HORIZONTAL_ALIGNMENT_LEFT, -1, 22).x + 14)
 
@@ -504,20 +638,37 @@ func _toasts() -> void:
 # ======================= полоса района =======================
 
 func _minimap() -> void:
+	## Полоса района: выше и уже, чем раньше (та же площадь) — видны высотки и три уровня подземелья.
 	var city: City = world.city
 	var pl: PlayerCtl = world.player
 	var wpx := float(city.width * K.T)
-	var r := Rect2(1300, 22, 600, 96)
+	var r := Rect2(1500, 22, 400, 144)
 	d.draw_rect(r.grow(8), BG)
 	var sx := r.size.x / wpx
-	var gy := r.position.y + 70
+	var sy := 0.08
+	var gy := r.position.y + 110
+	var gw := K.floor_y(0)
+	# подземелье: коллектор, метро, дренаж
+	for lv in [[City.C_ROW, Color(0.4, 0.36, 0.3, 0.8)], [City.M_ROW, Color(0.5, 0.42, 0.42, 0.8)], [City.D_ROW, Color(0.3, 0.38, 0.45, 0.8)]]:
+		var ly := gy + (float(lv[0] * K.T) - gw) * sy
+		var x0u := float(city.coll_c0 * K.T) if lv[0] != City.M_ROW else float(city.metro_c0 * K.T)
+		var x1u := float(city.coll_c1 * K.T) if lv[0] != City.M_ROW else float(city.metro_c1 * K.T)
+		d.draw_line(Vector2(r.position.x + x0u * sx, ly), Vector2(r.position.x + x1u * sx, ly), lv[1], 2.0)
 	d.draw_line(Vector2(r.position.x, gy), Vector2(r.end.x, gy), Color(PAPER, 0.4), 2.0)
 	for b in city.buildings:
 		var x0 := r.position.x + float(b["px0"]) * sx
 		var bw := (float(b["px1"]) - float(b["px0"])) * sx
-		var h := float(b["n"]) * 7.0
+		var h := float(b["n"]) * K.FH * K.T * sy
 		var near: bool = int(b["id"]) == int(city.building_at(pl.focus_pos().x).get("id", -1))
 		d.draw_rect(Rect2(x0, gy - h, bw, h), Color(0.3, 0.3, 0.32, 0.9) if not near else Color(0.42, 0.4, 0.36, 0.95))
+		for f in b["bridge_r"]:
+			var by := gy - (float(f) + 0.5) * K.FH * K.T * sy
+			d.draw_line(Vector2(x0 + bw, by), Vector2(x0 + bw + 6, by), Color(0.42, 0.4, 0.36, 0.95), 2.0)
+	# куда показали дорогу
+	if mark_t > 0.0:
+		var mkx := r.position.x + mark_x * sx
+		d.draw_line(Vector2(mkx, gy), Vector2(mkx, gy - 18), K.GOLD, 2.0)
+		d.draw_rect(Rect2(mkx, gy - 18, 8, 6), K.GOLD)
 	# таксофоны
 	for o in city.objs:
 		if o["kind"] == "payphone":
@@ -530,10 +681,17 @@ func _minimap() -> void:
 		d.draw_rect(Rect2(px - 4, gy + 4, 8, 6), Color(0.4, 0.5, 1.0) if int(t * 4) % 2 == 0 else RED)
 	# игрок
 	var fp := pl.focus_pos()
-	var yy := gy - clampf((K.floor_y(0) - fp.y) / 80.0 * 7.0, -18.0, 80.0)
+	var yy := gy - clampf((gw - fp.y) * sy, -36.0, 108.0)
 	var mx := r.position.x + fp.x * sx
 	d.draw_circle(Vector2(mx, yy - 3), 5.0, K.GOLD if pl.host else Color(0.6, 0.78, 0.95))
 	_text(Vector2(r.position.x, r.end.y + 4), _place_name(fp, pl.focus_area()), F_BODY, 20, DIM)
+
+
+const ROOM_WORDS := {"hall": "прихожая", "kitchen": "кухня", "living": "комната", "bedroom": "спальня", "bath": "ванная",
+	"stair": "лестница", "lift": "у лифта", "gallery": "переход", "office": "контора", "meeting": "переговорная", "archive": "архив",
+	"boss": "кабинет начальника", "smoke": "курилка", "lobby": "вестибюль", "security": "комната охраны", "cafe": "кафе",
+	"pharmacy": "аптека", "shop": "торговый зал", "basement": "", "vent": "вентшахта", "corridor": "коридор",
+	"storage": "кладовая", "store": "склад"}
 
 
 func _place_name(fp: Vector2, area: String) -> String:
@@ -542,13 +700,17 @@ func _place_name(fp: Vector2, area: String) -> String:
 		return "коллектор"
 	if area == "M":
 		return "метро, платформа"
+	if area == "D":
+		return "дренажный тоннель"
 	if area.begins_with("R"):
 		return "крыша"
 	if city.areas.has(area) and city.areas[area]["inside"]:
 		var b: Dictionary = city.buildings[int(city.areas[area]["bid"])]
 		var f := int(city.areas[area]["f"])
 		var nm: String = b["name"] if b["name"] != "" else "жилой дом"
-		return "%s, %s" % [nm, "подвал" if f < 0 else "%d-й этаж" % (f + 1)]
+		var rm := city.room_at(area, fp.x)
+		var rw: String = ROOM_WORDS.get(rm.get("kind", ""), "")
+		return "%s, %s%s" % [nm, "подвал" if f < 0 else "%d-й этаж" % (f + 1), (", " + rw) if rw != "" else ""]
 	var best := ""
 	var bd := 220.0
 	for k in city.places:
@@ -630,7 +792,7 @@ func _map() -> void:
 	_text(Vector2(1860, 90), "M — закрыть", F_BODY, 22, DIM, HORIZONTAL_ALIGNMENT_RIGHT, 0)
 	var wpx := float(city.width * K.T)
 	var sx := 1800.0 / wpx
-	var top := float((K.GY - 62) * K.T)
+	var top := float(city.top_row * K.T)
 	var bot := float(K.ROWS * K.T)
 	var sy := 860.0 / (bot - top)
 	var o := Vector2(60, 140)
@@ -711,7 +873,7 @@ const HELP := [
 	["E", "дверь, вход, окно, разговор, улика, пульт, щиток, таксофон"],
 	["Q (держать)", "задушить; на краю крыши или у дороги — столкнуть"],
 	["G", "поднять / бросить тело;  E у шкафа или бака — спрятать"],
-	["F", "покинуть тело;  T — ждать (×1, ×3, ×6), когда никто не смотрит"],
+	["F", "покинуть тело;  T — ждать (×1, ×4, ×10), когда никто не смотрит"],
 	["R (держать)", "у таксофона — экстренная линия: уйти, бросив дело"],
 	["ВНЕ ТЕЛА", ""],
 	["W A S D", "лететь;  Shift — быстрее;  W/S у лестницы — этаж;  E — вход, окно, форточка"],

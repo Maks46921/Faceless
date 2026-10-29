@@ -119,7 +119,7 @@ func _follow(dt: float) -> void:
 	if step < route.size():
 		var e: Dictionary = route[step]
 		var pt: Dictionary = e["p"]
-		var x := float(pt["x"])
+		var x := City.px_from(pt, int(e["dir"]))
 		var from_area: String = pt["a"] if int(e["dir"]) > 0 else pt["b"]
 		if p.area != from_area:
 			p.update_area()
@@ -347,3 +347,8 @@ func _do_react(dt: float) -> void:
 		"goto":
 			goal = {"h": 0, "area": react["area"], "x": pos.x, "act": "idle"}
 			_follow(dt)
+		"talk":
+			p.move_x = 0.0
+			var who: Person = react["who"]
+			if is_instance_valid(who):
+				p.facing = 1 if who.global_position.x > p.global_position.x else -1

@@ -584,6 +584,8 @@ def main(out):
     OUT = out
     os.makedirs(os.path.join(out, "props"), exist_ok=True)
     street(); transport(); furniture(); doors(); animals(); spirit()
+    import props_v21
+    props_v21.run(sys.modules[__name__])
     with open(os.path.join(out, "props.txt"), "w") as f:
         for nm, w, h, n in LIST:
             f.write("%s %d %d %d\n" % (nm, w, h, n))

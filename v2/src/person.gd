@@ -32,6 +32,7 @@ var fig: Node2D
 var mat: ShaderMaterial
 var sprites: Array = []
 var anim := "idle"
+var fade := 1.0                 # в кабине лифта фигуру не видно
 var anim_t := 0.0
 var frame := 0
 var move_x := 0.0             # команда движения -1..1
@@ -122,11 +123,12 @@ func full_name() -> String:
 
 func set_inside(v: bool) -> void:
 	inside = v
-	var m := K.L_COMMON | K.L_GRATE
+	# решётки и перегородки — только внутри: на улице они не должны мешать (стояли невидимыми ступеньками)
+	var m := K.L_COMMON
 	if drop_t <= 0.0:
 		m |= K.L_PLATFORM
 	if v:
-		m |= K.L_INTERIOR | K.L_DOOR
+		m |= K.L_INTERIOR | K.L_DOOR | K.L_GRATE
 	collision_mask = m
 	visibility_layer = K.V_INNER if v else K.V_OUTER
 	z_index = K.Z_PEOPLE if v else K.Z_OUT_PEOPLE
@@ -340,8 +342,9 @@ func _after(_dt: float) -> void:
 	fig.scale.x = float(facing)
 	if mat:
 		mat.set_shader_parameter("flash", flash)
-	if fig.modulate.a != alpha:
-		fig.modulate.a = alpha
+	var a := alpha * fade
+	if fig.modulate.a != a:
+		fig.modulate.a = a
 
 
 func _landed() -> void:
@@ -387,9 +390,9 @@ func _climb(dt: float) -> void:
 # ======================= переходы =======================
 
 func use_portal(p: Dictionary, dir: int) -> void:
-	## Переход между зонами: лестница, вход, люк, окно. Пока идёт переход, физика выключена.
+	## Переход между зонами: лестница, лифт, вход, люк, окно, мостик. Пока идёт переход, физика выключена.
 	var x0 := global_position.x
-	var px := float(p["x"])
+	var px := City.px_from(p, dir)
 	var ya := float(p["ya"])
 	var yb := float(p["yb"])
 	var from_y := ya if dir > 0 else yb
@@ -397,40 +400,51 @@ func use_portal(p: Dictionary, dir: int) -> void:
 	var to_area: String = p["b"] if dir > 0 else p["a"]
 	var pts: Array = []
 	var anim_k := "walk"
-	var flip_inside := -1
+	var dur := float(p.get("dur", 1.0))
 	var kind: String = p["kind"]
 	match kind:
 		"stairs":
-			var up := to_y < from_y
+			# пролёт: от точки, где стоишь, к маршу и обратно на площадку
 			var mid := (from_y + to_y) / 2.0
 			var xl := px - 22.0
 			var xr := px + 22.0
-			if up:
-				pts = [Vector2(xl, from_y), Vector2(xr, mid), Vector2(xl, to_y)]
-			else:
-				pts = [Vector2(xl, from_y), Vector2(xr, mid), Vector2(xl, to_y)]
+			pts = [Vector2(xl, from_y), Vector2(xr, mid), Vector2(xl, to_y)]
+		"lift":
+			pts = [Vector2(px, from_y), Vector2(px, to_y)]
+			anim_k = "idle"
 		"entrance", "backdoor":
 			pts = [Vector2(px, from_y), Vector2(px, to_y)]
-			flip_inside = 1
-		"hatch", "manhole", "shaft":
+		"hatch", "manhole", "shaft", "ladder", "ventshaft", "drain":
 			pts = [Vector2(px, from_y), Vector2(px, to_y)]
 			anim_k = "climb"
 		"escalator":
 			var dx := -60.0 if dir > 0 else 60.0
 			pts = [Vector2(px, from_y), Vector2(px + dx, (from_y + to_y) / 2.0), Vector2(px, to_y)]
+		"srvstairs":
+			pts = [Vector2(px, from_y), Vector2(px + 20.0, (from_y + to_y) / 2.0), Vector2(px, to_y)]
+		"bridge", "passage", "roofladder":
+			var path: Array = (p["path"] as Array).duplicate()
+			if dir < 0:
+				path.reverse()
+			pts = path
+			var ln := 0.0
+			for i in range(1, path.size()):
+				ln += (path[i] as Vector2).distance_to(path[i - 1])
+			dur = maxf(dur, ln / 55.0)
+			if kind == "roofladder":
+				anim_k = "climb"
 		"window", "vent":
 			pts = [Vector2(px, from_y), Vector2(px, to_y)]
-			flip_inside = 1
 	var to_inside: bool = city.areas[to_area]["inside"] if city.areas.has(to_area) else not inside
 	if kind in ["window", "vent"]:
 		to_inside = dir > 0
-	transit = {"pts": [Vector2(x0, from_y)] + pts, "i": 0, "t": 0.0, "dur": float(p.get("dur", 1.0)), "to_area": to_area,
-		"to_inside": to_inside, "anim": anim_k, "kind": kind, "p": p}
+	transit = {"pts": [Vector2(x0, from_y)] + pts, "i": 0, "t": 0.0, "dur": dur, "to_area": to_area,
+		"to_inside": to_inside, "anim": anim_k, "kind": kind, "p": p, "dir": dir}
 	state = "transit"
 	velocity = Vector2.ZERO
 	climbing = false
-	if kind in ["entrance", "backdoor", "window", "vent", "hatch", "manhole", "shaft", "escalator"]:
-		world.portal_used(self, p)
+	if kind in ["entrance", "backdoor", "window", "vent", "hatch", "manhole", "shaft", "escalator", "lift", "ladder", "srvstairs"]:
+		world.portal_used(self, p, dir)
 
 
 func _transit(dt: float) -> void:
@@ -450,6 +464,8 @@ func _transit(dt: float) -> void:
 	global_position = a.lerp(b, k)
 	if absf(b.x - a.x) > 1.0:
 		facing = 1 if b.x > a.x else -1
+	if transit["kind"] == "lift":
+		fade = 0.0 if i > 0 else 1.0 - k
 	# внутренний/внешний меняются на середине перехода
 	if transit["kind"] in ["entrance", "backdoor", "window", "vent", "hatch", "manhole", "escalator"] and i == segs - 1 and k > 0.5:
 		if inside != bool(transit["to_inside"]):
@@ -474,6 +490,7 @@ func _end_transit() -> void:
 	state = "ok"
 	velocity = Vector2.ZERO
 	air = false
+	fade = 1.0
 	transit = {}
 	world.transit_done(self)
 

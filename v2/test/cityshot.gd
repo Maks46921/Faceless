@@ -27,13 +27,25 @@ func _ready() -> void:
 		l["light"].visible = on or not l["outer"]
 	var dir := "user://shots/"
 	DirAccess.make_dir_recursive_absolute(dir)
-	var spots := [Vector2(300, 1250), Vector2(1100, 1200), Vector2(1700, 1260), Vector2(2400, 1150), Vector2(3100, 1250), Vector2(1700, 1450), Vector2(2560, 1550), Vector2(900, 900)]
+	var gy := float(K.GY * K.T)
+	var spots := []
+	var modes := []
+	for b in city.buildings:
+		var cx := (float(b["x0"]) + float(b["w"]) / 2.0) * K.T
+		spots.append(Vector2(cx, gy - 200)); modes.append("out")
+	var b0: Dictionary = city.buildings[1]
+	var bc := (float(b0["x0"]) + float(b0["w"]) / 2.0) * K.T
+	for f in [1, 4, int(b0["n"]) - 1]:
+		spots.append(Vector2(bc, K.floor_y(f) - 40)); modes.append("in")
+	spots.append(Vector2(bc, K.floor_y(int(b0["n"])) - 300)); modes.append("out")
+	for r in [City.C_ROW, City.M_ROW, City.D_ROW]:
+		spots.append(Vector2(bc + 600, r * K.T - 60)); modes.append("under")
 	var i := 0
 	for p in spots:
 		view.snap_to(p)
-		view.viewer_inside = i == 5 or i == 7
+		view.viewer_inside = modes[i] == "in"
 		view.viewer_bid = city.building_at(p.x).get("id", -1)
-		view.viewer_under = i == 6
+		view.viewer_under = modes[i] == "under"
 		for k in 40:
 			await get_tree().process_frame
 		var img := get_viewport().get_texture().get_image()
