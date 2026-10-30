@@ -148,7 +148,11 @@ func go_portal(p: Dictionary, dir: int) -> void:
 	var to_inside: bool = dir > 0 if p["kind"] in ["window", "vent"] else bool(city.areas[to_area]["inside"]) if city.areas.has(to_area) else not inside
 	var px := City.px_from(p, dir)
 	var pts: Array = [global_position, Vector2(px, from_y - 10)]
-	if p.has("path"):
+	if p["kind"] == "stairs":
+		# вдоль марша, как по лестнице, а не сквозь перекрытие
+		var mid := (from_y + to_y) / 2.0
+		pts = [global_position, Vector2(px - 22.0, from_y - 10), Vector2(px + 22.0, mid - 10), Vector2(px - 22.0, to_y - 10)]
+	elif p.has("path"):
 		var path: Array = (p["path"] as Array).duplicate()
 		if dir < 0:
 			path.reverse()

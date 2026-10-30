@@ -276,6 +276,8 @@ func hear(pos: Vector2, loud: float, kind: String) -> void:
 		p.say(["Что там?", "Кто здесь?", "А?", "Что за шум?"][randi() % 4], 2.0)
 	else:
 		p.look_t = 1.2
+		if kind == "stairs" and randf() < 0.25:
+			p.say(["Кто там топает?", "Носятся по лестнице…", "Тише там!"][randi() % 3], 2.0)
 
 
 func see_body(body: Person) -> void:

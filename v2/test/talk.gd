@@ -115,15 +115,54 @@ func _ready() -> void:
 		await wait(0.3)
 		print("after lift hold: area ", h.area, " y ", int(h.global_position.y))
 		await shot("lift")
-		# лестница вниз, держим S
+		# лестница вниз шагом: держим S, пока не спустимся на два этажа
 		put(h, h.area, float(lb["stair_x"]))
 		await wait(0.5)
 		print("stairs prompt S: ", pl.act_s.get("text", "-"))
+		var a0: String = h.area
+		var t0 := Time.get_ticks_msec()
 		key(KEY_S, true)
-		await wait(3.5)
-		key(KEY_S, false)
-		while h.state == "transit":
+		var mid_shot := false
+		var changes := 0
+		var last_a := a0
+		while changes < 2 and Time.get_ticks_msec() - t0 < 12000:
 			await get_tree().process_frame
+			if h.area != last_a:
+				changes += 1
+				last_a = h.area
+			if not mid_shot and h.state == "transit" and float(h.transit.get("s", 0.0)) > 70.0:
+				mid_shot = true
+				print("mid: s=%d L=%d pos=%s stair_x=%d floor_y=%d" % [int(h.transit["s"]), int(h.transit["L"]), str(h.global_position), int(lb["stair_x"]), int(K.floor_y(int(w.city.areas[a0]["f"])))])
+				key(KEY_S, false)
+				await shot("stairs_mid")
+				key(KEY_S, true)
+		while h.state == "transit" and Time.get_ticks_msec() - t0 < 16000:
+			await get_tree().process_frame
+		key(KEY_S, false)
+		print("walk down 2 floors: %.1f s, area %s -> %s" % [(Time.get_ticks_msec() - t0) / 1000.0, a0, h.area])
+		# стоим на ступеньке: отпустили посреди марша
+		key(KEY_W, true)
+		await wait(0.6)
+		key(KEY_W, false)
+		await wait(0.5)
+		print("released mid-flight: state ", h.state, " s=", int(float(h.transit.get("s", -1.0))), " v=", h.transit.get("v", 0.0))
+		# бегом вверх
+		key(KEY_SHIFT, true)
+		key(KEY_W, true)
+		t0 = Time.get_ticks_msec()
+		var a1: String = h.area
+		changes = 0
+		last_a = a1
+		while changes < 2 and Time.get_ticks_msec() - t0 < 12000:
+			await get_tree().process_frame
+			if h.area != last_a:
+				changes += 1
+				last_a = h.area
+		while h.state == "transit" and Time.get_ticks_msec() - t0 < 16000:
+			await get_tree().process_frame
+		key(KEY_W, false)
+		key(KEY_SHIFT, false)
+		print("run up: %.1f s, area %s -> %s, susp %d" % [(Time.get_ticks_msec() - t0) / 1000.0, a1, h.area, int(w.susp)])
 		await wait(0.3)
 		print("after stairs hold: area ", h.area)
 		await shot("stairs")

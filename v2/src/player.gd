@@ -209,6 +209,10 @@ func _body(dt: float) -> void:
 	var p := host
 	hurt = 0.0
 	density = minf(100.0, density + 9.0 * dt)
+	if p.state == "transit" and p.transit.get("kind", "") == "stairs":
+		_stairs_input(p)
+		_body_prompts()
+		return
 	if p.state == "transit" or p.state == "ko":
 		p.move_x = 0.0
 		_body_prompts()
@@ -252,6 +256,31 @@ func _body(dt: float) -> void:
 			_do(a)
 		elif not up and not dn:
 			hold_kind = ""
+
+
+func _stairs_input(p: Person) -> void:
+	## На марше: W/S — вверх и вниз, A/D — по ходу пролёта, Shift — бегом, Ctrl — тихо. Отпустил — стоишь на ступеньке.
+	p.move_x = 0.0
+	if world.hud and world.hud.talk:
+		p.stair_in = 0.0
+		return
+	p.mode = "run" if _key(KEY_SHIFT) else ("sneak" if _key(KEY_CTRL) else "walk")
+	var up := p.stair_up()
+	var v := 0.0
+	if _key(KEY_W) or _key(KEY_UP):
+		v += 1.0 if up else -1.0
+	if _key(KEY_S) or _key(KEY_DOWN):
+		v += -1.0 if up else 1.0
+	var hx := p.stair_hdir()
+	if hx != 0:
+		if _key(KEY_D) or _key(KEY_RIGHT):
+			v += float(hx)
+		if _key(KEY_A) or _key(KEY_LEFT):
+			v -= float(hx)
+	p.stair_in = clampf(v, -1.0, 1.0)
+	if world.env.speed > 1.0 and v != 0.0:
+		wait_i = 0
+		world.env.speed = 1.0
 
 
 func _neighbours(dt: float) -> void:
@@ -343,6 +372,8 @@ func suspicious_acts() -> Array:
 		out.append([16.0, "лезет по трубе"])
 	if p.state == "ok" and absf(p.velocity.x) > 70.0:
 		out.append([5.0, "бежит"])
+	if p.state == "transit" and p.transit.get("kind", "") == "stairs" and absf(float(p.transit.get("v", 0.0))) > 55.0:
+		out.append([5.0, "бежит по лестнице"])
 	if p.mode == "sneak" and absf(p.velocity.x) > 4.0:
 		out.append([3.0, "крадётся"])
 	if p.area.begins_with("R") and p.prof != "janitor":
@@ -565,7 +596,9 @@ func _person_near(p: Person, r: float, facing_only: bool = false) -> Person:
 	var best: Person = null
 	var bd := r
 	for q in world.people:
-		if q == p or q.state in ["dead", "carried", "hidden", "gone", "transit"]:
+		if q == p or q.state in ["dead", "carried", "hidden", "gone"]:
+			continue
+		if q.state == "transit" and q.transit.get("kind", "") != "stairs":
 			continue
 		if q.inside != p.inside or q.area != p.area:
 			continue

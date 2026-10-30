@@ -861,10 +861,13 @@ func _confirm(_dt: float) -> void:
 func footstep(p: Person) -> void:
 	if p.host:
 		var loud := 40.0 if p.mode == "walk" else (90.0 if p.mode == "run" else 10.0)
+		var on_stairs: bool = p.state == "transit"
+		if on_stairs and p.mode == "run":
+			loud = 140.0          # бег по лестнице слышно на соседних этажах
 		if p.mode != "sneak":
 			Sfx.play("step_hard" if not p.inside else "step", -16.0 if p.mode == "walk" else -10.0)
 		if loud > 50.0:
-			noise_at(p.global_position, loud, p, "step")
+			noise_at(p.global_position, loud, p, "stairs" if on_stairs else "step")
 
 
 func noise_at(pos: Vector2, loud: float, src: Node, kind: String) -> void:
@@ -873,7 +876,7 @@ func noise_at(pos: Vector2, loud: float, src: Node, kind: String) -> void:
 			continue
 		var d: float = p.global_position.distance_to(pos)
 		if d < loud and (p.inside == (city.area_at(pos, true) != "") or not p.inside):
-			if p.inside and p.area != city.area_at(pos, true) and d > loud * 0.4:
+			if p.inside and p.area != city.area_at(pos, true) and d > loud * 0.4 and kind != "stairs":
 				continue
 			p.brain.hear(pos, loud - d, kind)
 	if dog:

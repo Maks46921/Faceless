@@ -9,6 +9,8 @@ const W_WALK := 50.0
 const W_RUN := 118.0
 const W_SNEAK := 28.0
 const NFR := 57
+const STAIR_K := 0.8          # по ступеням медленнее, чем по полу
+const STEPS := 5              # ступеней в пролёте (для покачивания по шагам)
 
 var world: Node
 var city: City
@@ -45,6 +47,7 @@ var climb_y0 := 0.0
 var climb_y1 := 0.0
 var climb_v := 0.0
 var transit := {}
+var stair_in := 0.0             # игрок на марше: -1..1 вдоль пути (вперёд — туда, куда шёл)
 var carrying: Person = null
 var carried_by: Person = null
 var ko_t := 0.0
@@ -198,6 +201,17 @@ func _pick_anim(dt: float) -> void:
 		_anim("lie", dt, 1.0)
 		return
 	if state == "transit":
+		if transit.get("kind", "") == "stairs":
+			var v := absf(float(transit.get("v", 0.0)))
+			if v < 2.0:
+				_anim("idle", dt, 0.8)
+			elif mode == "run" and v > 60.0:
+				_anim("run", dt, v / 46.0 * 6.0)
+			elif mode == "sneak":
+				_anim("sneak", dt, v / 18.0 * 4.0)
+			else:
+				_anim("walk", dt, v / 26.0 * 8.0)
+			return
 		var k: String = transit.get("anim", "walk")
 		_anim(k, dt, 8.0 if k != "climb" else 5.0)
 		return
@@ -440,6 +454,23 @@ func use_portal(p: Dictionary, dir: int) -> void:
 		to_inside = dir > 0
 	transit = {"pts": [Vector2(x0, from_y)] + pts, "i": 0, "t": 0.0, "dur": dur, "to_area": to_area,
 		"to_inside": to_inside, "anim": anim_k, "kind": kind, "p": p, "dir": dir}
+	if kind == "stairs":
+		# марш проходится шагами: игрок ведёт сам (W/S, A/D, Shift — бегом), жители — своим шагом
+		var lens := []
+		var tl := 0.0
+		var all: Array = transit["pts"]
+		for i in range(1, all.size()):
+			var l := (all[i] as Vector2).distance_to(all[i - 1])
+			lens.append(l)
+			tl += l
+		transit["lens"] = lens
+		transit["L"] = tl
+		transit["s"] = 0.0
+		transit["v"] = 0.0
+		transit["manual"] = host
+		transit["from_area"] = area
+		transit["switched"] = false
+		stair_in = 0.0
 	state = "transit"
 	velocity = Vector2.ZERO
 	climbing = false
@@ -447,7 +478,134 @@ func use_portal(p: Dictionary, dir: int) -> void:
 		world.portal_used(self, p, dir)
 
 
+func stair_speed() -> float:
+	var sp := W_WALK if host else base_speed
+	if mode == "run":
+		sp = W_RUN if host else base_speed * 2.1
+	elif mode == "sneak":
+		sp = W_SNEAK
+	if carrying:
+		sp = minf(sp, 30.0)
+	return sp * STAIR_K
+
+
+func stair_seg() -> int:
+	## Номер отрезка пути, на котором стоит (0 — подход по площадке, дальше пролёты).
+	var s: float = transit["s"]
+	var lens: Array = transit["lens"]
+	var acc := 0.0
+	for i in lens.size():
+		acc += float(lens[i])
+		if s < acc:
+			return i
+	return lens.size() - 1
+
+
+func stair_hdir() -> int:
+	## Куда по горизонтали ведёт текущий отрезок, если идти вперёд.
+	var pts: Array = transit["pts"]
+	var i := stair_seg()
+	var dx := (pts[i + 1] as Vector2).x - (pts[i] as Vector2).x
+	return 1 if dx > 0.5 else (-1 if dx < -0.5 else 0)
+
+
+func stair_up() -> bool:
+	var pts: Array = transit["pts"]
+	return (pts[pts.size() - 1] as Vector2).y < (pts[0] as Vector2).y
+
+
+func stair_held() -> bool:
+	## Разговор или руки на горле останавливают человека прямо на ступенях.
+	if brain and not brain.react.is_empty() and brain.react.get("kind", "") == "talk":
+		return true
+	if world.player and world.player.strangle.get("victim") == self:
+		return true
+	return world.hud != null and world.hud.talk != null and world.hud.talk.q == self
+
+
+func _stairs(dt: float) -> void:
+	var pts: Array = transit["pts"]
+	var lens: Array = transit["lens"]
+	var tl: float = transit["L"]
+	var v := stair_speed()
+	if bool(transit["manual"]):
+		v *= stair_in
+	if not host and stair_held():
+		v = 0.0
+	transit["v"] = v
+	var s: float = float(transit["s"]) + v * dt
+	if s <= 0.0 and v < 0.0:
+		_stairs_back()
+		return
+	s = clampf(s, 0.0, tl)
+	transit["s"] = s
+	# где на пути
+	var acc := 0.0
+	var pos: Vector2 = pts[pts.size() - 1]
+	for i in lens.size():
+		var l := float(lens[i])
+		if s <= acc + l or i == lens.size() - 1:
+			var k := 0.0 if l < 0.01 else clampf((s - acc) / l, 0.0, 1.0)
+			var a: Vector2 = pts[i]
+			var b: Vector2 = pts[i + 1]
+			pos = a.lerp(b, k)
+			if i >= 1 and absf(b.y - a.y) > 4.0:
+				# по ступенькам: нога поднимается в конце каждого шага
+				var n := k * STEPS
+				var st := floorf(n) + smoothstep(0.55, 1.0, n - floorf(n))
+				pos.y = a.y + (b.y - a.y) * minf(st / STEPS, 1.0)
+			if absf(b.x - a.x) > 0.5 and absf(v) > 0.5:
+				facing = (1 if b.x > a.x else -1) * (1 if v > 0 else -1)
+			break
+		acc += l
+	global_position = pos
+	# зона меняется на середине пути: на площадке между этажами видно уже другой этаж
+	var half := tl * 0.5
+	if s >= half and not transit["switched"]:
+		transit["switched"] = true
+		if city.areas.has(transit["to_area"]):
+			area = transit["to_area"]
+	elif s < half and transit["switched"]:
+		transit["switched"] = false
+		area = transit["from_area"]
+	# шаги слышно; бег по лестнице — громко
+	if absf(v) > 4.0:
+		step_t -= dt * absf(v) / 26.0
+		if step_t <= 0.0:
+			step_t = 1.0
+			world.footstep(self)
+	if s >= tl:
+		_end_transit()
+
+
+func _stairs_back() -> void:
+	## Передумал и спустился (поднялся) обратно на свою площадку.
+	area = transit["from_area"]
+	global_position = transit["pts"][0]
+	state = "ok"
+	velocity = Vector2.ZERO
+	air = false
+	fade = 1.0
+	transit = {}
+	world.transit_done(self)
+
+
+func drop_transit() -> void:
+	## Человека остановили посреди перехода (упал без сознания, умер): дальше падает сам.
+	if state != "transit":
+		return
+	if transit.get("switched", false) == false and transit.has("from_area"):
+		area = transit["from_area"]
+	transit = {}
+	fade = 1.0
+	air = true
+	fall_y0 = global_position.y
+
+
 func _transit(dt: float) -> void:
+	if transit.get("kind", "") == "stairs":
+		_stairs(dt)
+		return
 	var pts: Array = transit["pts"]
 	var i: int = transit["i"]
 	if i >= pts.size() - 1:
@@ -507,6 +665,8 @@ func update_area() -> void:
 func knock_out(dur: float) -> void:
 	if state == "dead":
 		return
+	if state == "transit":
+		drop_transit()
 	state = "ko"
 	ko_t = 0.0
 	pose = ""
@@ -524,6 +684,8 @@ func wake_up() -> void:
 
 
 func die(how: String) -> void:
+	if state == "transit":
+		drop_transit()
 	state = "dead"
 	dead_by = how
 	pose = ""
