@@ -20,6 +20,7 @@ var last := ""
 var female := false
 var age := 1
 var prof := "resident"
+var cls := 1                   # 0 низ башни, 1 середина, 2 верх: одежда, речь, «чужой здесь»
 var look := {}
 var gait := ""                # limp, hunch, glance
 var base_speed := W_WALK
@@ -68,6 +69,7 @@ var dead_by := ""             # способ смерти
 var hidden_in: Dictionary = {}
 var last_floor_y := 0.0
 var alpha := 1.0
+var dormant := false            # далеко от камеры: без физики и картинки, ходит «по бумаге»
 
 
 func _init() -> void:
@@ -122,6 +124,19 @@ func rebuild_fig() -> void:
 
 func full_name() -> String:
 	return "%s %s" % [first, last]
+
+
+func set_dormant(v: bool) -> void:
+	if v == dormant:
+		return
+	dormant = v
+	set_physics_process(not v)
+	if v:
+		visible = false
+		move_x = 0.0
+		velocity = Vector2.ZERO
+	else:
+		visible = not state in ["hidden", "gone"]
 
 
 func set_inside(v: bool) -> void:
@@ -423,8 +438,13 @@ func use_portal(p: Dictionary, dir: int) -> void:
 			var xl := px - 22.0
 			var xr := px + 22.0
 			pts = [Vector2(xl, from_y), Vector2(xr, mid), Vector2(xl, to_y)]
-		"lift":
+		"lift", "freight":
 			pts = [Vector2(px, from_y), Vector2(px, to_y)]
+			anim_k = "idle"
+		"express":
+			# у дверей ждут кабину (вместе со всеми), потом едут без остановок
+			var slot := px + randf_range(-14.0, 14.0) if not host else px
+			pts = [Vector2(slot, from_y), Vector2(px, from_y), Vector2(px, to_y)]
 			anim_k = "idle"
 		"entrance", "backdoor":
 			pts = [Vector2(px, from_y), Vector2(px, to_y)]
@@ -436,7 +456,7 @@ func use_portal(p: Dictionary, dir: int) -> void:
 			pts = [Vector2(px, from_y), Vector2(px + dx, (from_y + to_y) / 2.0), Vector2(px, to_y)]
 		"srvstairs":
 			pts = [Vector2(px, from_y), Vector2(px + 20.0, (from_y + to_y) / 2.0), Vector2(px, to_y)]
-		"bridge", "passage", "roofladder":
+		"bridge", "passage", "roofladder", "gate":
 			var path: Array = (p["path"] as Array).duplicate()
 			if dir < 0:
 				path.reverse()
@@ -454,6 +474,9 @@ func use_portal(p: Dictionary, dir: int) -> void:
 		to_inside = dir > 0
 	transit = {"pts": [Vector2(x0, from_y)] + pts, "i": 0, "t": 0.0, "dur": dur, "to_area": to_area,
 		"to_inside": to_inside, "anim": anim_k, "kind": kind, "p": p, "dir": dir}
+	if kind == "express":
+		transit["wait"] = world.express_wait(self, from_y)
+		transit["waiting"] = true
 	if kind == "stairs":
 		# марш проходится шагами: игрок ведёт сам (W/S, A/D, Shift — бегом), жители — своим шагом
 		var lens := []
@@ -474,7 +497,7 @@ func use_portal(p: Dictionary, dir: int) -> void:
 	state = "transit"
 	velocity = Vector2.ZERO
 	climbing = false
-	if kind in ["entrance", "backdoor", "window", "vent", "hatch", "manhole", "shaft", "escalator", "lift", "ladder", "srvstairs"]:
+	if kind in ["entrance", "backdoor", "window", "vent", "hatch", "manhole", "shaft", "escalator", "lift", "ladder", "srvstairs", "gate", "freight"]:
 		world.portal_used(self, p, dir)
 
 
@@ -597,6 +620,7 @@ func drop_transit() -> void:
 	if transit.get("switched", false) == false and transit.has("from_area"):
 		area = transit["from_area"]
 	transit = {}
+	state = "ok"
 	fade = 1.0
 	air = true
 	fall_y0 = global_position.y
@@ -606,6 +630,13 @@ func _transit(dt: float) -> void:
 	if transit.get("kind", "") == "stairs":
 		_stairs(dt)
 		return
+	if transit.get("waiting", false) and int(transit["i"]) >= 1:
+		# стоит у дверей экспресса, пока не придёт кабина
+		transit["wait"] = float(transit["wait"]) - dt
+		if float(transit["wait"]) > 0.0:
+			return
+		transit["waiting"] = false
+		world.express_board(self)
 	var pts: Array = transit["pts"]
 	var i: int = transit["i"]
 	if i >= pts.size() - 1:
@@ -615,17 +646,21 @@ func _transit(dt: float) -> void:
 	var b: Vector2 = pts[i + 1]
 	var segs := pts.size() - 1
 	var seg_dur := float(transit["dur"]) / segs
-	if i == 0 and a.distance_to(b) > 1.0:
+	if transit["kind"] == "express" and i >= 1:
+		seg_dur = 0.5 if i == 1 else float(transit["dur"])
+	elif i == 0 and a.distance_to(b) > 1.0:
 		seg_dur = maxf(0.15, a.distance_to(b) / 60.0)
 	transit["t"] = float(transit["t"]) + dt / seg_dur
 	var k := clampf(float(transit["t"]), 0.0, 1.0)
 	global_position = a.lerp(b, k)
 	if absf(b.x - a.x) > 1.0:
 		facing = 1 if b.x > a.x else -1
-	if transit["kind"] == "lift":
+	if transit["kind"] in ["lift", "freight"]:
 		fade = 0.0 if i > 0 else 1.0 - k
+	elif transit["kind"] == "express":
+		fade = 1.0 if i == 0 else (1.0 - k if i == 1 else 0.0)
 	# внутренний/внешний меняются на середине перехода
-	if transit["kind"] in ["entrance", "backdoor", "window", "vent", "hatch", "manhole", "escalator"] and i == segs - 1 and k > 0.5:
+	if transit["kind"] in ["entrance", "backdoor", "window", "vent", "hatch", "manhole", "escalator", "gate"] and i == segs - 1 and k > 0.5:
 		if inside != bool(transit["to_inside"]):
 			set_inside(bool(transit["to_inside"]))
 			world.inside_changed(self)

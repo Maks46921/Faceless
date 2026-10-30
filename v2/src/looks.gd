@@ -112,6 +112,34 @@ static func random_look(rng: RandomNumberGenerator, female: bool, age: int, prof
 	return l
 
 
+static func class_style(l: Dictionary, cls: int, rng: RandomNumberGenerator) -> void:
+	## Класс по этажу: низ башни одет попроще и потёртее, верх — строго и дорого.
+	var pal: Array = l["pal"]
+	if l.get("torso", "") in ["uniform", "robe", "apron"]:
+		return
+	if cls == 2:
+		l["torso"] = "coat"
+		if not l["female"] and l["age"] > 0:
+			l["hat"] = ["fedora", "fedora", ""][rng.randi() % 3]
+		elif l["female"] and l["age"] > 0:
+			l["hat"] = ["beret", "", ""][rng.randi() % 3]
+		if l["age"] == 1:
+			l["item"] = "briefcase" if not l["female"] else "bag"
+		l["glasses"] = l["glasses"] or rng.randf() < 0.2
+		l["scarf"] = true
+		pal[TOP] = (pal[TOP] as Color).darkened(0.15)
+		pal[BOTTOM] = Color(0.14, 0.14, 0.17)
+	elif cls == 0:
+		if l["torso"] == "coat":
+			l["torso"] = ["parka", "sweater", "jacket"][rng.randi() % 3]
+		if not l["female"] and l["hat"] == "fedora":
+			l["hat"] = ["cap", "ushanka", "beanie"][rng.randi() % 3]
+		if l["item"] == "briefcase":
+			l["item"] = "bag"
+		var c: Color = pal[TOP]
+		pal[TOP] = c.lerp(Color(c.v, c.v, c.v), 0.35)
+
+
 static func _uniform(l: Dictionary, prof: String, rng: RandomNumberGenerator) -> void:
 	var pal: Array = l["pal"]
 	match prof:

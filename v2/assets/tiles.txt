@@ -120,3 +120,9 @@ bridge_floor 6 7
 bridge_glass 7 7
 bridge_roof 8 7
 bridge_wall 9 7
+gallery_floor 10 7
+gallery_roof 11 7
+gallery_glass 12 7
+gallery_wall 13 7
+f_sec_belt 14 7
+f_sec_louver 15 7

@@ -8,6 +8,7 @@ var voices: Array = []          # {who, text, col, t}
 var toasts: Array = []          # {card, src, extra, t}
 var board := false
 var map := false
+var map_zoom := 1.0             # колесо мыши на карте: ×1…×6 вокруг себя
 var pause := false
 var help := false
 var brief := false
@@ -129,6 +130,9 @@ func _process(dt: float) -> void:
 	d.queue_redraw()
 
 
+var rush_said := false
+
+
 func _hints() -> void:
 	if world.over:
 		return
@@ -139,6 +143,14 @@ func _hints() -> void:
 		voice("ПАМЯТЬ", "Без тела я таю. Солнце и фонари жгут, собаки рвут. Клешни — 1…5 и ЛКМ. F — войти в тело.", K.GOLD, 9.0)
 	elif world.case.open_tails().size() > 0 and Game.hint_once("tails"):
 		voice("КУРАТОР", "Хвосты подчисти до звонка: тело, камеры, свидетели. Список — на доске.", K.GOLD, 8.0)
+	elif pl.host and world.crowd_around(pl.host) >= 4 and Game.hint_once("crowd"):
+		voice("ПАМЯТЬ", "В толпе мелочей не замечают: бег и чужой этаж почти не видны. Но тронь кого-нибудь — увидят все.", K.GOLD, 8.0)
+	var h := fmod(world.env.hour, 24.0)
+	if (absf(h - 7.8) < 0.2 or absf(h - 17.8) < 0.2) and not rush_said:
+		rush_said = true
+		voice("ПАМЯТЬ", "Час пик. У дверей экспресса очередь, на галереях толпа — легко затеряться.", K.GOLD, 7.0)
+	elif absf(h - 7.8) > 0.5 and absf(h - 17.8) > 0.5:
+		rush_said = false
 
 
 # ======================= API для мира =======================
@@ -241,11 +253,16 @@ func _input(e: InputEvent) -> void:
 			KEY_M:
 				if not pause:
 					map = not map
+					map_zoom = 1.0
 					board = false
 					get_viewport().set_input_as_handled()
 			KEY_F1:
 				help = not help
 				get_viewport().set_input_as_handled()
+	if map and e is InputEventMouseButton and e.pressed and e.button_index in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_DOWN]:
+		map_zoom = clampf(map_zoom * (1.4 if e.button_index == MOUSE_BUTTON_WHEEL_UP else 1.0 / 1.4), 1.0, 6.0)
+		get_viewport().set_input_as_handled()
+		return
 	if e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT:
 		var mp: Vector2 = e.position
 		if board:
@@ -693,7 +710,11 @@ func _minimap() -> void:
 	var r := Rect2(1500, 22, 400, 144)
 	d.draw_rect(r.grow(8), BG)
 	var sx := r.size.x / wpx
-	var sy := 0.08
+	var sy := 0.08                  # под землёй
+	var hmax := 1.0
+	for b0 in city.buildings:
+		hmax = maxf(hmax, float(b0["n"]) * K.FH * K.T)
+	var su := minf(0.08, 104.0 / hmax)   # над землёй: шестьдесят этажей влезают в полосу
 	var gy := r.position.y + 110
 	var gw := K.floor_y(0)
 	# подземелье: коллектор, метро, дренаж
@@ -706,11 +727,11 @@ func _minimap() -> void:
 	for b in city.buildings:
 		var x0 := r.position.x + float(b["px0"]) * sx
 		var bw := (float(b["px1"]) - float(b["px0"])) * sx
-		var h := float(b["n"]) * K.FH * K.T * sy
+		var h := float(b["n"]) * K.FH * K.T * su
 		var near: bool = int(b["id"]) == int(city.building_at(pl.focus_pos().x).get("id", -1))
 		d.draw_rect(Rect2(x0, gy - h, bw, h), Color(0.3, 0.3, 0.32, 0.9) if not near else Color(0.42, 0.4, 0.36, 0.95))
-		for f in b["bridge_r"]:
-			var by := gy - (float(f) + 0.5) * K.FH * K.T * sy
+		for f in b["bridge_r"] + b["gal_r"]:
+			var by := gy - (float(f) + 0.5) * K.FH * K.T * su
 			d.draw_line(Vector2(x0 + bw, by), Vector2(x0 + bw + 6, by), Color(0.42, 0.4, 0.36, 0.95), 2.0)
 	# куда показали дорогу
 	if mark_t > 0.0:
@@ -729,7 +750,8 @@ func _minimap() -> void:
 		d.draw_rect(Rect2(px - 4, gy + 4, 8, 6), Color(0.4, 0.5, 1.0) if int(t * 4) % 2 == 0 else RED)
 	# игрок
 	var fp := pl.focus_pos()
-	var yy := gy - clampf((gw - fp.y) * sy, -36.0, 108.0)
+	var dy := gw - fp.y
+	var yy := gy - (dy * su if dy > 0.0 else maxf(dy * sy, -36.0))
 	var mx := r.position.x + fp.x * sx
 	d.draw_circle(Vector2(mx, yy - 3), 5.0, K.GOLD if pl.host else Color(0.6, 0.78, 0.95))
 	_text(Vector2(r.position.x, r.end.y + 4), _place_name(fp, pl.focus_area()), F_BODY, 20, DIM)
@@ -843,7 +865,15 @@ func _map() -> void:
 	var top := float(city.top_row * K.T)
 	var bot := float(K.ROWS * K.T)
 	var sy := 860.0 / (bot - top)
+	sx *= map_zoom
+	sy *= map_zoom
 	var o := Vector2(60, 140)
+	if map_zoom > 1.01:
+		# вокруг себя, не вылезая за край района
+		var fp0 := pl.focus_pos()
+		o = Vector2(960, 570) - Vector2(fp0.x * sx, (fp0.y - top) * sy)
+		o.x = clampf(o.x, 1860.0 - wpx * sx, 60.0)
+		o.y = clampf(o.y, 1000.0 - (bot - top) * sy, 140.0)
 	var tr := func(p: Vector2) -> Vector2: return o + Vector2(p.x * sx, (p.y - top) * sy)
 	# земля
 	var g0: Vector2 = tr.call(Vector2(0, K.floor_y(0)))
@@ -863,6 +893,19 @@ func _map() -> void:
 		var bp: Vector2 = tr.call(Vector2(float(b["px0"]), float(int(b["roof_r"]) * K.T)))
 		var nm: String = b["name"] if b["name"] != "" else ("жилой" if b["kind"] == "res" else "")
 		_text(bp + Vector2(4, -6), nm, F_BODY, 18, DIM)
+		# секции мегакорпуса: черта и номер каждые 10 этажей, при увеличении — номера этажей
+		if int(b["n"]) >= 20:
+			for sc in range(0, int(b["n"]), K.SEC):
+				var sp0: Vector2 = tr.call(Vector2(float(b["px0"]), K.floor_y(sc)))
+				var sp1: Vector2 = tr.call(Vector2(float(b["px1"]), K.floor_y(sc)))
+				d.draw_line(sp0, sp1, Color(K.GOLD, 0.35), 2.0)
+				_text(sp0 + Vector2(-46, -6), "С%d" % (sc / K.SEC + 1), F_HEAD, 18, Color(K.GOLD, 0.7))
+			if map_zoom >= 3.0:
+				for fl in range(1, int(b["n"])):
+					var fp1: Vector2 = tr.call(Vector2(float(b["px1"]), K.floor_y(fl)))
+					if fp1.y > 120 and fp1.y < 1040:
+						_text(fp1 + Vector2(4, -2), str(fl + 1), F_BODY, 14, Color(PAPER, 0.45))
+	_text(Vector2(1860, 1050), "колесо — масштаб ×%.1f" % map_zoom, F_BODY, 20, DIM, HORIZONTAL_ALIGNMENT_RIGHT, 0)
 	# места
 	for k in city.places:
 		var plc: Dictionary = city.places[k]

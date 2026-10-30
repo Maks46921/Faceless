@@ -387,6 +387,13 @@ func suspicious_acts() -> Array:
 					out.append([8.0, "в чужой квартире"])
 			elif rm.get("staff", false) and not (p.prof in ["guard", "janitor", "police", "barista", "pharm", "cashier"]):
 				out.append([7.0, "в служебном помещении"])
+	# верх башни своих знает в лицо: работяге снизу там не место
+	if city.areas.has(p.area) and not (p.prof in ["janitor", "police", "courier", "guard"]):
+		var a: Dictionary = city.areas[p.area]
+		var bid := int(a.get("bid", -1))
+		var tall := bid >= 0 and int(city.buildings[bid]["n"]) >= 20
+		if (tall or p.area.begins_with("G")) and int(a.get("f", 0)) > 0 and K.cls_of_floor(int(a["f"])) - p.cls >= 2:
+			out.append([4.0, "чужой здесь"])
 	for q in world.people:
 		if q != p and q.state == "dead" and q.visible and q.area == p.area and q.global_position.distance_to(p.global_position) < 40.0:
 			out.append([5.0, "стоит над телом"])
@@ -443,6 +450,15 @@ func _portal_text(pt: Dictionary, dir: int) -> String:
 			return "в форточку" if dir > 0 else "из форточки"
 		"lift":
 			return "лифт: %d-й этаж" % (int(city.areas[to]["f"]) + 1)
+		"express":
+			return "экспресс: %d-й этаж" % (int(city.areas[to]["f"]) + 1)
+		"freight":
+			var ff := int(city.areas[to]["f"])
+			return "грузовой: %s" % ("подвал" if ff < 0 else "%d-й этаж" % (ff + 1))
+		"gate":
+			return "на галерею" if String(to).begins_with("G") else "в %s" % _bname(pt, to)
+		"chute":
+			return "мусоропровод вверх" if _portal_dir_word(pt, dir) == "up" else "мусоропровод вниз"
 		"bridge":
 			return "по переходу в соседний дом"
 		"passage":
@@ -483,7 +499,9 @@ func _portals_here(pos: Vector2, area: String, inside: bool, human: bool, r: flo
 		var d := absf(px - pos.x)
 		if d > float(pt.get("zw", r)):
 			continue
-		out.append({"p": pt, "dir": dir, "w": _portal_dir_word(pt, dir), "d": d})
+		# у экспресса из одного узла ближайший рейс — на соседний узел
+		var dd := d + absf(float(pt["yb"]) - float(pt["ya"])) * 0.0001
+		out.append({"p": pt, "dir": dir, "w": _portal_dir_word(pt, dir), "d": dd})
 	out.sort_custom(func(a, b): return a["d"] < b["d"])
 	return out
 
@@ -511,6 +529,10 @@ func _body_prompts() -> void:
 		prompts.append(["F", "покинуть тело"])
 		return
 	if p.state == "transit":
+		if p.transit.get("waiting", false):
+			var f := int(city.areas[p.transit["to_area"]]["f"])
+			prompts.append(["W/S", "экспресс до %d-го · кабина через %d с" % [f + 1, ceili(float(p.transit["wait"]))]])
+			prompts.append(["A/D", "отойти от дверей"])
 		return
 	# лазы и лестницы
 	for e in _portals_here(pos, p.area, p.inside, true, 14.0):
@@ -524,8 +546,8 @@ func _body_prompts() -> void:
 			act_s = a
 		elif e["w"] == "side" and act_e.is_empty():
 			act_e = a
-	# трубы и пожарные лестницы
-	if act_w.is_empty() and not p.climbing:
+	# трубы и пожарные лестницы: все снаружи — из квартиры до них не дотянуться
+	if act_w.is_empty() and not p.climbing and not p.inside:
 		for c in city.climbs:
 			if absf(float(c["x"]) - pos.x) < 14.0 and pos.y <= float(c["y1"]) + 6.0 and pos.y > float(c["y0"]):
 				act_w = {"kind": "climb", "c": c, "text": "лезть по %s" % ("трубе" if c["kind"] == "pipe" else "лестнице")}
@@ -640,10 +662,9 @@ func _road_push(p: Person, v: Person) -> bool:
 
 
 func _payphone_near(p: Person) -> bool:
-	if p.inside:
-		return false
 	for o in city.objs:
-		if o["kind"] == "payphone" and absf(float(o["x"]) - p.global_position.x) < 22.0:
+		if o["kind"] == "payphone" and bool(o["inside"]) == p.inside and absf(float(o["x"]) - p.global_position.x) < 22.0 \
+				and absf(float(o.get("y", K.floor_y(0))) - p.global_position.y) < 30.0:
 			return true
 	return false
 
@@ -678,6 +699,9 @@ func _obj_action(o: Dictionary, p: Person) -> Dictionary:
 		"dumpster":
 			if p.carrying and not o["full"]:
 				return {"kind": "hide", "o": o, "text": "спрятать тело в бак", "prio": true}
+		"chute":
+			if p.carrying:
+				return {"kind": "chute", "o": o, "text": "сбросить тело в мусоропровод", "prio": true}
 		"console":
 			return {"kind": "console", "o": o, "text": "стереть записи камер"}
 		"fusebox":
@@ -709,7 +733,7 @@ func _do(a: Dictionary) -> void:
 			if p.carrying and a["p"]["kind"] in ["window", "vent", "hatch", "manhole", "shaft", "ladder", "roofladder"]:
 				say("С телом на руках не пролезть.")
 				return
-			hold_kind = a["p"]["kind"] if a["p"]["kind"] in ["stairs", "lift"] else ""
+			hold_kind = a["p"]["kind"] if a["p"]["kind"] in ["stairs", "lift", "freight"] else ""
 			p.use_portal(a["p"], a["dir"])
 		"climb":
 			if p.carrying:
@@ -748,6 +772,25 @@ func _do(a: Dictionary) -> void:
 				world.hud.voice("ПАМЯТЬ", "Это я уже знал. Теперь — ясно.", K.GOLD)
 		"talk":
 			_talk(a["who"])
+		"chute":
+			# тело уходит вниз, в бак под домом; грохот слышно на этажах ниже
+			var o3: Dictionary = a["o"]
+			var c3 := p.carrying
+			p.carrying = null
+			c3.carried_by = null
+			var b3: Dictionary = city.buildings[int(o3["bid"])]
+			var bin: Dictionary = b3.get("chute_bin", {})
+			c3.state = "hidden"
+			c3.visible = false
+			c3.hidden_in = bin
+			c3.set_meta("stashed", true)
+			c3.global_position = Vector2(float(bin.get("x", o3["x"])), float(bin.get("y", o3["y"])))
+			c3.area = city.area_of_floor(int(o3["bid"]), -1)
+			Sfx.play("crash", -6.0)
+			world.noise_at(Vector2(float(o3["x"]), float(o3["y"]) + 80.0), 110.0, null, "crash")
+			if c3 == case.target:
+				case.clear_tail("body")
+			say("Тело ушло вниз по трубе.")
 		"hide":
 			var o2: Dictionary = a["o"]
 			var c := p.carrying
@@ -972,6 +1015,13 @@ func _spirit(dt: float) -> void:
 			hover = q
 	hover_claw = _claw_target(mouse_w) if claw >= 0 else {}
 	_spirit_prompts()
+	# держишь W/S у мусоропровода, вентшахты или лестницы — летишь дальше без новых нажатий
+	if s.transit.is_empty():
+		var up := _key(KEY_W) or _key(KEY_UP)
+		var dn := _key(KEY_S) or _key(KEY_DOWN)
+		var a: Dictionary = act_w if up else (act_s if dn else {})
+		if not a.is_empty() and a.get("p", {}).get("kind", "") in ["chute", "ventshaft", "stairs"]:
+			s.go_portal(a["p"], a["dir"])
 
 
 func _spirit_prompts() -> void:
@@ -1373,8 +1423,54 @@ func _unhandled_input(e: InputEvent) -> void:
 			claw = -1
 
 
+func _express_key(p: Person, k: Key) -> void:
+	## Пока ждёшь экспресс: W/S — выбрать узел выше или ниже, A/D — отойти от дверей.
+	var t := p.transit
+	var pt: Dictionary = t["p"]
+	var b: Dictionary = city.buildings[int(pt["bid"])]
+	var from_a: String = pt["a"] if int(t["dir"]) > 0 else pt["b"]
+	var f_from := int(city.areas[from_a]["f"])
+	var f_to := int(city.areas[t["to_area"]]["f"])
+	if k in [KEY_A, KEY_D, KEY_LEFT, KEY_RIGHT]:
+		p.transit = {}
+		p.state = "ok"
+		p.fade = 1.0
+		p.area = from_a
+		return
+	var stops: Array = b["stops"]
+	var i := stops.find(f_to)
+	var j := i + (1 if k in [KEY_W, KEY_UP] else -1)
+	if j < 0 or j >= stops.size():
+		return
+	if int(stops[j]) == f_from:
+		j += 1 if k in [KEY_W, KEY_UP] else -1
+		if j < 0 or j >= stops.size():
+			return
+	var want := city.area_of_floor(int(b["id"]), int(stops[j]))
+	for q in city.portals:
+		if q["kind"] != "express" or int(q.get("bid", -1)) != int(b["id"]):
+			continue
+		var dir := 0
+		if q["a"] == from_a and q["b"] == want:
+			dir = 1
+		elif q["b"] == from_a and q["a"] == want:
+			dir = -1
+		if dir != 0:
+			var pts: Array = t["pts"]
+			pts[pts.size() - 1] = Vector2((pts[pts.size() - 1] as Vector2).x, K.floor_y(int(stops[j])))
+			t["p"] = q
+			t["dir"] = dir
+			t["to_area"] = want
+			t["dur"] = float(q["dur"])
+			Sfx.play("ui", -10.0)
+			return
+
+
 func _body_key(k: Key) -> void:
 	var p := host
+	if p.state == "transit" and p.transit.get("waiting", false):
+		_express_key(p, k)
+		return
 	match k:
 		KEY_SPACE:
 			if p.climbing:

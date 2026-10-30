@@ -28,6 +28,7 @@ var fear := 0.0
 var lines: Array = []          # что может сказать в разговоре
 var wander_t := 0.0
 var is_target := false
+var paper := {}                # путь без физики: {t, eta, segs: [[время, шаг маршрута]]}
 
 
 func _init(person: Person, w: Node) -> void:
@@ -64,6 +65,9 @@ func tick(dt: float) -> void:
 		return
 	if p.state == "transit":
 		return
+	if p.dormant:
+		_paper(dt)
+		return
 	if dazed_t > 0.0:
 		dazed_t -= dt
 		p.move_x = 0.0
@@ -96,6 +100,97 @@ func tick(dt: float) -> void:
 	if away:
 		return
 	_follow(dt)
+
+
+# ============ вдали от камеры: путь по расписанию без физики ============
+
+func _paper(dt: float) -> void:
+	alert = maxf(0.0, alert - dt * 0.6)
+	fear = maxf(0.0, fear - dt * 2.0)
+	react = {}
+	dazed_t = 0.0
+	think_t -= dt
+	if think_t <= 0.0:
+		think_t = randf_range(0.8, 1.6)
+		var g := current_goal(world.env.hour)
+		if g != goal and not g.is_empty():
+			goal = g
+			_paper_plan()
+	if away or paper.is_empty():
+		return
+	paper["t"] = float(paper["t"]) + dt
+	if float(paper["t"]) >= float(paper["eta"]):
+		_paper_arrive()
+
+
+func _paper_plan() -> void:
+	arrived = false
+	slot_x = INF
+	paper = {}
+	p.pose = ""
+	if goal.is_empty():
+		return
+	if goal.get("act", "") == "away" and p.area == "M":
+		_go_away()
+		return
+	route = city.route(p.area, goal["area"])
+	step = 0
+	if route.is_empty() and p.area != goal["area"]:
+		return
+	var sp := maxf(20.0, p.base_speed)
+	var x := p.global_position.x
+	var eta := 0.0
+	var segs := []
+	for e in route:
+		var pt: Dictionary = e["p"]
+		eta += absf(City.px_from(pt, int(e["dir"])) - x) / sp + city._cost(pt)
+		x = City.px_to(pt, int(e["dir"]))
+		segs.append([eta, e])
+	eta += absf(float(goal["x"]) + float(goal.get("dx", 0.0)) - x) / sp
+	paper = {"t": 0.0, "eta": eta, "segs": segs}
+
+
+func _put(area: String, x: float) -> void:
+	var a: Dictionary = city.areas.get(area, {})
+	if a.is_empty():
+		return
+	p.area = area
+	if p.inside != bool(a["inside"]):
+		p.set_inside(bool(a["inside"]))
+	p.global_position = Vector2(x, float(a["y"]))
+
+
+func _paper_arrive() -> void:
+	_put(goal["area"], float(goal["x"]) + float(goal.get("dx", 0.0)))
+	paper = {}
+	route = []
+	step = 0
+	arrived = true
+	_arrive()
+
+
+func go_paper() -> void:
+	if not arrived and not goal.is_empty() and not away:
+		_paper_plan()
+
+
+func wake_paper() -> void:
+	## Снова рядом с камерой: встать туда, докуда «дошёл», и идти дальше ногами.
+	if not paper.is_empty():
+		var last: Array = []
+		for sg in paper["segs"]:
+			if float(sg[0]) <= float(paper["t"]):
+				last = sg
+		if not last.is_empty():
+			var e: Dictionary = last[1]
+			var pt: Dictionary = e["p"]
+			_put(pt["b"] if int(e["dir"]) > 0 else pt["a"], City.px_to(pt, int(e["dir"])))
+		paper = {}
+		_replan()
+	elif arrived and goal.get("act", "") in SPREAD_ACTS and not p.inside:
+		# на людной точке все «пришли» в одну: разойтись по местам
+		arrived = false
+		p.pose = ""
 
 
 func _replan() -> void:
@@ -331,11 +426,12 @@ func _do_react(dt: float) -> void:
 			# бежит к ближайшему таксофону звонить; если таксофона нет — кричит на месте
 			if not react.has("phone"):
 				react["phone"] = world.nearest_payphone(p.global_position)
-				goal = {"h": 0, "area": "S", "x": float(react["phone"]["x"]) + 10.0, "act": "phone"}
-				route = city.route(p.area, "S")
+				var pa: String = react["phone"].get("area", "S")
+				goal = {"h": 0, "area": pa, "x": float(react["phone"]["x"]) + 10.0, "act": "phone"}
+				route = city.route(p.area, pa)
 				step = 0
 				arrived = false
-			if p.area == "S" and absf(p.global_position.x - float(goal["x"])) < 8:
+			if p.area == goal["area"] and absf(p.global_position.x - float(goal["x"])) < 8:
 				p.move_x = 0.0
 				p.pose = "phone"
 				if not react.has("called"):

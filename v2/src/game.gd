@@ -6,17 +6,17 @@ const DIFFS := {
 	"Стажёр": {
 		"desc": "Куратор знает много: портрет, походку и утро. Память тает медленнее, двойников трое, свидетель молчит полторы минуты.",
 		"known": ["portrait", "gait", "morning"], "mem_mult": 0.7, "witness_t": 90.0, "susp_mult": 0.7,
-		"hour_s": 200.0, "decoys": 3, "people": 46, "calls": 3, "pins": 2, "cams": 2, "density_mult": 0.8,
+		"hour_s": 200.0, "decoys": 3, "people": 200, "calls": 3, "pins": 2, "cams": 2, "density_mult": 0.8,
 	},
 	"Оператор": {
 		"desc": "Только портрет и утренняя привычка. Обычная цена памяти, пятеро похожих, свидетель молчит минуту с небольшим.",
 		"known": ["portrait", "morning"], "mem_mult": 1.0, "witness_t": 70.0, "susp_mult": 1.0,
-		"hour_s": 180.0, "decoys": 5, "people": 54, "calls": 2, "pins": 1, "cams": 4, "density_mult": 1.0,
+		"hour_s": 180.0, "decoys": 5, "people": 240, "calls": 2, "pins": 1, "cams": 4, "density_mult": 1.0,
 	},
 	"Призрак": {
 		"desc": "Лица нет. Только где цель бывает утром. Память тает быстро, похожих семеро, свидетель зовёт милицию меньше чем через минуту.",
 		"known": ["morning"], "mem_mult": 1.35, "witness_t": 50.0, "susp_mult": 1.3,
-		"hour_s": 160.0, "decoys": 7, "people": 60, "calls": 1, "pins": 1, "cams": 6, "density_mult": 1.25,
+		"hour_s": 160.0, "decoys": 7, "people": 280, "calls": 1, "pins": 1, "cams": 6, "density_mult": 1.25,
 	},
 }
 const RANKS := ["стажёр службы", "оператор III класса", "оператор II класса", "оператор I класса", "старший оператор", "тень"]

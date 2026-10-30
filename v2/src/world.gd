@@ -34,6 +34,10 @@ var talks: Array = []
 var gossip_people := {}            # pid -> [card id, line]
 var told := {}                     # "pid:host" -> true (информатор уже говорил с этим телом)
 var exit_ring := {}
+var sec_t := 0.0
+var dorm_t := 0.0
+const DORM_X := 760.0
+const DORM_Y := 480.0
 var lamp_t := 0.0
 var events_t := 30.0
 var blackouts: Array = []
@@ -154,6 +158,27 @@ func _apt_spots(a: Dictionary) -> Dictionary:
 	return out
 
 
+func _local_errands(home: Dictionary) -> Array:
+	## Бытовые места своего корпуса у ближайших узлов (±10 этажей) и галереи на тех же этажах.
+	var out := []
+	if home.is_empty() or not city.areas.has(home.get("area", "")):
+		return out
+	var a: Dictionary = city.areas[home["area"]]
+	var bid := int(a.get("bid", -1))
+	var f := int(a.get("f", 0))
+	if bid < 0 or int(city.buildings[bid]["n"]) < 20:
+		return out
+	for fa in city.facilities:
+		if int(fa["bid"]) == bid and absi(int(fa["f"]) - f) <= 10:
+			out.append(fa)
+	for g in city.galleries:
+		if (int(g["a"]) == bid or int(g["b"]) == bid) and absi(int(g["f"]) - f) <= 10:
+			var nm := "Галерея %d" % (int(g["f"]) + 1)
+			if city.places.has(nm):
+				out.append(city.places[nm])
+	return out
+
+
 func _room_spot(kind: String, idx: int = 0) -> Dictionary:
 	var n := 0
 	for rm in city.rooms:
@@ -180,6 +205,10 @@ func _office_desks(name: String) -> Array:
 
 
 func S(h: float, pl: Dictionary, act: String, dx: float = 0.0) -> Dictionary:
+	if pl.has("act") and act == "idle":
+		# бытовое место в башне: своё занятие, и не разбредаться по тесной комнате
+		act = pl["act"]
+		dx = clampf(dx, -10.0, 10.0)
 	return {"h": h, "area": pl["area"], "x": float(pl["x"]) + dx, "act": act, "name": pl.get("name", "")}
 
 
@@ -208,12 +237,20 @@ func _spawn_people() -> void:
 			female = rng.randf() < 0.1
 		var age := 2 if role == "pensioner" else (0 if role == "student" else 1)
 		var lk := Looks.random_look(rng, female, age, role)
+		var apt: Dictionary = apts[ai] if ai < apts.size() and role != "tramp" else {}
+		var cls := 1
+		if not apt.is_empty() and int(city.buildings[int(apt["bid"])]["n"]) >= 20:
+			cls = K.cls_of_floor(int(apt["f"]))
+		elif role in ["tramp", "janitor", "worker", "vendor"]:
+			cls = 0
+		Looks.class_style(lk, cls, rng)
 		var p := _new_person(lk, role, female)
+		p.cls = cls
 		var home := {}
-		if ai < apts.size() and role != "tramp":
-			home = _apt_spots(apts[ai])
-			p.keys.append("apt%d_%d" % [apts[ai]["bid"], apts[ai]["apt"]])
-			p.home = apts[ai]
+		if not apt.is_empty():
+			home = _apt_spots(apt)
+			p.keys.append("apt%d_%d" % [apt["bid"], apt["apt"]])
+			p.home = apt
 			ai += 1
 		var commuter := home.is_empty() or not home.has("sofa")
 		var hm := {"area": home.get("area", "M"), "x": home.get("sofa", 0.0), "name": "Дом"}
@@ -223,6 +260,13 @@ func _spawn_people() -> void:
 		var errands := ["Киоск", "Универсам", "Сквер", "Двор", "Остановка", "Гаражи", "Площадка"]
 		var e1: Dictionary = P[errands[rng.randi() % errands.size()]]
 		var e2: Dictionary = P[errands[rng.randi() % errands.size()]]
+		# жильцы башен половину дел делают не выходя: магазин секции, прачечная, галерея своего узла
+		var local := _local_errands(home)
+		if not local.is_empty():
+			if rng.randf() < 0.6:
+				e1 = local[rng.randi() % local.size()]
+			if rng.randf() < 0.5:
+				e2 = local[rng.randi() % local.size()]
 		var lunch: Dictionary = [P["Кафе"], P["Сквер"], P["Универсам"]][rng.randi() % 3]
 		var dx := rng.randf_range(-40, 40)
 		var metro: Dictionary = P["Метро"]
@@ -254,6 +298,7 @@ func _spawn_people() -> void:
 				for b2 in city.buildings:
 					p.keys.append("base%d" % b2["id"])
 					p.keys.append("roof%d" % b2["id"])
+					p.keys.append("freight%d" % b2["id"])
 				p.keys.append("grate")
 				s = [S(6, hm, "sofa"), S(6.8, P["Двор"], "work"), S(9, P["Задворки"], "work"), S(11, P["Гаражи"], "work"),
 					S(13, hk, "sit"), S(14.5, P["Площадка"], "work"), S(16.5, P["Сквер"], "work"), S(18.5, hk, "stove"), S(21, hm, "bed")]
@@ -463,6 +508,16 @@ func _process(dt: float) -> void:
 	if lamp_t <= 0.0:
 		lamp_t = 0.5
 		_lamps(false)
+	dorm_t -= dt
+	if dorm_t <= 0.0:
+		dorm_t = 0.5
+		_dormancy()
+	sec_t -= dt
+	if sec_t <= 0.0:
+		# в дерево сцены — только секции у камеры (секция = 10 этажей корпуса)
+		sec_t = 0.25
+		var tl: Vector2 = view.top_left()
+		city.show_sections(Rect2(tl, Vector2(K.VIEW_W, K.VIEW_H)))
 	_doors(dt)
 	_cars(dt)
 	_train(dt)
@@ -635,7 +690,8 @@ func _lamps(force: bool) -> void:
 	for l in city.lamps:
 		var lit := true
 		if l["outer"]:
-			lit = on
+			# фонари в тени башен горят и днём
+			lit = on or (l["pos"] as Vector2).y > K.floor_y(K.SHADE_F)
 		elif l["kind"] == "room":
 			lit = _room_lit(l, h)
 		if float(l["off_t"]) > t_total:
@@ -686,7 +742,7 @@ func light_at(pos: Vector2, inside: bool) -> float:
 			v = 0.1
 		else:
 			v = 1.0 - env.night * 0.8
-	for l in city.lamps:
+	for l in city.lamps_near(pos):
 		if not l["on"] or bool(l["outer"]) != (not inside) and l["kind"] != "room":
 			continue
 		var lp: Vector2 = l["pos"]
@@ -707,7 +763,7 @@ func light_at(pos: Vector2, inside: bool) -> float:
 func lamp_burn(pos: Vector2, inside: bool) -> float:
 	## Свет, который жжёт духа: фонари и голые лампы (комнатный свет не жжёт).
 	var burn := 0.0
-	for l in city.lamps:
+	for l in city.lamps_near(pos):
 		if not l["on"] or not l["hurt"]:
 			continue
 		if bool(l["outer"]) == inside and l["kind"] != "bulb":
@@ -725,7 +781,8 @@ func lamp_burn(pos: Vector2, inside: bool) -> float:
 func sun_on(pos: Vector2, inside: bool) -> bool:
 	if inside or env.sun_k < 0.2 or env.rain > 0.3:
 		return false
-	if pos.y > K.floor_y(0):
+	if pos.y > K.floor_y(K.SHADE_F):
+		# низ улицы в вечной тени башен
 		return false
 	for poly in View.LightBase.shadow_polys(city, env):
 		if Geometry2D.is_point_in_polygon(pos, PackedVector2Array(poly)):
@@ -763,16 +820,40 @@ func can_see(npc: Person, pos: Vector2, inside: bool, area: String, rng_mult: fl
 	return sp.intersect_ray(q).is_empty()
 
 
+func _dormancy() -> void:
+	## Люди вдали от камеры спят «на бумаге»: без физики, картинки и восприятия (5.1).
+	var c: Vector2 = view.top_left() + Vector2(K.VIEW_W, K.VIEW_H) / 2.0
+	for p in people:
+		if p.brain == null:
+			continue
+		var d: Vector2 = (p.global_position - c).abs()
+		if p.dormant:
+			var near := d.x < DORM_X - 100.0 and d.y < DORM_Y - 80.0
+			if near or p.host or p.state != "ok":
+				p.set_dormant(false)
+				p.brain.wake_paper()
+		elif d.x > DORM_X or d.y > DORM_Y:
+			if p.state == "ok" and not p.host and p.carrying == null and not p.climbing and p.brain.react.is_empty() \
+					and p.brain.dazed_t <= 0.0 and p.is_on_floor():
+				p.set_dormant(true)
+				p.brain.go_paper()
+
+
 func _perceive(dt: float) -> void:
 	var host := player.host
 	var acts := player.suspicious_acts() if host else []
 	var seen_by := 0
 	var why := ""
+	var crowd := crowd_around(host) if host else 0
+	var bodies := []
+	for q in people:
+		if (q.state == "dead" or q.state == "ko") and q.visible:
+			bodies.append(q)
 	for p in people:
-		if not p.is_active() or p.host or p.brain == null or p.brain.away:
+		if not p.is_active() or p.host or p.brain == null or p.brain.away or p.dormant:
 			continue
 		# тела на виду
-		for q in people:
+		for q in bodies:
 			if q.state == "dead" and not q.has_meta("found") and not q.has_meta("stashed") and q.visible:
 				if can_see(p, q.center(), q.inside, q.area, 0.75):
 					q.set_meta("found", true)
@@ -787,7 +868,7 @@ func _perceive(dt: float) -> void:
 				seen_by += 1
 				why = acts[0][1]
 				for a in acts:
-					susp += float(a[0]) * dt * float(Game.d("susp_mult")) * _skill_mult(a)
+					susp += float(a[0]) * dt * float(Game.d("susp_mult")) * _skill_mult(a) * _crowd_mult(a, crowd)
 				if p.brain.is_target:
 					target_alert += 8.0 * dt
 		# слежка: цель замечает одно и то же лицо
@@ -806,6 +887,24 @@ func _perceive(dt: float) -> void:
 	susp_why = why
 	# подтверждение записей: игрок видит цель
 	_confirm(dt)
+
+
+func crowd_around(who: Person) -> int:
+	## Сколько людей толпится рядом (5.2): в толчее мелочи не видны, а душить на глазах у всех — безумие.
+	var n := 0
+	for q in people:
+		if q != who and q.state in ["ok", "transit"] and not q.dormant and q.area == who.area \
+				and absf(q.global_position.x - who.global_position.x) < 70.0 and absf(q.global_position.y - who.global_position.y) < 40.0:
+			n += 1
+	return n
+
+
+func _crowd_mult(a: Array, crowd: int) -> float:
+	if crowd < 4:
+		return 1.0
+	if a[1] in ["душит человека", "несёт тело", "стоит над телом"]:
+		return 1.8
+	return 0.5
 
 
 func _skill_mult(a: Array) -> float:
@@ -872,7 +971,7 @@ func footstep(p: Person) -> void:
 
 func noise_at(pos: Vector2, loud: float, src: Node, kind: String) -> void:
 	for p in people:
-		if p == src or not p.is_active() or p.host or p.brain == null:
+		if p == src or not p.is_active() or p.host or p.brain == null or p.dormant:
 			continue
 		var d: float = p.global_position.distance_to(pos)
 		if d < loud and (p.inside == (city.area_at(pos, true) != "") or not p.inside):
@@ -917,6 +1016,37 @@ func portal_used(p: Person, pt: Dictionary, dir: int = 1) -> void:
 		get_tree().create_timer(1.2).timeout.connect(func(): if is_instance_valid(s): s.frame = 0)
 	if p.host and pt["kind"] in ["entrance", "backdoor"]:
 		Sfx.play("door", -10.0)
+
+
+const EXPRESS_T := 9.0              # кабина экспресса приходит на узел раз в столько секунд
+var express_riders := {}            # bid -> [[кто, t посадки]]
+
+
+func express_wait(p: Person, y: float) -> float:
+	## Сколько ждать кабину на этом узле: расписание общее, поэтому у дверей собирается очередь.
+	var pt: Dictionary = p.transit.get("p", {}) if p.transit is Dictionary else {}
+	var bid := int(pt.get("bid", 0))
+	var ph := fposmod(t_total + float(bid) * 2.7 + y * 0.003, EXPRESS_T)
+	return EXPRESS_T - ph + 0.2
+
+
+func express_board(p: Person) -> void:
+	var bid := int(p.transit["p"].get("bid", 0))
+	var lst: Array = express_riders.get(bid, [])
+	lst = lst.filter(func(e): return t_total - float(e[1]) < 1.0 and is_instance_valid(e[0]))
+	lst.append([p, t_total])
+	express_riders[bid] = lst
+	if p.host or (player.host and player.host.transit.get("kind", "") == "express" and int(player.host.transit["p"].get("bid", -1)) == bid):
+		var n := lst.size()
+		if n >= 4:
+			hud_note("В кабине тесно: %d человек. Никто ни на кого не смотрит." % n)
+		elif n == 2 and player.host in lst.map(func(e): return e[0]):
+			hud_note("В кабине вас двое.")
+
+
+func hud_note(t: String) -> void:
+	if hud and hud.has_method("voice"):
+		hud.voice("ЛИФТ", t, Color(0.75, 0.8, 0.85))
 
 
 func inside_changed(p: Person) -> void:
@@ -982,7 +1112,7 @@ func nearest_payphone(pos: Vector2) -> Dictionary:
 	var bd := 1e9
 	for o in city.objs:
 		if o["kind"] == "payphone":
-			var d := absf(float(o["x"]) - pos.x)
+			var d := absf(float(o["x"]) - pos.x) + absf(float(o.get("y", K.floor_y(0))) - pos.y) * 2.0
 			if d < bd:
 				bd = d
 				best = o
@@ -993,7 +1123,7 @@ func try_talk(p: Person) -> void:
 	if not p.brain.arrived or p.pose in ["sit", "work"] and rng.randf() < 0.5:
 		return
 	for q in people:
-		if q == p or q.host or not q.is_active() or q.brain == null or q.brain.away or not q.brain.arrived:
+		if q == p or q.host or not q.is_active() or q.brain == null or q.brain.away or not q.brain.arrived or q.dormant:
 			continue
 		if q.area != p.area or absf(q.global_position.x - p.global_position.x) > 46:
 			continue
@@ -1035,7 +1165,17 @@ const SMALL := ["Опять дождь обещали.", "Свет вчера о
 	"В подвале опять трубу прорвало.", "Кошка опять на крыше орёт.", "Куда катимся…", "На заводе премию не дали."]
 
 
-func _smalltalk(_p: Person) -> String:
+const SMALL_CLS := [
+	["Опять экспресс битком.", "Лифт до низа сорок минут, проще пешком.", "У нас на этаже опять сырость.", "Солнца не видели с весны."],
+	["В прачечной очередь до вечера.", "На галерее новый киоск открыли.", "Сын на двадцатый перебрался — растёт человек."],
+	["Добрый день, товарищ.", "Внизу опять толкучка, не спускаюсь.", "Наверху хоть дышать можно.", "Вечером совещание в Граните."],
+]
+
+
+func _smalltalk(p: Person) -> String:
+	if rng.randf() < 0.45:
+		var arr: Array = SMALL_CLS[clampi(p.cls, 0, 2)]
+		return arr[rng.randi() % arr.size()]
 	return SMALL[rng.randi() % SMALL.size()]
 
 

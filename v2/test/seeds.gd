@@ -109,7 +109,9 @@ func run_sim(seed_v: int, w: Node, hours: float) -> int:
 		var dt := get_process_delta_time()
 		for p in w.people:
 			var k: Vector2 = p.global_position
-			if last.has(p.pid) and (last[p.pid] as Vector2).distance_to(k) < 0.5 and p.brain and not p.brain.arrived \
+			# спящий вдали идёт «по бумаге»: стоит на месте, пока не дойдёт; застрял — только если пути нет
+			var frozen: bool = p.brain.paper.is_empty() if p.dormant else (last.has(p.pid) and (last[p.pid] as Vector2).distance_to(k) < 0.5)
+			if frozen and p.brain and not p.brain.arrived \
 					and p.state == "ok" and not p.brain.away and p.brain.react.is_empty():
 				stuck[p.pid] = float(stuck.get(p.pid, 0.0)) + dt
 			else:
@@ -118,6 +120,11 @@ func run_sim(seed_v: int, w: Node, hours: float) -> int:
 			if float(stuck[p.pid]) > 20.0 and not reported.has(p.pid):
 				reported[p.pid] = true
 				bad += 1
-				problems.append("%d: застрял %s/%s в %s (%d,%d) → %s" % [seed_v, p.prof, p.first, p.area, int(k.x), int(k.y), p.brain.goal.get("area", "?")])
+				problems.append("%d: застрял%s %s/%s в %s (%d,%d) → %s" % [seed_v, " (спит)" if p.dormant else "", p.prof, p.first, p.area, int(k.x), int(k.y), p.brain.goal.get("area", "?")])
+	var dn := 0
+	for p in w.people:
+		if p.dormant:
+			dn += 1
+	print("  sim %d: %d people, %d dormant, fps %d" % [seed_v, w.people.size(), dn, Engine.get_frames_per_second()])
 	Engine.time_scale = 1.0
 	return bad

@@ -11,6 +11,10 @@ var width := 0                  # в тайлах
 var top_row := 0                # выше этого ряда камера не поднимается
 var buildings: Array = []       # словари домов
 var gaps: Array = []            # промежутки между домами: {kind, c0, c1, name}
+var galleries: Array = []       # галереи-улицы на узловых этажах: {f, a, b, c0, c1, id}
+var sections := {}              # "bid:сек" -> Node2D с мебелью и светом секции (рисуется только рядом с камерой)
+var cur_sec: Node2D = null
+var cur_sec_l: Node2D = null
 var rooms: Array = []
 var areas := {}                 # id -> {id, inside, bid, f, y, x0, x1}
 var portals: Array = []         # переходы
@@ -19,6 +23,7 @@ var lamps: Array = []           # {pos, r, on, outer, bid, node, light, kind}
 var doors: Array = []
 var objs: Array = []            # всё, с чем можно взаимодействовать
 var places := {}                # имя места -> {area, x, name}
+var facilities: Array = []      # бытовые места башен: {area, x, name, act, bid, f}
 var cams: Array = []
 var street_x := []              # x фонарей
 var steams: Array = []          # струи пара в коллекторе: {x, y, node, t, on}
@@ -89,6 +94,7 @@ func build(seed_v: int) -> void:
 	for g in gaps:
 		_gap(g)
 	_links()
+	_galleries()
 	_underground()
 	_street()
 	_areas_and_portals()
@@ -151,23 +157,24 @@ func shuffled(arr: Array) -> Array:
 # ======================= план =======================
 
 func _plan() -> void:
-	## Случайный ряд домов и промежутков. Обязательны: два офиса («Гранит» с задворками справа и НИИ),
-	## «Универсам», вестибюль метро, четыре-пять жилых домов (один с кафе, один с аптекой внизу).
-	var mats := ["panel", "brick", "sbrick", "stucco"]
-	var specs: Array = [
-		{"kind": "res", "w": ri(34, 38), "n": ri(12, 16), "mat": pick(["panel", "panel", "brick"]), "base": "res"},
-		{"kind": "res", "w": ri(34, 38), "n": ri(6, 8), "mat": "stucco", "base": "cafe"},
-		{"kind": "res", "w": ri(32, 36), "n": ri(9, 12), "mat": pick(["brick", "sbrick"]), "base": "pharmacy"},
-		{"kind": "res", "w": ri(32, 36), "n": ri(9, 14), "mat": pick(mats), "base": "res"},
-		{"kind": "office", "w": ri(28, 32), "n": ri(10, 14), "mat": "granite", "base": "lobby", "name": "Гранит"},
-		{"kind": "office", "w": ri(26, 30), "n": ri(8, 11), "mat": "brick", "base": "lobby", "name": "НИИ"},
+	## Гиперплотный район: два мегакорпуса по 60 этажей над сквером, рабочий корпус, «Гранит» (ведомство)
+	## и НИИ башнями, внизу — «Универсам», метро и старый дом. Башни делятся на секции по 10 этажей.
+	var towers: Array = [
+		{"kind": "res", "w": ri(46, 50), "n": 60, "mat": "panel", "base": "cafe", "tower": "А"},
+		{"kind": "res", "w": ri(46, 50), "n": 60, "mat": pick(["panel", "sbrick"]), "base": "pharmacy", "tower": "Б"},
+	]
+	var rest: Array = [
+		{"kind": "res", "w": ri(40, 44), "n": ri(34, 42), "mat": pick(["brick", "sbrick"]), "base": "res", "tower": "В"},
+		{"kind": "office", "w": ri(32, 36), "n": ri(36, 44), "mat": "granite", "base": "lobby", "name": "Гранит"},
+		{"kind": "office", "w": ri(28, 32), "n": ri(22, 28), "mat": "brick", "base": "lobby", "name": "НИИ"},
 		{"kind": "store", "w": ri(24, 28), "n": 2, "mat": "conc", "base": "store", "name": "Универсам"},
 		{"kind": "metro", "w": 12, "n": 1, "mat": "conc", "base": "metro"},
+		{"kind": "res", "w": ri(28, 30), "n": 5, "mat": "stucco", "base": "res"},
 	]
-	if rng.randf() < 0.5:
-		specs.append({"kind": "res", "w": ri(28, 30), "n": 5, "mat": pick(["panel", "brick"]), "base": "res"})
-	specs = shuffled(specs)
-	# «Гранит» не последним: справа от него задворки
+	rest = shuffled(rest)
+	# мегакорпуса рядом, между ними сквер: над ним галереи-улицы
+	var at := ri(0, rest.size())
+	var specs: Array = rest.slice(0, at) + towers + rest.slice(at)
 	var gi := -1
 	for i in specs.size():
 		if specs[i].get("name", "") == "Гранит":
@@ -177,34 +184,45 @@ func _plan() -> void:
 		specs[gi] = specs[gi - 1]
 		specs[gi - 1] = t
 		gi -= 1
-	# промежутки между домами
+	var ta := -1
+	for i in specs.size():
+		if specs[i].get("tower", "") == "А":
+			ta = i
 	var slots: Array = []
 	for i in specs.size() - 1:
-		slots.append(i)
-	slots.erase(gi)
+		if i != gi and i != ta:
+			slots.append(i)
 	slots = shuffled(slots)
-	var named := [["yard", ri(9, 11), "Двор"], ["square", ri(13, 15), "Сквер"], ["garages", ri(10, 12), "Гаражи"], ["yard", ri(8, 9), "Площадка"]]
+	var named := [["yard", ri(9, 11), "Двор"], ["garages", ri(10, 12), "Гаражи"], ["yard", ri(8, 9), "Площадка"]]
 	var gap_at := {}
 	gap_at[gi] = ["backlane", ri(4, 5), "Задворки"]
+	gap_at[ta] = ["square", ri(14, 16), "Сквер"]
 	for i in named.size():
 		gap_at[slots[i]] = named[i]
 	var c := 3
 	var bid := 0
 	for i in specs.size():
 		var s: Dictionary = specs[i]
+		var nm: String = s.get("name", "")
+		if s.has("tower"):
+			nm = "Корпус " + String(s["tower"])
 		var b := {"id": bid, "kind": s["kind"], "x0": c, "w": int(s["w"]), "n": int(s["n"]), "mat": s["mat"], "base": s["base"],
-			"name": s.get("name", ""), "basement": s["kind"] in ["res", "office"], "floors": {}, "rooms": [],
-			"bridge_l": [], "bridge_r": [], "lift": false}
+			"name": nm, "basement": s["kind"] in ["res", "office"], "floors": {}, "rooms": [],
+			"bridge_l": [], "bridge_r": [], "gal_l": [], "gal_r": [], "lift": false, "tower": s.get("tower", "")}
 		b["roof_r"] = K.GY - K.FH * int(b["n"])
 		b["px0"] = c * K.T
 		b["px1"] = (c + int(s["w"])) * K.T
 		b["lift"] = (s["kind"] == "res" and int(s["n"]) >= 9) or (s["kind"] == "office" and int(s["n"]) >= 9)
-		b["lift_broken"] = b["lift"] and rng.randf() < 0.3
+		b["lift_broken"] = b["lift"] and rng.randf() < (0.12 if int(s["n"]) >= 20 else 0.3)
+		# высокие башни: экспресс по узлам, грузовой со служебным ключом, мусоропровод
+		b["express"] = int(s["n"]) >= 20
+		b["freight"] = int(s["n"]) >= 20
+		b["chute"] = s["kind"] == "res" and int(s["n"]) >= 20
 		buildings.append(b)
 		bid += 1
 		c += int(s["w"])
 		if i < specs.size() - 1:
-			var g: Array = gap_at.get(i, ["lane", pick([0, 0, 1, 2, 2, 3]), ""])
+			var g: Array = gap_at.get(i, ["lane", pick([0, 1, 2, 3, 3]), ""])
 			if int(g[1]) > 0:
 				gaps.append({"kind": g[0], "c0": c, "c1": c + int(g[1]) - 1, "name": g[2]})
 			c += int(g[1])
@@ -213,19 +231,32 @@ func _plan() -> void:
 	for b in buildings:
 		top = mini(top, int(b["roof_r"]))
 	top_row = maxi(0, top - 12)
-	# мостики и проходы между соседними домами
+	# связи соседей: на узловых этажах — галереи-улицы, между узлами — застеклённые мостики
 	for i in buildings.size() - 1:
 		var a: Dictionary = buildings[i]
 		var b2: Dictionary = buildings[i + 1]
 		var gw := int(b2["x0"]) - int(a["x0"]) - int(a["w"])
-		if gw > 4 or not (a["kind"] in ["res", "office"]) or not (b2["kind"] in ["res", "office"]):
+		if not (a["kind"] in ["res", "office"]) or not (b2["kind"] in ["res", "office"]):
 			continue
 		var top_f := mini(int(a["n"]), int(b2["n"])) - 1
 		if top_f < 2:
 			continue
-		var fl := range(2, top_f)
+		var node_f := []
+		for f in range(K.SEC, top_f, K.SEC):
+			node_f.append(f)
+		if gw >= 3:
+			for f in node_f:
+				(a["gal_r"] as Array).append(f)
+				(b2["gal_l"] as Array).append(f)
+				galleries.append({"f": f, "a": a["id"], "b": b2["id"], "c0": int(a["x0"]) + int(a["w"]), "c1": int(b2["x0"]) - 1})
+		if gw > 4:
+			continue
+		var fl: Array = []
+		for f in range(2, top_f):
+			if not (f in node_f) and f % K.SEC != 0:
+				fl.append(f)
 		fl = shuffled(fl)
-		var k := 1 + (1 if top_f >= 9 and rng.randf() < 0.6 else 0)
+		var k := 1 + (1 if top_f >= 9 and rng.randf() < 0.6 else 0) + top_f / 15
 		for j in mini(k, fl.size()):
 			(a["bridge_r"] as Array).append(fl[j])
 			(b2["bridge_l"] as Array).append(fl[j])
@@ -300,7 +331,11 @@ const THEMES := {
 		"wall": ["calendar", "picture", "wallrug"], "bed": ["bed", "wardrobe", "rods"], "hall": ["coatrack", "shoerack"], "kitchen": ["washer", "gasheater"]},
 	"lonely": {"wp": ["wp_plain", "wp_rhomb", "wp_flower"], "living": ["sofa", "tv", "plant", "ironboard"],
 		"wall": ["clock", "mirror", "picture"], "bed": ["bed", "dresser"], "hall": ["coatrack"], "kitchen": ["radio"]},
+	"boss": {"wp": ["wp_damask", "wp_green"], "living": ["piano", "chesstable", "armchair", "tv", "floorlamp", "aquarium"],
+		"wall": ["portrait_frame", "picture", "clock"], "bed": ["bed", "wardrobe", "dresser"], "hall": ["mirror", "coatrack"], "kitchen": ["washer", "radio"]},
 }
+## Кто живёт на какой высоте мегакорпуса: внизу — рабочие и старики, наверху — начальство.
+const THEMES_BY_CLS := [["old", "worker", "lonely", "student"], ["family", "lonely", "worker", "intel"], ["intel", "boss", "boss"]]
 
 
 func _building(b: Dictionary) -> void:
@@ -321,8 +356,8 @@ func _building(b: Dictionary) -> void:
 	for r in range(rr + 1, K.GY):
 		setc(tm_inner, x0, r, cutw, Res.ALT_INTERIOR)
 		setc(tm_inner, x0 + w - 1, r, cutw, Res.ALT_INTERIOR)
-	# ядро: лестничная клетка (4 колонки) и лифт (2 колонки) — около середины, со сдвигом
-	var core_w := 4 + (2 if b["lift"] else 0)
+	# ядро: лестничная клетка (4 колонки), лифт (2), у башен ещё экспресс (2), грузовой (2) и мусоропровод (1)
+	var core_w := 4 + (2 if b["lift"] else 0) + (2 if b["express"] else 0) + (2 if b["freight"] else 0) + (1 if b["chute"] else 0)
 	var sw0 := x0 + (w - core_w) / 2 + ri(-2, 2)
 	if b["kind"] == "metro":
 		sw0 = x0 + 2
@@ -331,22 +366,67 @@ func _building(b: Dictionary) -> void:
 	b["sw0"] = sw0
 	b["sw1"] = sw0 + 3
 	b["stair_x"] = float((sw0 + 2) * K.T)
+	var cc := sw0 + 4
 	if b["lift"]:
-		b["lw0"] = sw0 + 4
-		b["lw1"] = sw0 + 5
-		b["lift_x"] = float((sw0 + 5) * K.T)
+		b["lw0"] = cc
+		b["lw1"] = cc + 1
+		b["lift_x"] = float((cc + 1) * K.T)
+		cc += 2
+	if b["express"]:
+		b["ew0"] = cc
+		b["express_x"] = float((cc + 1) * K.T)
+		cc += 2
+	if b["freight"]:
+		b["fw0"] = cc
+		b["freight_x"] = float((cc + 1) * K.T)
+		cc += 2
+	if b["chute"]:
+		b["chute_c"] = cc
+		b["chute_x"] = float(cc * K.T + 8)
+		cc += 1
 	b["core1"] = sw0 + core_w - 1
-	# вентшахта у наружной стены
-	if b["kind"] in ["res", "office"]:
-		b["vent_c"] = x0 + 1 if rng.randf() < 0.5 else x0 + w - 2
 	for f in range(0, n):
+		_set_sec(b, f)
 		_floor(b, f)
+	_set_sec(b, -1)
 	if b["basement"]:
 		_basement(b)
+	cur_sec = null
+	cur_sec_l = null
 	if b.has("vent_c"):
 		_vent_shaft(b)
 	_facade(b)
 	_roof_props(b)
+
+
+func _set_sec(b: Dictionary, f: int) -> void:
+	## Мебель и свет этажа кладутся в узел своей секции: далёкие секции не рисуются (генерация по частям).
+	var key := "%d:%d" % [int(b["id"]), K.sec_of(f)]
+	if not sections.has(key):
+		var nd := Node2D.new()
+		nd.name = "sec_%d_%d" % [int(b["id"]), K.sec_of(f)]
+		nd.visibility_layer = K.V_INNER
+		furn.add_child(nd)
+		var nl := Node2D.new()
+		nl.visibility_layer = K.V_LIN
+		lights_in.add_child(nl)
+		var f0 := K.sec_of(f) * K.SEC
+		var f1 := mini(int(b["n"]), f0 + K.SEC)
+		var y1 := K.floor_y(f0) + (16.0 if f >= 0 else 120.0)
+		var y0 := K.floor_y(f1 - 1) - 80.0
+		sections[key] = {"node": nd, "light": nl, "rect": Rect2(float(b["px0"]), y0, float(b["px1"]) - float(b["px0"]), y1 - y0)}
+	cur_sec = sections[key]["node"]
+	cur_sec_l = sections[key]["light"]
+
+
+func show_sections(view_rect: Rect2) -> void:
+	var r := view_rect.grow(160.0)
+	for k in sections:
+		var sc: Dictionary = sections[k]
+		var on: bool = r.intersects(sc["rect"])
+		if (sc["node"] as Node2D).visible != on:
+			(sc["node"] as Node2D).visible = on
+			(sc["light"] as Node2D).visible = on
 
 
 func slab_row(f: int) -> int:
@@ -412,7 +492,7 @@ func _door(b: Dictionary, f: int, x: float, y: float, sprite: String, lock: Stri
 	sh.position = Vector2(0, -24)
 	body.add_child(sh)
 	nd.add_child(body)
-	furn.add_child(nd)
+	(cur_sec if cur_sec else furn).add_child(nd)
 	var d := {"kind": "door", "node": nd, "sprite": sp, "body": body, "shape": sh, "open": false, "locked": lock != "",
 		"key": lock, "x": x, "y": y, "bid": b.get("id", -1), "f": f, "metal": sprite != "door", "inside": true, "t_close": 0.0,
 		"grate": sprite == "grate_door"}
@@ -457,6 +537,7 @@ func _floor(b: Dictionary, f: int) -> void:
 	_stairs_sprite(b, f)
 	if b["lift"]:
 		_lift_floor(b, f)
+	_shafts_floor(b, f)
 	if kind == "res" and ground:
 		_furn("mailboxes", Vector2((sw0 + 1) * K.T + 4, K.floor_y(0) - 22))
 	if kind == "metro":
@@ -466,9 +547,25 @@ func _floor(b: Dictionary, f: int) -> void:
 	var rw := core1 + 1
 	var left := [x0 + 1, lw - 1]
 	var right := [rw + 1, x0 + w - 2]
-	var br_l: bool = f in b["bridge_l"]
-	var br_r: bool = f in b["bridge_r"]
-	if kind == "res":
+	var br_l: bool = f in b["bridge_l"] or f in b["gal_l"]
+	var br_r: bool = f in b["bridge_r"] or f in b["gal_r"]
+	if kind == "res" and f > 0 and f % K.SEC == 0 and int(b["n"]) >= 20:
+		# узловой этаж секции: лифтовый холл, магазин, прачечная, красный уголок или общая кухня
+		var opts := shuffled(["shop", "laundry", "redcorner", "commonkitchen"])
+		if br_l:
+			_gallery(b, f, left[0], left[1])
+			_wall(b, f, lw, "doorway")
+		else:
+			_facility(b, f, left[0], left[1], opts[0])
+			_wall(b, f, lw, "doorway")
+		if br_r:
+			_gallery(b, f, right[0], right[1])
+			_wall(b, f, rw, "doorway")
+		else:
+			_facility(b, f, right[0], right[1], opts[1])
+			_wall(b, f, rw, "doorway")
+		_hall_props(b, f)
+	elif kind == "res":
 		if ground and base != "res":
 			# левое крыло — заведение, правое — квартира
 			_shop(b, f, left[0], left[1], base)
@@ -604,6 +701,102 @@ func _gallery(b: Dictionary, f: int, c0: int, c1: int) -> void:
 	g["spots"].append({"x": (c0 + c1) * K.T / 2.0, "kind": "wait"})
 
 
+func _facility(b: Dictionary, f: int, c0: int, c1: int, kind: String) -> void:
+	## Общие помещения секции на узловом этаже.
+	var y := K.floor_y(f)
+	var x0 := float(c0 * K.T)
+	var x1 := float((c1 + 1) * K.T)
+	var mid := (x0 + x1) / 2.0
+	match kind:
+		"shop":
+			var h := _add_room(b, f, c0, c1, "secshop", "shop")
+			var x := x0 + 20.0
+			while x < x1 - 70.0:
+				_furn("shopshelf", Vector2(x, y))
+				h["spots"].append({"x": x + 18.0, "kind": "shop"})
+				x += 56.0
+			_furn("counter", Vector2(x1 - 40.0, y))
+			_furn("register", Vector2(x1 - 40.0, y - 20))
+			h["spots"].append({"x": x1 - 24.0, "kind": "cashier"})
+			h["name"] = "Магазин секции"
+			facilities.append({"area": area_of_floor(int(b["id"]), f), "x": x0 + 40.0, "name": "Магазин секции", "act": "shop", "bid": b["id"], "f": f})
+		"laundry":
+			var h2 := _add_room(b, f, c0, c1, "laundry", "pod")
+			var x2 := x0 + 16.0
+			while x2 < x1 - 30.0:
+				_furn("washer", Vector2(x2, y))
+				x2 += 30.0
+			_furn("ironboard", Vector2(mid, y))
+			h2["spots"].append({"x": mid + 20.0, "kind": "wait"})
+			h2["spots"].append({"x": x0 + 40.0, "kind": "work"})
+			h2["name"] = "Прачечная"
+			facilities.append({"area": area_of_floor(int(b["id"]), f), "x": mid + 20.0, "name": "Прачечная", "act": "idle", "bid": b["id"], "f": f})
+		"redcorner":
+			var h3 := _add_room(b, f, c0, c1, "redcorner", "wp_stripe")
+			_furn("table", Vector2(mid, y))
+			for dx in [-60, -36, 36, 60]:
+				_movable("chair", mid + dx, b, f)
+				h3["spots"].append({"x": mid + dx, "kind": "sit"})
+			_furn("tv", Vector2(x0 + 24.0, y))
+			_furn("portrait_frame", Vector2(mid, y - 42))
+			_furn("poster", Vector2(x1 - 30.0, y - 36))
+			_furn("plant", Vector2(x1 - 12.0, y))
+			h3["name"] = "Красный уголок"
+			facilities.append({"area": area_of_floor(int(b["id"]), f), "x": mid - 36.0, "name": "Красный уголок", "act": "sit", "bid": b["id"], "f": f})
+		_:
+			var h4 := _add_room(b, f, c0, c1, "commonkitchen", "kitchen")
+			var x4 := x0 + 16.0
+			for nm in ["stove", "stove", "sink", "fridge"]:
+				_furn(nm, Vector2(x4, y))
+				if nm == "stove":
+					h4["spots"].append({"x": x4, "kind": "stove"})
+				x4 += 28.0
+			_furn("table", Vector2(mid + 30.0, y))
+			_movable("stool", mid + 10.0, b, f)
+			h4["spots"].append({"x": mid + 30.0, "kind": "sit"})
+			_furn("radio", Vector2(mid + 30.0, y - 16))
+			h4["name"] = "Общая кухня"
+			facilities.append({"area": area_of_floor(int(b["id"]), f), "x": mid + 30.0, "name": "Общая кухня", "act": "sit", "bid": b["id"], "f": f})
+
+
+func _hall_props(b: Dictionary, f: int) -> void:
+	## Лифтовый холл узла: доска почёта, таксофон, урна; номер секции крупно на стене.
+	var y := K.floor_y(f)
+	var sx: float = b["stair_x"]
+	var pp := _furn("payphone", Vector2(sx - 44.0, y))
+	_obj({"kind": "payphone", "node": pp, "x": sx - 44.0, "y": y, "inside": true, "ring": false,
+		"name": "в холле %d-го этажа, %s" % [f + 1, b["name"]], "area": area_of_floor(int(b["id"]), f)})
+	_furn("honorboard", Vector2(sx + 2.0, y - 34))
+
+
+func _shafts_floor(b: Dictionary, f: int) -> void:
+	## Экспресс (двери только на узлах), грузовой (на каждом этаже, железные двери), мусоропровод.
+	var r1 := slab_row(f) - 1
+	var y := K.floor_y(f)
+	if b["express"]:
+		var e0: int = b["ew0"]
+		for c in range(e0, e0 + 2):
+			for r in range(r1 - 3, r1 + 1):
+				setc(tm_back, c, r, "lift_shaft", Res.ALT_NONE)
+		if f % K.SEC == 0 or f == int(b["n"]) - 1:
+			_furn("express_door", Vector2(float(b["express_x"]), y))
+			_furn("express_sign", Vector2(float(b["express_x"]), y - 54))
+		_add_room(b, f, e0, e0 + 1, "lift", "lift_shaft", 0, false, false)
+	if b["freight"]:
+		var f0: int = b["fw0"]
+		for c in range(f0, f0 + 2):
+			for r in range(r1 - 3, r1 + 1):
+				setc(tm_back, c, r, "lift_shaft", Res.ALT_NONE)
+		_furn("freight_door", Vector2(float(b["freight_x"]), y))
+		_add_room(b, f, f0, f0 + 1, "lift", "lift_shaft", 0, true, false)
+	if b["chute"]:
+		var cc: int = b["chute_c"]
+		for r in range(r1 - 3, r1 + 1):
+			setc(tm_back, cc, r, "duct_back", Res.ALT_NONE)
+		var n := _furn("chute_hatch", Vector2(float(b["chute_x"]), y - 18))
+		_obj({"kind": "chute", "node": n, "x": float(b["chute_x"]), "y": y, "bid": b["id"], "f": f, "inside": true})
+
+
 func _stairs_sprite(b: Dictionary, f: int) -> void:
 	var x := float(int(b["sw0"]) * K.T + 32)
 	if f < int(b["n"]) - 1:
@@ -651,7 +844,9 @@ func _apartment(b: Dictionary, f: int, c0: int, c1: int, apt: int, left: bool) -
 	## Квартира: от входа (у лестницы) к наружной стене — прихожая, кухня, ванная, комната, спальня
 	## в случайном порядке и разной ширины. Хозяин (тема) решает обои и обстановку.
 	var wdt := c1 - c0 + 1
-	var theme_k: String = pick(THEMES.keys())
+	var theme_k: String = pick(THEMES.keys().filter(func(k): return k != "boss"))
+	if int(b["n"]) >= 20:
+		theme_k = pick(THEMES_BY_CLS[K.cls_of_floor(f)])
 	var th: Dictionary = THEMES[theme_k]
 	var plan: Array = ["kitchen", "living"]
 	if wdt >= 12:
@@ -959,6 +1154,12 @@ func _basement(b: Dictionary) -> void:
 	_wall(b, -1, c, "metal", ("base%d" % b["id"]) if rng.randf() < 0.6 else "")
 	_wall(b, -1, int(b["sw1"]) + 1, "doorway")
 	_add_room(b, -1, b["sw0"], b["sw1"], "stair", "basement")
+	# грузовой лифт доходит до подвала; под мусоропроводом — камера с баком
+	if b["freight"]:
+		_furn("freight_door", Vector2(float(b["freight_x"]), y))
+	if b["chute"]:
+		var bin := _furn("chute_bin", Vector2(float(b["chute_x"]), y))
+		b["chute_bin"] = _obj({"kind": "chute_bin", "node": bin, "x": float(b["chute_x"]), "y": y, "bid": b["id"], "f": -1, "inside": true})
 
 
 func _metro_floor(b: Dictionary, stair: Dictionary) -> void:
@@ -992,7 +1193,7 @@ func _furn(nm: String, pos: Vector2) -> Sprite2D:
 	var s := Res.prop_sprite(nm)
 	s.position = pos.round()
 	s.visibility_layer = K.V_INNER
-	furn.add_child(s)
+	(cur_sec if cur_sec else furn).add_child(s)
 	return s
 
 
@@ -1035,6 +1236,8 @@ func _facade(b: Dictionary) -> void:
 				var t := "f_%s" % key
 				if r == sr and f > 0:
 					t = "f_%s_belt" % key
+					if f % K.SEC == 0 and n >= 20:
+						t = "f_sec_belt"
 				if f == n - 1 and r == sr - 4:
 					t = "f_%s_cornice" % key
 				setc(tm, c, r, t, Res.ALT_NONE)
@@ -1164,6 +1367,8 @@ func _facade_props(b: Dictionary) -> void:
 			var fy := K.floor_y(f)
 			_platform_vis(Rect2(lx - 24, fy, 48, 4))
 			portals.append({"kind": "window", "x": lx + (14.0 if b["id"] % 2 == 1 else -14.0), "y": fy, "bid": b["id"], "f": f, "human": true, "spirit": true, "lock": "" if rng.randf() < 0.6 else "fire%d" % b["id"]})
+	if n >= 20:
+		_tower_props(b)
 	# камера над входом в офис и магазин
 	if b["kind"] in ["office", "store"] or b["base"] in ["pharmacy"]:
 		var cam := _sprop("camera", Vector2(sx + 30, gy - 56), false, fp)
@@ -1173,6 +1378,33 @@ func _facade_props(b: Dictionary) -> void:
 	if b["kind"] == "res" and rng.randf() < 0.5:
 		var g := _sprop(["graf_tsoy", "graf_seen"][rng.randi() % 2], Vector2(px0 + rng.randf_range(30, 90), gy - 6), false, fp)
 		g.modulate.a = 0.8
+
+
+func _tower_props(b: Dictionary) -> void:
+	## Приметы башни: таблички секций на поясах, мозаика на глухом торце, кабели по фасаду,
+	## эмалевые вывески с лампочками на нижних этажах. Неона нет.
+	var fp: Node2D = b["fp"]
+	var px0 := float(b["px0"])
+	var px1 := float(b["px1"])
+	var n: int = b["n"]
+	for f in range(K.SEC, n, K.SEC):
+		_sprop("sign_section", Vector2(px0 + 34.0, K.floor_y(f) + 14), false, fp).frame = mini(5, f / K.SEC)
+	# мозаика: на одной из секций середины
+	var mf := ri(2, maxi(2, n / K.SEC - 2)) * K.SEC + 3
+	if mf < n - 2:
+		_sprop("mosaic", Vector2(px1 - 60.0 if b["id"] % 2 == 0 else px0 + 60.0, K.floor_y(mf) - 8), false, fp)
+	# кабели и стояки по фасаду
+	var cx := px0 + 12.0 if b["id"] % 2 == 0 else px1 - 12.0
+	var y := K.floor_y(0) - 70.0
+	var top := float(int(b["roof_r"]) * K.T)
+	while y > top + 16:
+		_sprop("cables", Vector2(cx, y), false, fp)
+		y -= 16.0
+	# вывески низа
+	var signs := shuffled(["sign_gastronom", "sign_clockfix", "sign_barber"])
+	for i in 2:
+		var sx := lerpf(px0 + 70.0, px1 - 70.0, 0.25 + 0.5 * i)
+		_sign(fp, signs[i], Vector2(sx, K.floor_y(1 + i) - 10))
 
 
 func _sign(fp: Node2D, nm: String, pos: Vector2) -> void:
@@ -1315,6 +1547,12 @@ func _links() -> void:
 		# мостики
 		for f in a["bridge_r"]:
 			_bridge(a, b, int(f))
+		# бельё на верёвках через узкий проулок внизу
+		if gw >= 1 and gw <= 4 and int(a["n"]) >= 6 and int(b["n"]) >= 6:
+			for f in range(1, mini(9, mini(int(a["n"]), int(b["n"])))):
+				if rng.randf() < 0.45:
+					var ls := _sprop("laundry", Vector2((ax1 + bx0) / 2.0, K.floor_y(f) - 30), true)
+					ls.scale.x *= (bx0 - ax1 + 24.0) / 48.0
 		# подвальный ход между соседями
 		if a["basement"] and b["basement"] and gw <= 3:
 			var y := K.floor_y(-1)
@@ -1350,6 +1588,54 @@ func _links() -> void:
 			portals.append({"kind": "roofladder", "a": "R%d" % lo["id"], "b": "R%d" % hi["id"], "x": lx,
 				"path": [Vector2(xlo, ylo), Vector2(lx, ylo), Vector2(lx, yhi), Vector2(xhi, yhi)], "ya": ylo, "yb": yhi,
 				"human": true, "spirit": true, "lock": "", "dur": 0.6 + (ylo - yhi) / 60.0})
+
+
+func _galleries() -> void:
+	## Галереи-улицы: крытый переход над промежутком на узловом этаже, с киоском, скамейкой и таксофоном.
+	var i := 0
+	for g in galleries:
+		var f: int = g["f"]
+		var sr := slab_row(f)
+		var c0: int = g["c0"]
+		var c1: int = g["c1"]
+		var y := K.floor_y(f)
+		var a: Dictionary = buildings[int(g["a"])]
+		var b: Dictionary = buildings[int(g["b"])]
+		g["id"] = "G%d_%d" % [f, i]
+		i += 1
+		for c in range(c0, c1 + 1):
+			setc(tm_common, c, sr, "gallery_floor", Res.ALT_COMMON)
+			setc(tm_lane, c, sr - 5, "gallery_roof", Res.ALT_NONE)
+			for r in range(sr - 4, sr):
+				setc(tm_lane, c, r, "gallery_glass" if r < sr - 1 else "gallery_wall", Res.ALT_NONE)
+		var x0 := float(c0 * K.T)
+		var x1 := float((c1 + 1) * K.T)
+		var mid := (x0 + x1) / 2.0
+		var gw := x1 - x0
+		g["x0"] = x0
+		g["x1"] = x1
+		_sprop("gallery_rail", Vector2(mid, y), true).scale.x *= gw / 64.0
+		if gw >= 160.0:
+			var k := _sprop("kiosk_gal", Vector2(x0 + 44.0, y))
+			k.z_index = -1
+			g["kiosk_x"] = x0 + 44.0
+		_sprop("bench", Vector2(mid + 10.0, y))
+		var px := x1 - 30.0
+		var pp := _sprop("payphone", Vector2(px, y))
+		_obj({"kind": "payphone", "node": pp, "x": px, "y": y, "inside": false, "ring": false,
+			"name": "на галерее %d-го этажа" % (f + 1), "area": g["id"]})
+		_sprop("sign_floor", Vector2(mid - 40.0, y - 58)).frame = mini(5, f / K.SEC)
+		_lamp_out(Vector2(mid - 50.0, y - 70), 80.0, "gallerylamp")
+		places["Галерея %d" % (f + 1)] = {"area": g["id"], "x": mid + 10.0, "name": "Галерея %d" % (f + 1)}
+		# двери в корпуса по краям
+		var ax := float(a["px1"])
+		var bx := float(b["px0"])
+		_sprop("door_metal", Vector2(ax + 8, y))
+		_sprop("door_metal", Vector2(bx - 8, y))
+		portals.append({"kind": "gate", "a": area_of_floor(int(a["id"]), f), "b": g["id"], "x": ax,
+			"path": [Vector2(ax - 24, y), Vector2(ax + 14, y)], "ya": y, "yb": y, "human": true, "spirit": true, "lock": "", "dur": 0.7})
+		portals.append({"kind": "gate", "a": g["id"], "b": area_of_floor(int(b["id"]), f), "x": bx,
+			"path": [Vector2(bx - 14, y), Vector2(bx + 24, y)], "ya": y, "yb": y, "human": true, "spirit": true, "lock": "", "dur": 0.7})
 
 
 func _bridge(a: Dictionary, b: Dictionary, f: int) -> void:
@@ -1659,6 +1945,8 @@ func _lamp_out(pos: Vector2, r: float, kind: String) -> Dictionary:
 		spr = _sprop("lamp", Vector2(pos.x - 4, K.floor_y(0)))
 	elif kind == "walllamp":
 		spr = _sprop("walllamp", pos + Vector2(0, 6), false, fprops)
+	elif kind == "gallerylamp":
+		spr = _sprop("gallerylamp", pos + Vector2(0, 8))
 	var lpos := pos + (Vector2(10, -5) if kind == "lamp" else Vector2(0, 4))
 	var lt := _light(lights_out, lpos + Vector2(0, r * 0.35), Vector2(r * 2.0, r * 2.4), Color(1.0, 0.85, 0.55), 1.0, kind)
 	var d := {"pos": lpos, "r": r, "on": true, "outer": true, "bid": -1, "node": spr, "light": lt, "kind": kind, "off_t": 0.0, "hurt": true}
@@ -1671,8 +1959,8 @@ func _lamp_in(b: Dictionary, f: int, pos: Vector2, r: float, col: Color, kind: S
 		var s := Res.prop_sprite("ceilinglamp")
 		s.position = pos + Vector2(0, -2)
 		s.visibility_layer = K.V_INNER
-		furn.add_child(s)
-	var lt := _light(lights_in, pos + Vector2(0, r * 0.3), Vector2(r * 2.2, r * 1.6), col, 0.9, kind)
+		(cur_sec if cur_sec else furn).add_child(s)
+	var lt := _light(cur_sec_l if cur_sec_l else lights_in, pos + Vector2(0, r * 0.3), Vector2(r * 2.2, r * 1.6), col, 0.9, kind)
 	var d := {"pos": pos, "r": r, "on": true, "outer": false, "bid": int(b.get("id", -1)), "f": f, "node": null, "light": lt,
 		"kind": kind, "off_t": 0.0, "hurt": kind == "bulb"}
 	lamps.append(d)
@@ -1688,18 +1976,46 @@ func room_lamps() -> void:
 		var y := float(rm["y"])
 		var wdt := float(rm["x1"]) - float(rm["x0"])
 		var b := {"id": rm["bid"]}
+		if int(rm["bid"]) >= 0:
+			_set_sec(buildings[int(rm["bid"])], int(rm["f"]))
+		else:
+			cur_sec = null
+			cur_sec_l = null
 		var col := Color(1.0, 0.86, 0.62)
 		if rm["kind"] in ["office", "store", "pharmacy", "security", "lobby", "metro", "archive", "meeting", "corridor", "bath"]:
 			col = Color(0.85, 0.95, 1.0)
 		var s := Res.prop_sprite("ceilinglamp")
 		s.position = Vector2(cx, y - 64)
 		s.visibility_layer = K.V_INNER
-		furn.add_child(s)
+		(cur_sec if cur_sec else furn).add_child(s)
 		var l := _lamp_in(b, int(rm["f"]), Vector2(cx, y - 52), maxf(60.0, wdt * 0.6), col, "room")
 		l["light"].scale = Vector2(wdt * 1.3, 120.0) / 128.0
 		l["light"].position = Vector2(cx, y - 30)
 		l["room"] = rm["id"]
 		rm["lamp"] = l
+	cur_sec = null
+	cur_sec_l = null
+	_index_lamps()
+
+
+var lamp_bands := {}            # полоса по высоте (400 px) -> лампы в ней: свет ищется только рядом
+
+
+func _index_lamps() -> void:
+	lamp_bands = {}
+	for l in lamps:
+		var k := int(floor((l["pos"] as Vector2).y / 400.0))
+		if not lamp_bands.has(k):
+			lamp_bands[k] = []
+		lamp_bands[k].append(l)
+
+
+func lamps_near(pos: Vector2) -> Array:
+	var k := int(floor(pos.y / 400.0))
+	var out: Array = []
+	for d in [-1, 0, 1]:
+		out.append_array(lamp_bands.get(k + d, []))
+	return out
 
 
 # ======================= граф переходов =======================
@@ -1728,6 +2044,9 @@ func _areas_and_portals() -> void:
 	areas["S"] = {"id": "S", "inside": false, "bid": -1, "f": 0, "y": gy, "x0": 24.0, "x1": float(width * K.T) - 24.0}
 	areas["C"] = {"id": "C", "inside": true, "bid": -1, "f": -2, "y": float(C_ROW * K.T), "x0": float(coll_c0 * K.T) + 8, "x1": float((coll_c1 + 1) * K.T) - 8}
 	areas["M"] = {"id": "M", "inside": true, "bid": -1, "f": -3, "y": float(M_ROW * K.T), "x0": float(metro_c0 * K.T) + 8, "x1": float((metro_c1 + 1) * K.T) - 8}
+	for g in galleries:
+		areas[g["id"]] = {"id": g["id"], "inside": false, "bid": -1, "f": int(g["f"]), "y": K.floor_y(int(g["f"])),
+			"x0": float(g["x0"]) + 6.0, "x1": float(g["x1"]) - 6.0, "gallery": true}
 	areas["D"] = {"id": "D", "inside": true, "bid": -1, "f": -4, "y": float(D_ROW * K.T), "x0": float(coll_c0 * K.T) + 8, "x1": float((coll_c1 + 1) * K.T) - 8}
 	for b in buildings:
 		var bid: int = b["id"]
@@ -1748,6 +2067,33 @@ func _areas_and_portals() -> void:
 				portals.append({"kind": "lift", "x": float(b["lift_x"]), "a": area_of_floor(bid, f), "b": area_of_floor(bid, f + 1),
 					"ya": K.floor_y(f), "yb": K.floor_y(f + 1), "human": true, "spirit": true, "lock": "", "dur": 1.0, "bid": bid,
 					"zw": 18.0})
+		# экспресс: прямые рейсы между узлами (0, 10, 20…), ждать кабину; грузовой — на каждом этаже, по ключу
+		if b["express"]:
+			var stops := []
+			for f in range(0, int(b["n"]), K.SEC):
+				stops.append(f)
+			if not ((int(b["n"]) - 1) in stops):
+				stops.append(int(b["n"]) - 1)
+			b["stops"] = stops
+			for i in stops.size():
+				for j in range(i + 1, stops.size()):
+					var fa: int = stops[i]
+					var fb: int = stops[j]
+					portals.append({"kind": "express", "x": float(b["express_x"]), "a": area_of_floor(bid, fa), "b": area_of_floor(bid, fb),
+						"ya": K.floor_y(fa), "yb": K.floor_y(fb), "human": true, "spirit": true, "lock": "", "bid": bid,
+						"dur": 1.2 + 0.22 * (fb - fa), "zw": 18.0})
+		if b["freight"]:
+			var ff := -1 if b["basement"] else 0
+			for f in range(ff, int(b["n"]) - 1):
+				portals.append({"kind": "freight", "x": float(b["freight_x"]), "a": area_of_floor(bid, f), "b": area_of_floor(bid, f + 1),
+					"ya": K.floor_y(f), "yb": K.floor_y(f + 1), "human": true, "spirit": true, "lock": "freight%d" % bid, "dur": 1.3,
+					"bid": bid, "zw": 18.0})
+		if b["chute"]:
+			# мусоропровод: дух пролетает этаж за четверть секунды — скоростная дорога по вертикали
+			var fc := -1 if b["basement"] else 0
+			for f in range(fc, int(b["n"]) - 1):
+				portals.append({"kind": "chute", "x": float(b["chute_x"]), "a": area_of_floor(bid, f), "b": area_of_floor(bid, f + 1),
+					"ya": K.floor_y(f), "yb": K.floor_y(f + 1), "human": false, "spirit": true, "lock": "", "dur": 0.25, "zw": 16.0})
 		# лестницы: подниматься можно из любой точки клетки
 		for f in fl:
 			if f + 1 < int(b["n"]):
@@ -1838,44 +2184,83 @@ func rooms_by_kind(kind: String) -> Dictionary:
 	return {}
 
 
+var adj := {}                   # зона -> [[переход, dir]]: граф для поиска пути
+var route_cache := {}
+
+
+func _build_adj() -> void:
+	adj = {}
+	for p in portals:
+		if p["kind"] in ["window", "vent", "freight"] or not p["human"]:
+			continue
+		if not adj.has(p["a"]):
+			adj[p["a"]] = []
+		if not adj.has(p["b"]):
+			adj[p["b"]] = []
+		adj[p["a"]].append([p, 1])
+		adj[p["b"]].append([p, -1])
+
+
 func route(from_area: String, to_area: String) -> Array:
-	## Поиск в ширину по переходам. Возвращает список переходов [{p, dir}] (dir 1: a→b, -1: b→a).
+	## Путь по переходам с наименьшим временем (Дейкстра по длительности; экспресс выгоднее лестниц).
+	## Возвращает [{p, dir}] (dir 1: a→b, -1: b→a). Результаты запоминаются.
 	if from_area == to_area:
 		return []
+	var key := from_area + ">" + to_area
+	if route_cache.has(key):
+		return route_cache[key]
+	if adj.is_empty():
+		_build_adj()
+	var dist := {from_area: 0.0}
 	var prev := {from_area: null}
-	var q := [from_area]
-	while q.size() > 0:
-		var cur: String = q.pop_front()
+	var open := [from_area]
+	while open.size() > 0:
+		var bi := 0
+		for k in range(1, open.size()):
+			if float(dist[open[k]]) < float(dist[open[bi]]):
+				bi = k
+		var cur: String = open[bi]
+		open.remove_at(bi)
 		if cur == to_area:
 			break
-		for p in portals:
-			if p["kind"] in ["window", "vent"] or not p["human"]:
-				continue
-			var nxt := ""
-			var dir := 0
-			if p["a"] == cur:
-				nxt = p["b"]
-				dir = 1
-			elif p["b"] == cur:
-				nxt = p["a"]
-				dir = -1
-			if nxt != "" and not prev.has(nxt):
+		for e in adj.get(cur, []):
+			var p: Dictionary = e[0]
+			var dir: int = e[1]
+			var nxt: String = p["b"] if dir > 0 else p["a"]
+			var cost := float(dist[cur]) + _cost(p)
+			if not dist.has(nxt) or cost < float(dist[nxt]):
+				dist[nxt] = cost
 				prev[nxt] = [cur, p, dir]
-				q.append(nxt)
-	if not prev.has(to_area):
-		return []
+				if not (nxt in open):
+					open.append(nxt)
 	var out := []
-	var c := to_area
-	while prev[c] != null:
-		var e: Array = prev[c]
-		out.push_front({"p": e[1], "dir": e[2]})
-		c = e[0]
+	if prev.has(to_area):
+		var c := to_area
+		while prev[c] != null:
+			var e2: Array = prev[c]
+			out.push_front({"p": e2[1], "dir": e2[2]})
+			c = e2[0]
+	route_cache[key] = out
 	return out
+
+
+func _cost(p: Dictionary) -> float:
+	match p["kind"]:
+		"stairs":
+			return 3.2
+		"lift":
+			return 1.6
+		"express":
+			return 6.0 + float(p["dur"])
+	return float(p.get("dur", 1.0)) + 0.5
 
 
 func area_at(pos: Vector2, inside: bool) -> String:
 	## Определяет зону по положению (для брошенных тел и падений).
 	if not inside:
+		for g in galleries:
+			if pos.x >= float(g["x0"]) and pos.x <= float(g["x1"]) and absf(pos.y - K.floor_y(int(g["f"]))) < 12:
+				return g["id"]
 		for b in buildings:
 			var top := float(int(b["roof_r"]) * K.T)
 			if pos.x >= float(b["px0"]) and pos.x < float(b["px1"]) and absf(pos.y - top) < 10:

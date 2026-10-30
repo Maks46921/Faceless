@@ -30,6 +30,8 @@ func key(k: Key, down: bool) -> void:
 
 func put(p: Person, area: String, x: float) -> void:
 	var a: Dictionary = w.city.areas[area]
+	if p.state == "transit":
+		p.drop_transit()
 	p.area = area
 	p.set_inside(a["inside"])
 	p.global_position = Vector2(x, float(a["y"]) - 1)
@@ -172,7 +174,7 @@ func _ready() -> void:
 			var a: String = pt["a"]
 			put(h, a, City.px_from(pt, 1) + 6)
 			await wait(0.6)
-			print("bridge prompt E: ", pl.act_e.get("text", "-"))
+			print("bridge prompt E: ", pl.act_e.get("text", "-"), " area ", h.area, " pos ", h.global_position, " ax ", City.px_from(pt, 1), " y ", pt["ya"], " state ", h.state, " W ", pl.act_w.get("text", "-"))
 			await shot("bridge_before")
 			if pl.act_e.get("kind", "") == "portal":
 				pl._do(pl.act_e)

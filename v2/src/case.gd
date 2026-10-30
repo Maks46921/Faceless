@@ -121,7 +121,8 @@ func generate(seed_v: int, c: City) -> void:
 		"a": "а" if female else "", "sya": "ась" if female else "ся", "Man": "Женщина" if female else "Мужчина",
 		"man": "женщина" if female else "мужчина", "yi": "ая" if female else "ый", "oy": "ая" if female else "ой", "this": "эта" if female else "этот", "nick": nick, "Nick": nick.capitalize(),
 		"hat": Looks.HAT_WORDS.get(lk["hat"], ""), "coat": Looks.coat_word(lk), "carry": Looks.ITEM_WORDS.get(lk["item"], ""),
-		"name": "%s %s" % [p["first"], p["last"]], "apt": p["apt"], "fl": int(p["home_f"]) + 1, "house": p["house_word"]}
+		"name": "%s %s" % [p["first"], p["last"]], "apt": p["apt"], "fl": int(p["home_f"]) + 1, "house": p["house_word"],
+		"sec": p["sec"], "tower": p["tower"]}
 	_schedule()
 	_cards()
 	for id in Game.d("known"):
@@ -130,7 +131,7 @@ func generate(seed_v: int, c: City) -> void:
 
 
 func _home() -> void:
-	var res := city.buildings.filter(func(b): return b["kind"] == "res" and int(b["n"]) >= 5 and b["base"] == "res")
+	var res := city.buildings.filter(func(b): return b["kind"] == "res" and int(b["n"]) >= 5)
 	var b: Dictionary = res[rng.randi() % res.size()]
 	var fs := range(1, int(b["n"])).filter(func(ff): return b["floors"].has(ff) and (b["floors"][ff] as Array).size() > 0)
 	var f: int = fs[rng.randi() % fs.size()]
@@ -153,6 +154,14 @@ func _home() -> void:
 	var words := {5: "пяти", 6: "шести", 7: "семи", 8: "восьми", 9: "девяти", 10: "десяти", 11: "одиннадцати", 12: "двенадцати",
 		13: "тринадцати", 14: "четырнадцати", 15: "пятнадцати", 16: "шестнадцати"}
 	p["house_word"] = ("%sэтажке" % words[n]) if words.has(n) else ("%d-этажке" % n)
+	# мегакорпус: адрес — корпус, секция, этаж; искажённая запись путает корпус
+	p["tower"] = String(b.get("tower", ""))
+	p["sec"] = f / K.SEC + 1
+	p["tower_other"] = ""
+	if p["tower"] != "":
+		p["house_word"] = "корпусе " + p["tower"]
+		var others := city.buildings.filter(func(bb): return String(bb.get("tower", "")) != "" and bb["id"] != b["id"])
+		p["tower_other"] = String(others[rng.randi() % others.size()]["tower"]) if others.size() > 0 else p["tower"]
 	var idx := 0
 	for bb in city.buildings:
 		if bb["kind"] == "res":
@@ -316,8 +325,13 @@ func _cards() -> void:
 		p["habit"], hb["dloc"], p["h_habit"])
 	_card("evening", "Вечер", f(ev["txt"]), f("Вечером… где-то у метро? Около {et}?"), f(ev["dtxt"]), "Что-то про вечер…", 1.0,
 		p["evening"], ev["dloc"], [p["h_evening"]])
-	_card("home", "Дом", f("Живёт в {house}, {fl}-й этаж, кв. {apt}."), f("Квартира… {apt}? Или около того."),
-		f("Живёт в доме у гаражей, кв. %d." % (int(p["apt"]) + 3)), "Что-то про дом…", 1.0, "Дом", "", [])
+	if p["tower"] != "":
+		_card("home", "Дом", f("Живёт в {house}, секция {sec}, {fl}-й этаж, кв. {apt}."),
+			f("Корпус {tower}… секция {sec}? Высоко или низко — не разобрать."),
+			f("Живёт в корпусе %s, секция {sec}, {fl}-й этаж." % p["tower_other"]), "Что-то про дом…", 1.0, "Дом", "", [])
+	else:
+		_card("home", "Дом", f("Живёт в {house}, {fl}-й этаж, кв. {apt}."), f("Квартира… {apt}? Или около того."),
+			f("Живёт в доме у гаражей, кв. %d." % (int(p["apt"]) + 3)), "Что-то про дом…", 1.0, "Дом", "", [])
 
 
 func card(id: String) -> Dictionary:

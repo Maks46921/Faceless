@@ -3,7 +3,9 @@ class_name K
 
 const T := 16                 # тайл, пикселей
 const FH := 5                 # высота этажа в тайлах (перекрытие + 4 ряда)
-const GY := 96                # ряд земли (верх тротуара = GY * T)
+const SEC := 10               # этажей в секции мегакорпуса; этажи 0, 10, 20… — узлы (холл, экспресс)
+const SHADE_F := 18           # ниже этого этажа солнца не бывает: тень соседних башен
+const GY := 320               # ряд земли (верх тротуара = GY * T): над ним до 60 этажей
 const ROWS := GY + 34
 const M := 26.0               # пикселей в метре (для перевода чисел из 3D-версии)
 
@@ -49,6 +51,19 @@ static func floor_y(f: int) -> float:
 	if f >= 0:
 		return float((GY - FH * f) * T)
 	return float((GY + 6) * T)
+
+
+static func sec_of(f: int) -> int:
+	return maxi(0, f) / SEC
+
+
+static func cls_of_floor(f: int) -> int:
+	## Классы по высоте: 0 — низ (рабочие, старики), 1 — середина (служащие), 2 — верх (начальство).
+	if f >= 40:
+		return 2
+	if f >= 20:
+		return 1
+	return 0
 
 
 static func fmt_time(h: float) -> String:

@@ -65,7 +65,7 @@ func _draw() -> void:
 		var a := 0.12 - i * 0.02
 		draw_circle(Vector2(spirit_x - i * 14, sy + i * 3), 16.0 - i * 2, Color(0.65, 0.8, 0.95, a))
 	draw_texture_rect(logo, Rect2(430, 80, 1060, 220), false, Color(1, 1, 1, 0.92 + 0.08 * sin(t * 2.0)))
-	draw_string(_f("Oswald"), Vector2(0, 350), "БЕЗ ЛИЦА · 2.2 · ВИД СБОКУ", HORIZONTAL_ALIGNMENT_CENTER, 1920, 30, K.GOLD)
+	draw_string(_f("Oswald"), Vector2(0, 350), "БЕЗ ЛИЦА · 2.3 · ВИД СБОКУ", HORIZONTAL_ALIGNMENT_CENTER, 1920, 30, K.GOLD)
 	_buttons()
 	_panel()
 	draw_string(_f("PT_Sans-Web-Bold"), Vector2(0, 1050), "%s · уровень %d · репутация %d" % [Game.rank(), Game.level, Game.reputation],
