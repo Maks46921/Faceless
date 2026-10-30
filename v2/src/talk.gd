@@ -19,7 +19,6 @@ const LIFE := ["Пенсию опять задержали. А цены-то, ц
 	"Сосед сверху заливает, третий раз за год.", "В очереди за молоком час стоял{a}, а оно кончилось."]
 const BUY := {"vendor": "Газету, пожалуйста.", "cashier": "Пачку чая, пожалуйста.", "barista": "Стакан чаю.", "pharm": "Что-нибудь от головы."}
 
-static var portraits := {}      # pid -> ImageTexture
 
 var world: Node
 var pl: PlayerCtl
@@ -638,188 +637,32 @@ func end() -> void:
 
 # ======================= портрет =======================
 
-static func portrait(p: Person) -> ImageTexture:
-	if portraits.has(p.pid):
-		return portraits[p.pid]
-	var tex := ImageTexture.create_from_image(_draw_portrait(p.look))
-	portraits[p.pid] = tex
-	return tex
-
-
-static func _draw_portrait(lk: Dictionary) -> Image:
-	## 32×36: плечи, лицо, причёска, борода, очки, шапка — из палитры внешности.
-	var W := 32
-	var H := 36
-	var img := Image.create(W, H, false, Image.FORMAT_RGBA8)
-	var bg := Color(0.16, 0.16, 0.18)
-	img.fill(bg)
-	var pal: Array = lk.get("pal", Looks.pal_default())
-	var skin: Color = pal[Looks.SKIN]
-	var hair: Color = pal[Looks.HAIR]
-	var top: Color = pal[Looks.TOP]
-	var top2: Color = pal[Looks.TOP2]
-	var hatc: Color = pal[Looks.HAT]
-	var acc: Color = pal[Looks.ACC]
-	var female: bool = lk.get("female", false)
-	var hs: String = lk.get("hair", "short")
-	var hat: String = lk.get("hat", "")
-	var cx := 16
-	var cy := 16
-	# плечи и одежда
-	for y in range(27, H):
-		var half := 9 + (y - 27)
-		for x in range(cx - half, cx + half):
-			if x >= 0 and x < W:
-				img.set_pixel(x, y, top.darkened(0.12) if x > cx + half - 4 else top)
-	var torso: String = lk.get("torso", "coat")
-	if torso in ["coat", "jacket"]:
-		for y in range(27, H):
-			var k := (y - 27) / 2
-			for x in range(cx - 2 - k, cx + 2 + k):
-				img.set_pixel(x, y, top2)
-		for y in range(28, H):
-			img.set_pixel(cx, y, top.darkened(0.3))
-	elif torso == "sweater":
-		for x in range(cx - 4, cx + 4):
-			img.set_pixel(x, 27, top.lightened(0.15))
-	# шея
-	for y in range(23, 28):
-		for x in range(cx - 3, cx + 3):
-			img.set_pixel(x, y, skin.darkened(0.18))
-	if lk.get("scarf", false):
-		for y in range(25, 29):
-			for x in range(cx - 6, cx + 6):
-				img.set_pixel(x, y, acc)
-	# длинные волосы позади головы
-	if hs in ["long", "bob", "curly"] and hat != "hood" and hat != "kerchief":
-		var bottom := 27 if hs == "long" else 21
-		for y in range(8, bottom):
-			for x in range(cx - 9, cx + 9):
-				img.set_pixel(x, y, hair.darkened(0.1))
-	# лицо
-	for y in range(6, 25):
-		for x in range(cx - 8, cx + 8):
-			var dx := (float(x) + 0.5 - cx) / 7.2
-			var dy := (float(y) + 0.5 - cy) / 9.4
-			if dx * dx + dy * dy <= 1.0:
-				img.set_pixel(x, y, skin.darkened(0.14) if dx > 0.45 else skin)
-	# уши
-	for y in range(14, 18):
-		img.set_pixel(cx - 8, y, skin.darkened(0.1))
-		img.set_pixel(cx + 7, y, skin.darkened(0.2))
-	# глаза, брови, нос, рот
-	var eye := Color(0.12, 0.1, 0.1)
-	for x in [cx - 4, cx - 3, cx + 2, cx + 3]:
-		img.set_pixel(x, 15, eye)
-	img.set_pixel(cx - 3, 14, Color(0.95, 0.94, 0.9))
-	img.set_pixel(cx + 3, 14, Color(0.95, 0.94, 0.9))
-	if hs != "bald" or lk.get("age", 1) == 2:
-		for x in [cx - 5, cx - 4, cx - 3, cx + 2, cx + 3, cx + 4]:
-			img.set_pixel(x, 13, hair.darkened(0.2))
-	img.set_pixel(cx, 17, skin.darkened(0.22))
-	img.set_pixel(cx, 18, skin.darkened(0.3))
-	var lip := skin.darkened(0.35) if not female else Color(0.62, 0.3, 0.3)
-	for x in range(cx - 2, cx + 2):
-		img.set_pixel(x, 21, lip)
-	if lk.get("age", 1) == 2:
-		img.set_pixel(cx - 5, 18, skin.darkened(0.2))
-		img.set_pixel(cx + 4, 18, skin.darkened(0.25))
-	# причёска сверху
-	if hs != "bald":
-		for y in range(5, 11):
-			for x in range(cx - 8, cx + 8):
-				var dx2 := (float(x) + 0.5 - cx) / 8.0
-				var dy2 := (float(y) + 0.5 - 12.0) / 7.0
-				if dx2 * dx2 + dy2 * dy2 <= 1.0 and (y < 9 or absf(dx2) > 0.7):
-					img.set_pixel(x, y, hair)
-		if hs == "curly":
-			for x in range(cx - 8, cx + 8, 2):
-				img.set_pixel(x, 4, hair)
-		if hs == "bun":
-			for y in range(1, 5):
-				for x in range(cx - 2, cx + 2):
-					img.set_pixel(x, y, hair)
-		if hs == "pony":
-			for y in range(9, 20):
-				img.set_pixel(cx + 8, y, hair)
-	# борода
-	var beard: String = lk.get("beard", "")
-	if beard == "mustache":
-		for x in range(cx - 3, cx + 3):
-			img.set_pixel(x, 20, hair.darkened(0.1))
-	elif beard == "stubble":
-		for y in range(19, 24):
-			for x in range(cx - 6, cx + 6):
-				if (x + y) % 2 == 0 and img.get_pixel(x, y) != bg:
-					img.set_pixel(x, y, skin.darkened(0.3))
-	elif beard == "full":
-		for y in range(18, 26):
-			for x in range(cx - 7, cx + 7):
-				if img.get_pixel(x, y) != bg and not (y == 21 and absi(x - cx + 1) < 2):
-					img.set_pixel(x, y, hair.darkened(0.05))
-	# очки
-	if lk.get("glasses", false):
-		var met := Color(0.25, 0.25, 0.28)
-		for x in range(cx - 6, cx + 6):
-			img.set_pixel(x, 14 if x != cx - 1 and x != cx else 15, met)
-		for y in [15, 16]:
-			for x in [cx - 6, cx - 1, cx, cx + 5]:
-				img.set_pixel(x, y, met)
-		for x in range(cx - 6, cx + 6):
-			if x != cx - 1 and x != cx:
-				img.set_pixel(x, 17, met)
-	# головной убор
-	match hat:
-		"fedora":
-			_rect(img, cx - 10, 7, 20, 2, hatc.darkened(0.15))
-			_rect(img, cx - 6, 2, 12, 5, hatc)
-			_rect(img, cx - 6, 5, 12, 1, acc)
-		"cap":
-			_rect(img, cx - 7, 3, 14, 5, hatc)
-			_rect(img, cx, 7, 10, 2, hatc.darkened(0.25))
-		"ushanka":
-			_rect(img, cx - 9, 2, 18, 6, hatc)
-			_rect(img, cx - 10, 7, 3, 9, hatc.darkened(0.1))
-			_rect(img, cx + 7, 7, 3, 9, hatc.darkened(0.2))
-			_rect(img, cx - 9, 2, 18, 1, hatc.lightened(0.2))
-		"beanie":
-			_rect(img, cx - 8, 3, 16, 6, hatc)
-			_rect(img, cx - 8, 8, 16, 1, hatc.darkened(0.2))
-			_rect(img, cx - 1, 1, 2, 2, hatc.lightened(0.2))
-		"beret":
-			_rect(img, cx - 9, 4, 16, 3, hatc)
-			_rect(img, cx - 7, 3, 12, 1, hatc)
-		"helmet":
-			_rect(img, cx - 8, 2, 16, 7, hatc)
-			_rect(img, cx - 10, 8, 20, 1, hatc.darkened(0.2))
-		"hood", "kerchief":
-			var hc := top if hat == "hood" else acc
-			for y in range(3, 27):
-				for x in range(cx - 11, cx + 11):
-					var dx3 := (float(x) + 0.5 - cx) / 10.5
-					var dy3 := (float(y) + 0.5 - 14.0) / 11.5
-					var inner_x := (float(x) + 0.5 - cx) / 7.0
-					var inner_y := (float(y) + 0.5 - 16.0) / 8.5
-					if dx3 * dx3 + dy3 * dy3 <= 1.0 and inner_x * inner_x + inner_y * inner_y > 1.0 and y < 26:
-						img.set_pixel(x, y, hc if x < cx + 6 else hc.darkened(0.15))
-			if hat == "kerchief":
-				_rect(img, cx - 2, 24, 4, 3, acc.darkened(0.2))
-	# контур
-	var out := img.duplicate() as Image
-	for y in H:
-		for x in W:
-			if img.get_pixel(x, y) != bg:
-				continue
-			for d in [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]:
-				var nx: int = x + d.x
-				var ny: int = y + d.y
-				if nx >= 0 and ny >= 0 and nx < W and ny < H and img.get_pixel(nx, ny) != bg:
-					out.set_pixel(x, y, Color(0.06, 0.06, 0.07))
-					break
+static func portrait_layers(l: Dictionary) -> Array:
+	## Порядок слоёв портрета 128×144 (повтор tools/art2x/gen_portraits.py: portrait_layers).
+	var f: int = int(l.get("face", 0))
+	var hat: String = l.get("hat", "")
+	var hair: String = l.get("hair", "short")
+	var covered: bool = hat in ["hood", "kerchief", "ushanka", "fur_hat", "helmet", "beanie"]
+	var out := []
+	if not covered:
+		out.append("hairb_%s_%d" % [hair, f])
+	out.append("head%d" % f)
+	out.append("clothes_" + String(l.get("torso", "coat")))
+	var sx := "f" if l.get("female", false) else "m"
+	out.append("eyes%d_%s" % [int(l.get("eyes", 0)), sx])
+	out.append("nose%d" % int(l.get("nose", 0)))
+	out.append("mouth%d_%s" % [int(l.get("mouth", 0)), sx])
+	if int(l.get("age", 1)) == 2:
+		out.append("wrinkles")
+	if String(l.get("beard", "")) != "":
+		out.append("beard_%s_%d" % [l["beard"], f])
+	out.append("brows%d" % int(l.get("brows", 0)))
+	if not covered or hair in ["bob", "long", "perm"]:
+		out.append("hair_%s_%d" % [hair, f])
+	if l.get("glasses", false):
+		out.append("glasses")
+	if l.get("scarf", false):
+		out.append("scarf")
+	if hat != "":
+		out.append("hat_%s_%d" % [hat, f])
 	return out
-
-
-static func _rect(img: Image, x: int, y: int, w: int, h: int, c: Color) -> void:
-	for yy in range(maxi(0, y), mini(img.get_height(), y + h)):
-		for xx in range(maxi(0, x), mini(img.get_width(), x + w)):
-			img.set_pixel(xx, yy, c)

@@ -4,7 +4,7 @@ extends Node
 var tiles := {}            # имя -> Vector2i в атласе
 var tileset: TileSet
 var props := {}            # имя -> {tex, w, h, n}
-var fig := {}              # слой -> Texture2D
+var fig := {}              # "телосложение/слой" -> Texture2D (лениво)
 var fig_frames := {}       # анимация -> PackedInt32Array
 var fonts := {}
 var light_tex: Texture2D
@@ -110,19 +110,50 @@ func prop_size(nm: String) -> Vector2:
 
 
 func _load_fig() -> void:
-	var dir := DirAccess.open("res://assets/fig")
-	for f in dir.get_files():
-		var nm := f.replace(".import", "")
-		if nm.ends_with(".png"):
-			var key := nm.trim_suffix(".png")
-			if not fig.has(key):
-				fig[key] = load("res://assets/fig/" + nm)
-	for l in _lines("res://assets/fig/frames.txt"):
+	## Люди 2x: листы по телосложению (assets/fig2/<b>/<слой>.png) грузятся лениво, при первом таком человеке.
+	for l in _lines("res://assets/fig2/frames.txt"):
 		var p := l.split(" ")
 		var arr := PackedInt32Array()
 		for s in p[1].split(","):
 			arr.append(int(s))
 		fig_frames[p[0]] = arr
+
+
+func fig_tex(build: String, ln: String) -> Texture2D:
+	## Лист слоя в формате RG8 (материал и яркость; прозрачность — нулевой материал): вдвое меньше памяти.
+	var key := build + "/" + ln
+	if fig.has(key):
+		return fig[key]
+	var path := "res://assets/fig2/%s/%s.png" % [build, ln]
+	var tex: Texture2D = null
+	if ResourceLoader.exists(path):
+		var img: Image = (load(path) as Texture2D).get_image()
+		if img.is_compressed():
+			img.decompress()
+		img.convert(Image.FORMAT_RG8)
+		tex = ImageTexture.create_from_image(img)
+	elif build != "m":
+		tex = fig_tex("m", ln)
+	fig[key] = tex
+	return tex
+
+
+var portrait := {}   # слой портрета -> текстура RG8
+
+
+func portrait_tex(ln: String) -> Texture2D:
+	if portrait.has(ln):
+		return portrait[ln]
+	var path := "res://assets/portrait/%s.png" % ln
+	var tex: Texture2D = null
+	if ResourceLoader.exists(path):
+		var img: Image = (load(path) as Texture2D).get_image()
+		if img.is_compressed():
+			img.decompress()
+		img.convert(Image.FORMAT_RG8)
+		tex = ImageTexture.create_from_image(img)
+	portrait[ln] = tex
+	return tex
 
 
 func _make_lights() -> void:

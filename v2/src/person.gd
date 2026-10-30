@@ -106,19 +106,24 @@ func rebuild_fig() -> void:
 	for s in sprites:
 		s.queue_free()
 	sprites.clear()
+	var b: String = look.get("build", "m")
 	for ln in Looks.layers(look, raining):
-		if not Res.fig.has(ln):
+		var tex := Res.fig_tex(b, ln)
+		if tex == null:
 			continue
 		var s := Sprite2D.new()
-		s.texture = Res.fig[ln]
+		s.texture = tex
 		s.hframes = NFR
 		s.centered = false
-		s.offset = Vector2(-24, -47)
+		# лист в двойной плотности: кадр 84×108, подошва на 104-м ряду
+		s.offset = Vector2(-40, -104)
+		s.scale = Vector2(0.5, 0.5)
 		s.use_parent_material = true
 		s.visibility_layer = K.V_ALL
 		fig.add_child(s)
 		sprites.append(s)
 	mat.set_shader_parameter("pal", look["pal"])
+	mat.set_shader_parameter("pattern", int(look.get("pattern", 0)))
 	_set_frame(frame)
 
 
@@ -165,7 +170,7 @@ func floor_i() -> int:
 
 
 func head_pos() -> Vector2:
-	return global_position + Vector2(0, -40)
+	return global_position + Vector2(0, -40.0 * float(Looks.BUILD_H.get(look.get("build", "m"), 1.0)))
 
 
 func center() -> Vector2:
@@ -192,6 +197,13 @@ func _set_frame(f: int) -> void:
 	frame = f
 	for s in sprites:
 		(s as Sprite2D).frame = f
+	# лежачий кадр нарисован стоя: фигуру кладём поворотом, головой назад по взгляду
+	if anim == "lie":
+		fig.rotation = -PI / 2.0 * facing
+		fig.position = Vector2(20.0 * facing, -6.0)
+	elif fig.rotation != 0.0:
+		fig.rotation = 0.0
+		fig.position = Vector2.ZERO
 
 
 func _anim(nm: String, dt: float, fps: float) -> void:

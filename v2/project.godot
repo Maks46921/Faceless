@@ -1,11 +1,11 @@
-; Без лица 2.3.0 — вид сбоку
+; Без лица 2.3.1 — вид сбоку
 
 config_version=5
 
 [application]
 
 config/name="Без лица"
-config/version="2.3.0"
+config/version="2.3.1"
 run/main_scene="res://main.tscn"
 config/features=PackedStringArray("4.3")
 boot_splash/bg_color=Color(0.0667, 0.0706, 0.0784, 1)

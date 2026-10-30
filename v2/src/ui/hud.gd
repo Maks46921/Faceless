@@ -24,7 +24,7 @@ var mark_t := 0.0
 var talk: Talk = null
 var talk_rects: Array = []      # [Rect2, индекс варианта]
 var talk_hover := -1
-var portrait_rect: TextureRect
+var portrait_box: Control      # слои портрета собеседника
 
 const F_HEAD := "Oswald"
 const F_BODY := "PT_Sans-Web-Bold"
@@ -44,15 +44,12 @@ func _ready() -> void:
 	d.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	d.draw.connect(_draw_all)
 	add_child(d)
-	portrait_rect = TextureRect.new()
-	portrait_rect.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	portrait_rect.stretch_mode = TextureRect.STRETCH_SCALE
-	portrait_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	portrait_rect.position = Vector2(268, 798)
-	portrait_rect.size = Vector2(128, 144)
-	portrait_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	portrait_rect.visible = false
-	add_child(portrait_rect)
+	portrait_box = Control.new()
+	portrait_box.position = Vector2(264, 568)
+	portrait_box.size = Vector2(256, 288)
+	portrait_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	portrait_box.visible = false
+	add_child(portrait_box)
 
 
 func modal() -> bool:
@@ -65,9 +62,32 @@ func open_talk(tk: Talk) -> void:
 	talk = tk
 	talk_hover = -1
 	world.pstats["talks"] = int(world.pstats["talks"]) + 1
-	portrait_rect.texture = Talk.portrait(tk.q)
-	portrait_rect.visible = true
+	_build_portrait(tk.q)
+	portrait_box.visible = true
 	Sfx.play("ui", -10.0)
+
+
+func _build_portrait(q: Person) -> void:
+	## Портрет 128×144 из слоёв, раскрашенных шейдером фигур по палитре внешности; на экране ×2.
+	for c in portrait_box.get_children():
+		c.queue_free()
+	var mat := ShaderMaterial.new()
+	mat.shader = Res.fig_shader
+	mat.set_shader_parameter("pal", q.look["pal"])
+	mat.set_shader_parameter("pattern", int(q.look.get("pattern", 0)))
+	for ln in Talk.portrait_layers(q.look):
+		var tex := Res.portrait_tex(ln)
+		if tex == null:
+			continue
+		var tr := TextureRect.new()
+		tr.texture = tex
+		tr.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		tr.stretch_mode = TextureRect.STRETCH_SCALE
+		tr.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		tr.size = portrait_box.size
+		tr.material = mat
+		tr.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		portrait_box.add_child(tr)
 
 
 func close_talk() -> void:
@@ -90,7 +110,7 @@ func close_talk() -> void:
 				if host:
 					q.brain.scare(host.global_position, after["t"])
 	talk = null
-	portrait_rect.visible = false
+	portrait_box.visible = false
 
 
 func mark_place(x: float, _nm: String) -> void:
@@ -604,42 +624,44 @@ func _talk_panel() -> void:
 	var pr := Rect2(240, 770, 1440, 290)
 	d.draw_rect(pr, Color(0.067, 0.071, 0.078, 0.93))
 	d.draw_rect(pr, Color(K.GOLD, 0.35), false, 2.0)
-	d.draw_rect(Rect2(264, 794, 136, 152), Color(0.05, 0.05, 0.06))
-	d.draw_rect(Rect2(264, 794, 136, 152), Color(K.GOLD, 0.5), false, 2.0)
+	var pb := Rect2(256, 560, 272, 304)
+	d.draw_rect(pb, Color(0.09, 0.09, 0.1))
+	d.draw_rect(Rect2(pb.position + Vector2(8, 8), Vector2(256, 288)), Color(0.15, 0.15, 0.17))
+	d.draw_rect(pb, Color(K.GOLD, 0.6), false, 2.0)
 	# настроение
 	var m := tk.mood() / 100.0
 	var mc := RED.lerp(Color(0.55, 0.75, 0.45), m)
-	d.draw_rect(Rect2(264, 958, 136, 10), Color(0, 0, 0, 0.6))
-	d.draw_rect(Rect2(264, 958, 136 * m, 10), mc)
+	d.draw_rect(Rect2(256, 878, 272, 10), Color(0, 0, 0, 0.6))
+	d.draw_rect(Rect2(256, 878, 272 * m, 10), mc)
 	var mw := "враждебно" if m < 0.2 else ("холодно" if m < 0.4 else ("ровно" if m < 0.6 else ("тепло" if m < 0.8 else "душевно")))
-	_text(Vector2(264, 994), mw, F_BODY, 18, DIM, HORIZONTAL_ALIGNMENT_CENTER, 136)
-	_text(Vector2(264, 1022), "терпение: %d" % maxi(0, tk.patience()), F_BODY, 18, DIM, HORIZONTAL_ALIGNMENT_CENTER, 136)
+	_text(Vector2(256, 916), mw, F_BODY, 20, DIM, HORIZONTAL_ALIGNMENT_CENTER, 272)
+	_text(Vector2(256, 946), "терпение: %d" % maxi(0, tk.patience()), F_BODY, 20, DIM, HORIZONTAL_ALIGNMENT_CENTER, 272)
 	# имя, кто он тебе, характер
-	_text(Vector2(424, 822), q.full_name(), F_HEAD, 30, PAPER)
+	_text(Vector2(552, 822), q.full_name(), F_HEAD, 30, PAPER)
 	var nw := _font(F_HEAD).get_string_size(q.full_name(), HORIZONTAL_ALIGNMENT_LEFT, -1, 30).x
-	_text(Vector2(424 + nw + 18, 822), "%s  ·  для тебя: %s" % [world.player._who_word(q), tk.rel[0]], F_BODY, 20, DIM)
-	_text(Vector2(424, 852), "характер: " + tk.trait_words(), F_BODY, 18, Color(K.GOLD, 0.8))
+	_text(Vector2(552 + nw + 18, 822), "%s  ·  для тебя: %s" % [world.player._who_word(q), tk.rel[0]], F_BODY, 20, DIM)
+	_text(Vector2(552, 852), "характер: " + tk.trait_words(), F_BODY, 18, Color(K.GOLD, 0.8))
 	var mw2 := tk.memory_words()
 	if mw2 != "":
 		var tw := _font(F_BODY).get_string_size("характер: " + tk.trait_words(), HORIZONTAL_ALIGNMENT_LEFT, -1, 18).x
-		_text(Vector2(424 + tw + 24, 852), mw2, F_BODY, 18, RED if mw2.begins_with("помнит обиду") else Color(0.55, 0.75, 0.45))
+		_text(Vector2(552 + tw + 24, 852), mw2, F_BODY, 18, RED if mw2.begins_with("помнит обиду") else Color(0.55, 0.75, 0.45))
 	# реплика
-	_wrap(Vector2(424, 892), "— " + tk.line, F_BODY, 24, PAPER, 1230)
+	_wrap(Vector2(552, 892), "— " + tk.line, F_BODY, 24, PAPER, 1100)
 	# варианты: три столбца по три строки
 	talk_rects = []
 	var n := tk.opts.size()
 	for i in n:
 		var col := i / 3
 		var row := i % 3
-		var x := 424.0 + col * 410.0
+		var x := 552.0 + col * 372.0
 		var y := 978.0 + row * 30.0
-		var rr := Rect2(x - 6, y - 22, 400, 28)
+		var rr := Rect2(x - 6, y - 22, 362, 28)
 		talk_rects.append([rr, i])
 		if talk_hover == i:
 			d.draw_rect(rr, Color(K.GOLD, 0.15))
 		d.draw_rect(Rect2(x, y - 19, 22, 22), Color(K.GOLD, 0.9) if tk.close_t < 0.0 else Color(0.4, 0.4, 0.4))
 		_text(Vector2(x, y - 1), str(i + 1), F_HEAD, 18, K.INK, HORIZONTAL_ALIGNMENT_CENTER, 22)
-		_text(Vector2(x + 30, y), _short(tk.opts[i]["text"], 38), F_BODY, 20, PAPER if tk.close_t < 0.0 else DIM)
+		_text(Vector2(x + 30, y), _short(tk.opts[i]["text"], 34), F_BODY, 20, PAPER if tk.close_t < 0.0 else DIM)
 	var bx := Rect2(1560, 1024, 110, 28)
 	talk_rects.append([bx, -1])
 	d.draw_rect(bx, Color(K.GOLD, 0.15) if talk_hover == -1 and bx.has_point(get_viewport().get_mouse_position()) else Color(0, 0, 0, 0))
