@@ -32,7 +32,8 @@ func setup(c: City, e: Env) -> void:
 	env = e
 	set_anchors_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var sz := Vector2i(K.VIEW_W + MARGIN * 2, K.VIEW_H + MARGIN * 2)
+	# буферы в двойной плотности: мир в тех же координатах, пиксель картинки — полпикселя мира
+	var sz := Vector2i((K.VIEW_W + MARGIN * 2) * K.PX, (K.VIEW_H + MARGIN * 2) * K.PX)
 	var masks := [K.V_FAR, K.V_INNER, K.V_OUTER, K.V_LIN, K.V_LOUT]
 	for i in masks.size():
 		var v := SubViewport.new()
@@ -89,6 +90,7 @@ func setup(c: City, e: Env) -> void:
 	mat.set_shader_parameter("lin_tex", vps[3].get_texture())
 	mat.set_shader_parameter("lout_tex", vps[4].get_texture())
 	mat.set_shader_parameter("tex_size", Vector2(sz))
+	mat.set_shader_parameter("margin", float(MARGIN * K.PX))
 
 
 func snap_to(p: Vector2) -> void:
@@ -121,9 +123,9 @@ func _apply() -> void:
 	c.x = clampf(c.x, lo.x, hi.x)
 	c.y = clampf(c.y, float(city.top_row * K.T), hi.y)
 	var tl := c - half
-	var ti := tl.floor()
-	var frac := tl - ti
-	var xf := Transform2D(0.0, -ti + Vector2(MARGIN, MARGIN))
+	var ti := (tl * K.PX).floor() / K.PX
+	var frac := (tl - ti) * K.PX
+	var xf := Transform2D(0.0, Vector2(K.PX, K.PX), 0.0, (-ti + Vector2(MARGIN, MARGIN)) * K.PX)
 	for v in vps:
 		(v as SubViewport).canvas_transform = xf
 	mat.set_shader_parameter("sub_off", frac)

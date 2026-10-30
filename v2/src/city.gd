@@ -49,6 +49,7 @@ const D_ROW := K.GY + 25        # пол нижнего тоннеля
 
 func _layer(nm: String, vis: int, z: int) -> TileMapLayer:
 	var t := TileMapLayer.new()
+	t.scale = Vector2(1.0 / K.PX, 1.0 / K.PX)
 	t.name = nm
 	t.tile_set = Res.tileset
 	t.visibility_layer = vis
@@ -1008,6 +1009,7 @@ func _sprop(nm: String, pos: Vector2, front_layer: bool = false, parent: Node2D 
 
 func _facade(b: Dictionary) -> void:
 	var tm := TileMapLayer.new()
+	tm.scale = Vector2(1.0 / K.PX, 1.0 / K.PX)
 	tm.tile_set = Res.tileset
 	tm.visibility_layer = K.V_OUTER
 	tm.name = "facade%d" % b["id"]
@@ -1224,7 +1226,8 @@ func _platform_vis(r: Rect2) -> void:
 		s.texture = (Res.tileset.get_source(0) as TileSetAtlasSource).texture
 		s.region_enabled = true
 		var a: Vector2i = Res.tiles["grate_platform"]
-		s.region_rect = Rect2(a.x * K.T, a.y * K.T, K.T, K.T)
+		s.region_rect = Rect2(a.x * K.TT, a.y * K.TT, K.TT, K.TT)
+		s.scale = Vector2(1.0 / K.PX, 1.0 / K.PX)
 		s.centered = false
 		s.position = Vector2(c * K.T, y)
 		s.visibility_layer = K.V_OUTER

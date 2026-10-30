@@ -55,7 +55,7 @@ func _load_tiles() -> void:
 		var p := l.split(" ")
 		tiles[p[0]] = Vector2i(int(p[1]), int(p[2]))
 	tileset = TileSet.new()
-	tileset.tile_size = Vector2i(K.T, K.T)
+	tileset.tile_size = Vector2i(K.TT, K.TT)
 	var bits := [K.L_COMMON, K.L_INTERIOR, K.L_GRATE, K.L_PLATFORM]
 	for i in bits.size():
 		tileset.add_physics_layer()
@@ -63,11 +63,12 @@ func _load_tiles() -> void:
 		tileset.set_physics_layer_collision_mask(i, 0)
 	var src := TileSetAtlasSource.new()
 	src.texture = tex
-	src.texture_region_size = Vector2i(K.T, K.T)
+	src.texture_region_size = Vector2i(K.TT, K.TT)
 	tileset.add_source(src, 0)
-	var h := K.T / 2.0
+	# тайл 32 в атласе, слой карты в мире уменьшен вдвое: сетка и физика остаются по 16
+	var h := K.TT / 2.0
 	var sq := PackedVector2Array([Vector2(-h, -h), Vector2(h, -h), Vector2(h, h), Vector2(-h, h)])
-	var top := PackedVector2Array([Vector2(-h, -h), Vector2(h, -h), Vector2(h, -h + 4), Vector2(-h, -h + 4)])
+	var top := PackedVector2Array([Vector2(-h, -h), Vector2(h, -h), Vector2(h, -h + 4 * K.PX), Vector2(-h, -h + 4 * K.PX)])
 	for nm in tiles:
 		var c: Vector2i = tiles[nm]
 		src.create_tile(c)
@@ -97,7 +98,9 @@ func prop_sprite(nm: String, frame: int = 0) -> Sprite2D:
 	s.hframes = int(d["n"])
 	s.frame = frame
 	s.centered = false
-	s.offset = Vector2(-int(d["w"]) / 2, -int(d["h"]))
+	# текстура вдвое плотнее мира: смещение в пикселях текстуры, спрайт уменьшен вдвое
+	s.offset = Vector2(-int(d["w"]), -2 * int(d["h"]))
+	s.scale = Vector2(1.0 / K.PX, 1.0 / K.PX)
 	return s
 
 

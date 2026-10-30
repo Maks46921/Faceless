@@ -62,7 +62,7 @@ func setup(c: City) -> void:
 	for c2 in [claw_l, claw_r]:
 		c2.visibility_layer = K.V_ALL
 		c2.centered = true
-		c2.offset = Vector2(6, 0)
+		c2.offset = Vector2(6, 0) * K.PX
 		add_child(c2)
 	# собственное слабое свечение: дух виден и в темноте
 	var gl := Sprite2D.new()

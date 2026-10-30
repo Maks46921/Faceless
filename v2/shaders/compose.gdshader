@@ -13,7 +13,8 @@ uniform float hurt = 0.0;          // плотность падает
 uniform float fade = 0.0;          // помехи памяти
 uniform float time_s = 0.0;
 uniform vec2 sub_off = vec2(0.0);  // дробный сдвиг камеры в текселях мира
-uniform vec2 tex_size = vec2(644.0, 364.0);
+uniform vec2 tex_size = vec2(1288.0, 728.0);
+uniform float margin = 4.0;        // запас по краям буфера, текселей
 
 vec3 grade(vec3 c) {
 	float l = dot(c, vec3(0.299, 0.587, 0.114));
@@ -26,7 +27,7 @@ vec3 grade(vec3 c) {
 void fragment() {
 	vec2 uv = UV;
 	vec2 px = 1.0 / tex_size;
-	uv = (uv * (tex_size - 4.0) + 2.0 + sub_off) * px;
+	uv = (uv * (tex_size - 2.0 * margin) + margin + sub_off) * px;
 	if (spirit > 0.0) {
 		uv.x += sin(uv.y * 60.0 + time_s * 2.0) * 0.0009 * spirit;
 	}
