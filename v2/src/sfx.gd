@@ -5,6 +5,9 @@ const RATE := 22050
 var streams := {}
 var pool: Array = []
 var loops := {}            # имя -> AudioStreamPlayer
+var tracks := {}           # музыка: имя -> AudioStreamPlayer
+var track_now := ""
+const TRACKS := ["morning", "day", "evening", "night", "tension"]
 var rng := RandomNumberGenerator.new()
 
 
@@ -22,6 +25,18 @@ func _ready() -> void:
 		add_child(p)
 		p.play()
 		loops[nm] = p
+	# музыка синтезирована заранее (tools/audio/gen_music.py) и крутится петлями
+	for nm in TRACKS:
+		var st = load("res://assets/music/%s.ogg" % nm)
+		if st == null:
+			continue
+		st.loop = true
+		var mp := AudioStreamPlayer.new()
+		mp.stream = st
+		mp.volume_db = -80.0
+		mp.process_mode = Node.PROCESS_MODE_ALWAYS
+		add_child(mp)
+		tracks[nm] = mp
 
 
 func play(nm: String, vol_db: float = 0.0, pitch: float = 1.0) -> void:
@@ -50,6 +65,22 @@ func loop_level(nm: String, lin: float, dt: float) -> void:
 	var p: AudioStreamPlayer = loops[nm]
 	var target := linear_to_db(maxf(0.0005, lin))
 	p.volume_db = move_toward(p.volume_db, target, dt * 30.0)
+
+
+func music(nm: String, dt: float) -> void:
+	## Плавно ведёт к нужной теме: остальные гаснут. Тревога входит быстро, уходит медленно.
+	track_now = nm
+	for k in tracks:
+		var p: AudioStreamPlayer = tracks[k]
+		var on: bool = k == nm and Game.music > 0.01
+		var target := linear_to_db(maxf(0.0005, Game.music * (0.5 if k != "tension" else 0.6))) if on else -80.0
+		var speed := 40.0 if (k == "tension" and on) else 9.0
+		p.volume_db = move_toward(p.volume_db, target, dt * speed)
+		if on and not p.playing:
+			p.volume_db = -40.0
+			p.play()
+		elif not on and p.playing and p.volume_db <= -60.0:
+			p.stop()
 
 
 # ---------------- синтез ----------------

@@ -20,6 +20,7 @@ var claw_target := Vector2.ZERO
 var still_t := 0.0
 var transit := {}
 var flicker := 0.0
+var outline: Array = []
 
 
 func setup(c: City) -> void:
@@ -32,6 +33,25 @@ func setup(c: City) -> void:
 	sh.shape = rs
 	sh.position = Vector2(0, -6)
 	add_child(sh)
+	# контур: четыре светлые копии на пиксель в стороны, позади самого духа
+	for off in [Vector2(-1, 0), Vector2(1, 0), Vector2(0, -1), Vector2(0, 1)]:
+		var o := Res.prop_sprite("spirit")
+		o.visibility_layer = K.V_ALL
+		o.position = Vector2(0, 4) + off
+		o.self_modulate = Color(3.0, 3.2, 3.6, 0.55)
+		add_child(o)
+		outline.append(o)
+	# мягкий ореол прямо в картинке (виден и там, где нет света)
+	var halo := Sprite2D.new()
+	halo.texture = Res.light_tex
+	halo.scale = Vector2(56, 56) / 128.0
+	halo.position = Vector2(0, -6)
+	halo.modulate = Color(0.16, 0.2, 0.28)
+	var hm := CanvasItemMaterial.new()
+	hm.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
+	halo.material = hm
+	halo.visibility_layer = K.V_ALL
+	add_child(halo)
 	spr = Res.prop_sprite("spirit")
 	spr.visibility_layer = K.V_ALL
 	spr.position = Vector2(0, 4)
@@ -47,9 +67,9 @@ func setup(c: City) -> void:
 	# собственное слабое свечение: дух виден и в темноте
 	var gl := Sprite2D.new()
 	gl.texture = Res.light_tex
-	gl.scale = Vector2(90, 90) / 128.0
+	gl.scale = Vector2(140, 140) / 128.0
 	gl.position = Vector2(0, -8)
-	gl.modulate = Color(0.42, 0.5, 0.62)
+	gl.modulate = Color(0.55, 0.64, 0.8)
 	var m := CanvasItemMaterial.new()
 	m.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
 	gl.material = m
@@ -75,6 +95,10 @@ func _physics_process(dt: float) -> void:
 	anim_t += dt * 7.0
 	spr.frame = int(anim_t) % 6
 	spr.modulate.a = 0.92 - flicker * 0.5 * (0.5 + 0.5 * sin(anim_t * 5.0))
+	for o in outline:
+		(o as Sprite2D).frame = spr.frame
+		(o as Sprite2D).flip_h = spr.flip_h
+		(o as Sprite2D).modulate.a = spr.modulate.a
 	if not transit.is_empty():
 		_transit(dt)
 		_claws(dt)

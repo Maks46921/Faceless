@@ -91,6 +91,41 @@ func build(seed_v: int) -> void:
 	_underground()
 	_street()
 	_areas_and_portals()
+	_unwall_spots()
+
+
+func blocked(x: float, y: float) -> bool:
+	## Клетка на уровне груди/головы стоящего внутри человека — стена (не решётка и не платформа).
+	for dy in [-10.0, -26.0]:
+		var c := Vector2i(int(floor(x / K.T)), int(floor((y + dy) / K.T)))
+		for tm in [tm_common, tm_inner]:
+			if tm.get_cell_source_id(c) == -1:
+				continue
+			if tm.get_cell_alternative_tile(c) in [Res.ALT_PLATFORM, Res.ALT_GRATE]:
+				continue
+			return true
+	return false
+
+
+func unwall(x: float, y: float, mid: float) -> float:
+	## Сдвинуть точку из стены к середине комнаты (шагами по полклетки).
+	var d := signf(mid - x) if mid != x else 1.0
+	var nx := x
+	for i in 12:
+		if not blocked(nx, y):
+			return nx
+		nx += d * K.T * 0.5
+	return x
+
+
+func _unwall_spots() -> void:
+	## 1.7: точки расписаний (диван, плита, стул) не должны попадать в стену.
+	for rm in rooms:
+		var mid := (float(rm["x0"]) + float(rm["x1"])) / 2.0
+		for sp in rm["spots"]:
+			sp["x"] = unwall(float(sp["x"]), float(rm["y"]), mid)
+		if rm.has("bed_x"):
+			rm["bed_x"] = unwall(float(rm["bed_x"]), float(rm["y"]), mid)
 
 
 func ri(a: int, b: int) -> int:

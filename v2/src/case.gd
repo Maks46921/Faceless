@@ -19,6 +19,7 @@ var line := {}                  # назначенный звонок выход
 var tails: Array = []           # хвосты после убийства
 var mem_mult := 1.0
 var known_ids := []
+var spent := {}                 # статистика: на что ушла память
 
 const MORNINGS := {
 	"Киоск": {"txt": "берёт газету у киоска «Печать» в сквере", "act": "read", "dloc": "Остановка", "dtxt": "ждёт у остановки, читает расписание", "short": "газета у «Печати»"},
@@ -33,7 +34,7 @@ const LUNCHES := {
 		"gossip": "В «Встрече» {he} обедает, к {lt}. Я там пирожки беру."},
 	"Сквер": {"txt": "Обедает в сквере на скамейке, около {lt}. Бутерброды из дома.", "act": "sit", "dloc": "Кафе",
 		"dtxt": "Обедает в кафе «Встреча» около {lt2}.",
-		"barista": "К нам не ходит, экономит. Видела в сквере на скамейке, с бутербродами, к {lt}.",
+		"barista": "К нам не ходит, экономит. Видел{s_a} в сквере на скамейке, с бутербродами, к {lt}.",
 		"item": ["Обёртка от бутербродов", "Вощёная бумага, крошки. Обедает на улице — в сквере, к {lt}."],
 		"gossip": "В обед {he} в сквере сидит, на скамейке, с бутербродами. К {lt}, как штык."},
 }
@@ -53,7 +54,7 @@ const SIGS := {
 	"limp": {"nick": ["хромой", "хромая"], "txt": "Хромает на правую ногу, шаг неровный.",
 		"haze": "{He} как будто прихрамывал{a}?", "dist": "Ходит быстро, размашисто.", "empty": "Что-то про то, как {he} ходит…",
 		"item": ["Пузырёк «Кеторола»", "Обезболивающее. Рецепт: «правый коленный сустав». Вот почему {he} хромает."],
-		"gossip": "Видала, как {he} ковыляет — на правую ногу, и всё встаёт, отдыхает."},
+		"gossip": "Видал{s_a}, как {he} ковыляет — на правую ногу, и всё встаёт, отдыхает."},
 	"hunch": {"nick": ["сутулый", "сутулая"], "txt": "Сутулится, ходит медленно, руки за спиной.",
 		"haze": "{He} вроде сутулил{sya}?", "dist": "Держится прямо, шаг быстрый.", "empty": "Что-то про то, как {he} держится…",
 		"item": ["Пояс из собачьей шерсти", "Пояс от радикулита. Спина не разгибается — отсюда и сутулость."],
@@ -61,7 +62,7 @@ const SIGS := {
 	"glance": {"nick": ["нервный", "нервная"], "txt": "Нервный: на ходу то и дело оглядывается через плечо.",
 		"haze": "{He} оглядывал{sya}… или мне показалось?", "dist": "Идёт спокойно, не оборачивается.", "empty": "Что-то про то, как {he} оглядывается…",
 		"item": ["Флакон корвалола", "Пустой флакон корвалола. Нервы. Вот почему {he} всё время оглядывается."],
-		"gossip": "Дёрганый какой-то. Идёт — и всё через плечо зырк, зырк."},
+		"gossip": "Дёрган{yi} как{oy}-то. Идёт — и всё через плечо зырк, зырк."},
 }
 const CURATORS := [
 	{"name": "Ворон", "line": "Повторять не буду. Слушай один раз.", "tic": "*щёлкает ручкой*"},
@@ -118,7 +119,7 @@ func generate(seed_v: int, c: City) -> void:
 	var nick: String = sg["nick"][1 if female else 0]
 	fmt = {"He": "Она" if female else "Он", "he": "она" if female else "он", "him": "её" if female else "его",
 		"a": "а" if female else "", "sya": "ась" if female else "ся", "Man": "Женщина" if female else "Мужчина",
-		"man": "женщина" if female else "мужчина", "nick": nick, "Nick": nick.capitalize(),
+		"man": "женщина" if female else "мужчина", "yi": "ая" if female else "ый", "oy": "ая" if female else "ой", "this": "эта" if female else "этот", "nick": nick, "Nick": nick.capitalize(),
 		"hat": Looks.HAT_WORDS.get(lk["hat"], ""), "coat": Looks.coat_word(lk), "carry": Looks.ITEM_WORDS.get(lk["item"], ""),
 		"name": "%s %s" % [p["first"], p["last"]], "apt": p["apt"], "fl": int(p["home_f"]) + 1, "house": p["house_word"]}
 	_schedule()
@@ -407,9 +408,10 @@ func memory() -> float:
 	return s / n
 
 
-func spend(cost: float) -> void:
-	## Цена памяти: бьёт по всем известным записям с их весом.
+func spend(cost: float, why: String = "other") -> void:
+	## Цена памяти: бьёт по всем известным записям с их весом. why — для статистики баланса.
 	var k := cost * mem_mult
+	spent[why] = float(spent.get(why, 0.0)) + k
 	for c in cards:
 		if not c["known"]:
 			continue
@@ -448,22 +450,65 @@ func informant_line(prof: String) -> Array:
 		"vendor":
 			if p["morning"] == "Киоск":
 				return ["morning", f("{Nick}, {hat}? Газету берёт, каждое утро к {mt}. Встанет, постоит…")]
-			return ["morning", f("{Nick}, {hat}? Газет не берёт. По утрам, к {mt}, {mtxt} — сам видел.")]
+			return ["morning", f("{Nick}, {hat}? Газет не берёт. По утрам, к {mt}, {mtxt} — {sam} видел{s_a}.")]
 		"barista":
 			return ["lunch", f(lu["barista"])]
 		"guard":
 			if p["work"] == "Офис":
 				return ["habit", f("Наш-то, {nick}, опять курит {where}. К {h1} и после обеда, к {h2}. Говорил же — не положено.")]
-			return ["work", f("Не наш. В НИИ работает, на третьем. А курит {where} — видел с поста, к {h1}.")]
+			return ["work", f("Не наш. В НИИ работает, на третьем. А курит {where} — видел{s_a} с поста, к {h1}.")]
 		"janitor":
 			return ["home", f("{Nick}-то? В {house}, {fl}-й этаж, кв. {apt}. Ключ под ковриком держит, дурень.")]
 		"pensioner":
-			var opts := [["gait", f(SIGS[p["sig"]]["gossip"])], ["portrait", f("{Nick}-то этот? Всегда {hat}, {coat}, {carry}.")],
+			var opts := [["gait", f(SIGS[p["sig"]]["gossip"])], ["portrait", f("{Nick}-то {this}? Всегда {hat}, {coat}, {carry}.")],
 				["evening", f(EVENINGS[p["evening"]]["txt"])]]
 			return opts[rng.randi() % opts.size()]
 		"cashier":
 			return ["portrait", f("Помню. {Man} {hat}, {coat}. Берёт одно и то же, сдачу не считает.")]
 	return []
+
+
+const CLUE_Q := {"pharm": "Кто что покупает?", "cashier": "Кто к вам ходит по утрам?", "vendor": "Кто берёт газеты?",
+	"barista": "Кто у вас обедает?", "teacher": "Чьи дети у вас учатся?", "courier": "Кому носишь посылки?",
+	"worker": "Где свет чинил?", "student": "Где по вечерам собираетесь?", "resident": "Что соседи?"}
+
+
+func prof_clue(prof: String) -> Array:
+	## Особое знание профессии: [id записи, реплика, ясность]. Аптекарь знает лекарства, курьер — адреса.
+	var mo_k: String = p["morning"]
+	match prof:
+		"pharm":
+			var t: String = {"limp": "{Nick}? «Кеторол» берёт, для колена. Хромает же, бедн{yi}.",
+				"hunch": "Пояс из собачьей шерсти спрашивал{a}, от радикулита. Вот и ходит согнувшись.",
+				"glance": "Корвалол берёт, по два флакона. Нервы. Всё оглядывается."}[p["sig"]]
+			return ["gait", f(t), 85.0]
+		"cashier":
+			if mo_k == "Универсам":
+				return ["morning", f("Каждое утро, к {mt}, батон и кефир. Как часы."), 85.0]
+			return ["portrait", f("Помню. {Man} {hat}, {coat}. Сдачу не считает."), 80.0]
+		"vendor":
+			if mo_k == "Киоск":
+				return ["morning", f("{Nick}? «Труд» берёт, каждое утро к {mt}."), 85.0]
+			return ["morning", f("Газет не берёт. А по утрам {mtxt}, к {mt} — {sam} видел{s_a}."), 75.0]
+		"barista":
+			return ["lunch", f(LUNCHES[p["lunch"]]["barista"]), 85.0]
+		"teacher":
+			return ["home", f("{Nick}? В {house} живёт, на {fl}-м. Соседский мальчик у меня учится, рассказывал."), 65.0]
+		"courier":
+			return ["home", f("Носил посылку: {house}, кв. {apt}. Расписал{sya} в квитанции — {name}."), 80.0]
+		"worker":
+			return ["work", f("Щиток чинил {work}. {Nick} там сидит, всё на меня косил{sya}."), 80.0]
+		"student":
+			return ["evening", f("Вечером видели: " + EVENINGS[p["evening"]]["txt"].substr(0, 1).to_lower() + EVENINGS[p["evening"]]["txt"].substr(1)), 70.0]
+		"resident":
+			var g := gossip_line()
+			return [g[0], g[1], 60.0]
+	return []
+
+
+static func voiced(t: String, speaker_female: bool) -> String:
+	## Род говорящего: {s_a} — видел/видела, {sam} — сам/сама.
+	return t.replace("{s_a}", "а" if speaker_female else "").replace("{sam}", "сама" if speaker_female else "сам")
 
 
 func gossip_line() -> Array:

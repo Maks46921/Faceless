@@ -79,6 +79,7 @@ func load_cfg() -> void:
 	cases_failed = c.get_value("svc", "failed", 0)
 	perms = c.get_value("svc", "perms", [])
 	stats = c.get_value("svc", "stats", stats)
+	last_result = {"seed": c.get_value("svc", "last_seed", 0)}
 	hints_seen = c.get_value("ui", "hints", {})
 	volume = c.get_value("ui", "volume", 0.8)
 	music = c.get_value("ui", "music", 0.6)
@@ -95,6 +96,7 @@ func save_cfg() -> void:
 	c.set_value("svc", "failed", cases_failed)
 	c.set_value("svc", "perms", perms)
 	c.set_value("svc", "stats", stats)
+	c.set_value("svc", "last_seed", int(last_result.get("seed", 0)))
 	c.set_value("ui", "hints", hints_seen)
 	c.set_value("ui", "volume", volume)
 	c.set_value("ui", "music", music)

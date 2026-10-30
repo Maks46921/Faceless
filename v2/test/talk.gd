@@ -93,8 +93,9 @@ func _ready() -> void:
 	await talk_with(guard, [0, 5, 6, 1], "guard")
 	var tramp := find("tramp")
 	await talk_with(tramp, [0, 5, 6, 6, 2], "tramp")
+	await talk_with(tramp, [], "tramp_again")
 	var cash := find("cashier")
-	await talk_with(cash, [3], "dirs")
+	await talk_with(cash, [7, 3], "dirs")
 	print("keys now ", h.keys)
 	# лифт: держим W — едем этаж за этажом
 	var lb: Dictionary = {}

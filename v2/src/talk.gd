@@ -40,14 +40,11 @@ func _init(w: Node, ctl: PlayerCtl, who: Person) -> void:
 	case = w.case
 	q = who
 	host = ctl.host
-	mem = w.talk_mem.get(q.pid, {})
-	if mem.is_empty():
-		mem = _new_mem()
-		w.talk_mem[q.pid] = mem
+	mem = mem_for(w, q)
 	rel = _relation()
 	var hk := str(host.pid)
 	if not (mem["mood"] as Dictionary).has(hk):
-		mem["mood"][hk] = clampf(45.0 + _trait_sum("mood") + float(rel[1]) + randf_range(-8, 8), 5.0, 95.0)
+		mem["mood"][hk] = clampf(45.0 + _trait_sum("mood") + float(rel[1]) + float(mem["mood_adj"].get(hk, 0.0)) + randf_range(-8, 8), 0.0, 95.0)
 	# терпение восстанавливается, если давно не говорили
 	if not (mem["pat"] as Dictionary).has(hk) or world.env.hour - float(mem["last"].get(hk, -9.0)) > 1.0:
 		var pat := 4 + int(_trait_sum("pat")) + (2 if rel[1] > 0.0 else 0)
@@ -62,7 +59,13 @@ func _init(w: Node, ctl: PlayerCtl, who: Person) -> void:
 		world.target_alert += 10.0
 	if world.greet_wait.has(q.pid):
 		world.greet_wait.erase(q.pid)
-	if mood() < 20.0:
+	if mem["grudge"].has(hk):
+		# обида на это тело держится весь день
+		mem["mood"][hk] = minf(mood(), 25.0)
+		line = _pick(["Опять ты? После того, как ты %s?" % mem["grudge"][hk], "С тобой я разговаривать не буду. Ты %s." % mem["grudge"][hk]])
+	elif mem["fond"].has(hk) and mood() >= 20.0:
+		line = _pick(["А, это вы! Помню-помню: %s." % mem["fond"][hk], "Здравствуйте ещё раз. Вы ведь %s." % mem["fond"][hk]])
+	elif mood() < 20.0:
 		line = _pick(["Некогда мне.", "Отстаньте.", "Чего надо?", "Не до вас сейчас."])
 	elif rel[0] in ["сосед", "семья", "коллега"]:
 		line = _pick(["О, %s! Чего тебе?" % host.first, "А, это ты. Ну, говори.", "%s? Что-то случилось?" % host.first])
@@ -73,9 +76,29 @@ func _init(w: Node, ctl: PlayerCtl, who: Person) -> void:
 
 # ======================= память и характер =======================
 
-func _new_mem() -> Dictionary:
+static func mem_for(w: Node, q: Person) -> Dictionary:
+	## Память человека о разговорах: черты, настроение к каждому телу, обиды и добрые дела.
+	var m: Dictionary = w.talk_mem.get(q.pid, {})
+	if m.is_empty():
+		m = _new_mem(w, q)
+		w.talk_mem[q.pid] = m
+	return m
+
+
+static func remember(w: Node, q: Person, body: Person, kind: String, why: String, dmood: float) -> void:
+	## Запомнить тело: kind — "grudge" (обида) или "fond" (доброе). Держится весь день.
+	var m := mem_for(w, q)
+	m[kind][str(body.pid)] = why
+	var hk := str(body.pid)
+	if (m["mood"] as Dictionary).has(hk):
+		m["mood"][hk] = clampf(float(m["mood"][hk]) + dmood, 0.0, 100.0)
+	else:
+		m["mood_adj"][hk] = float(m["mood_adj"].get(hk, 0.0)) + dmood
+
+
+static func _new_mem(w: Node, q: Person) -> Dictionary:
 	var rng := RandomNumberGenerator.new()
-	rng.seed = int(world.case_seed) * 7919 + q.pid * 104729
+	rng.seed = int(w.case_seed) * 7919 + q.pid * 104729
 	var tr := []
 	var keys := TRAITS.keys()
 	var n := 1 if rng.randf() < 0.6 else 2
@@ -87,7 +110,8 @@ func _new_mem() -> Dictionary:
 			tr.append(k)
 	if q.prof == "pensioner" and not ("chatty" in tr) and rng.randf() < 0.5:
 		tr.append("chatty")
-	return {"traits": tr, "mood": {}, "pat": {}, "last": {}, "asked": {}, "smoked": {}, "greet": {}, "bought": {}}
+	return {"traits": tr, "mood": {}, "pat": {}, "last": {}, "asked": {}, "smoked": {}, "greet": {}, "bought": {},
+		"grudge": {}, "fond": {}, "mood_adj": {}}
 
 
 func has_trait(k: String) -> bool:
@@ -99,6 +123,15 @@ func _trait_sum(field: String) -> float:
 	for k in mem["traits"]:
 		s += float(TRAITS[k][field])
 	return s
+
+
+func memory_words() -> String:
+	var hk := str(host.pid)
+	if mem["grudge"].has(hk):
+		return "помнит обиду: " + str(mem["grudge"][hk])
+	if mem["fond"].has(hk):
+		return "помнит доброе: " + str(mem["fond"][hk])
+	return ""
 
 
 func trait_words() -> String:
@@ -154,6 +187,10 @@ func _a() -> String:
 	return "а" if q.female else ""
 
 
+func _ha() -> String:
+	return "а" if host.female else ""
+
+
 # ======================= меню =======================
 
 func _build() -> void:
@@ -178,6 +215,8 @@ func _build() -> void:
 			var po := _prof_opt()
 			if not po.is_empty():
 				opts.append(po)
+			if Case.CLUE_Q.has(q.prof) and _asked("clue") == 0:
+				opts.append({"text": Case.CLUE_Q[q.prof], "id": "clue"})
 			opts.append({"text": "Хитрость…", "id": "go", "arg": "trick"})
 		"dirs":
 			for nm in DIRS:
@@ -288,6 +327,7 @@ func _answer(o: Dictionary) -> void:
 			_say(("Часы себе купите. %s." % tm) if has_trait("gloomy") else _pick(["Сейчас %s." % tm, "%s, если мои не врут." % tm]))
 		"smoke":
 			mem["smoked"][str(host.pid)] = true
+			mem["fond"][str(host.pid)] = "угостили меня сигаретой"
 			if q.prof == "pensioner" and q.female:
 				_mood_add(6.0)
 				_say("Не курю я, милок. Но спасибо, что предложил.")
@@ -306,14 +346,18 @@ func _answer(o: Dictionary) -> void:
 			_direction(o["arg"])
 		"buy":
 			mem["bought"][str(host.pid)] = true
+			mem["fond"][str(host.pid)] = "у меня покупали"
 			_mood_add(12.0)
 			_say(_pick(["Пожалуйста. С вас двадцать копеек.", "Держите. Сдачи нет, извините.", "Вот. Приходите ещё."]))
 		"life":
 			_mood_add(16.0)
+			mem["fond"][str(host.pid)] = "меня выслушали"
 			mem["pat"][str(host.pid)] = patience() + 2
 			_say(_pick(LIFE).replace("{a}", _a()))
 		"work":
 			_ask_work()
+		"clue":
+			_prof_clue()
 		"guard_key":
 			_guard_key()
 		"jan_key":
@@ -348,6 +392,8 @@ func _ask_target() -> void:
 	var ln := case.informant_line(q.prof)
 	if ln.is_empty() and world.gossip_people.has(q.pid):
 		ln = world.gossip_people[q.pid]
+	if not ln.is_empty():
+		ln = [ln[0], Case.voiced(ln[1], q.female)]
 	if not ln.is_empty() and not world.told.has(key):
 		world.told[key] = true
 		_say(ln[1])
@@ -417,6 +463,23 @@ func _direction(nm: String) -> void:
 	else:
 		_say(_pick(["%s? Это %s, метров %d." % [nm, side, m], "Идите %s, метров %d — не промахнётесь." % [side, m]]))
 	world.hud.mark_place(float(p["x"]), nm)
+
+
+func _prof_clue() -> void:
+	## Вопрос по профессии: у каждого своё особое знание о цели.
+	if q == case.target:
+		_ask_target()
+		return
+	if not _need(45.0 + (15.0 if has_trait("wary") else 0.0) - (10.0 if has_trait("chatty") else 0.0)):
+		return
+	_mark("clue")
+	var c := case.prof_clue(q.prof)
+	if c.is_empty() or randf() < 0.15:
+		_say(_pick(["Да кто их всех упомнит.", "Не обращал%s внимания." % _a()]))
+		return
+	var t := Case.voiced(c[1], q.female)
+	_say(t)
+	_learn(c[0], float(c[2]), "со слов: %s" % pl._who_word(q), t)
 
 
 func _ask_work() -> void:
@@ -500,6 +563,7 @@ func _distract() -> void:
 	if has_trait("wary") or not _need(20.0):
 		if has_trait("wary"):
 			_mood_add(-10.0)
+			mem["grudge"][str(host.pid)] = "морочил%s мне голову" % _ha()
 			_say("Никто меня не зовёт. Что вы мне голову морочите?")
 		return
 	_mood_add(-6.0)
@@ -513,6 +577,8 @@ func _threat() -> void:
 	if q.age == 2:
 		ch += 0.1
 	world.susp += 25.0
+	mem["grudge"][str(host.pid)] = "мне угрожал%s" % _ha()
+	mem["fond"].erase(str(host.pid))
 	if randf() < ch:
 		_mood_add(-60.0)
 		if q.prof == "guard" and q.has_meta("post"):
@@ -530,6 +596,7 @@ func _threat() -> void:
 			if ln.is_empty() and world.gossip_people.has(q.pid):
 				ln = world.gossip_people[q.pid]
 			if not ln.is_empty():
+				ln = [ln[0], Case.voiced(ln[1], q.female)]
 				_say(ln[1])
 				_learn(ln[0], 75.0, "под угрозой", ln[1])
 			else:

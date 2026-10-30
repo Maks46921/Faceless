@@ -11,8 +11,8 @@ var lines: Array = []
 const PAPER := Color(0.88, 0.85, 0.77)
 const DIM := Color(0.6, 0.58, 0.53)
 const RED := Color(0.9, 0.38, 0.32)
-const HOW := {"hands": "задушен руками исполнителя", "choke": "задушен невидимой рукой", "car": "сбит машиной", "fall": "упал с крыши",
-	"pot": "убит упавшим горшком"}
+const HOW := {"hands": "задушен{a} руками исполнителя", "choke": "задушен{a} невидимой рукой", "car": "сбит{a} машиной",
+	"fall": "упал{a} с крыши", "pot": "убит{a} упавшим горшком"}
 
 
 func _ready() -> void:
@@ -22,7 +22,7 @@ func _ready() -> void:
 	if ok:
 		rep_gain = {"чисто": 3, "шумно": 2, "грязно": 1}.get(res.get("grade", ""), 1)
 		Game.cases_closed += 1
-		lines.append("Цель: %s — %s." % [res.get("target", ""), HOW.get(res.get("how", ""), "мертва")])
+		lines.append("Цель: %s — %s." % [res.get("target", ""), String(HOW.get(res.get("how", ""), "мёртв{a}")).format({"a": "а" if res.get("female", false) else ""})])
 		var tails: Array = res.get("tails", [])
 		if tails.is_empty():
 			lines.append("Хвостов нет.")
@@ -47,6 +47,7 @@ func _ready() -> void:
 
 func _process(dt: float) -> void:
 	t += dt
+	Sfx.music("night" if not res.get("ok", false) else "evening", dt)
 	queue_redraw()
 
 
@@ -80,8 +81,11 @@ func _draw() -> void:
 	draw_string(_f("PT_Sans-Web-Bold"), Vector2(x, 880), "Репутация +%d → %d.  %s, уровень %d." % [rep_gain, Game.reputation, Game.rank().capitalize(), Game.level],
 		HORIZONTAL_ALIGNMENT_LEFT, -1, 24, ink)
 	btns.clear()
-	_button(Rect2(460, 970, 480, 70), "Следующее дело", "next")
-	_button(Rect2(980, 970, 480, 70), "В меню (допуски — в «Службе»)", "menu")
+	draw_string(_f("PT_Sans-Web-Bold"), Vector2(x, 916), "Номер района: %d — его можно сыграть снова (меню → «Дело по номеру»)." % int(res.get("seed", 0)),
+		HORIZONTAL_ALIGNMENT_LEFT, -1, 20, Color(ink, 0.65))
+	_button(Rect2(300, 970, 420, 70), "Следующее дело", "next")
+	_button(Rect2(750, 970, 420, 70), "Этот район ещё раз", "again")
+	_button(Rect2(1200, 970, 420, 70), "В меню", "menu")
 
 
 func _hhmm(h: float) -> String:
@@ -116,5 +120,7 @@ func _click(id: String) -> void:
 	Sfx.play("ui", -6.0)
 	if id == "next":
 		main.show_brief(randi() % 900000 + 1000)
+	elif id == "again":
+		main.show_brief(int(res.get("seed", 1000)))
 	else:
 		main.show_menu()

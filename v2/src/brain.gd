@@ -11,6 +11,8 @@ var goal := {}
 var route: Array = []
 var step := 0
 var arrived := false
+const SPREAD_ACTS := ["idle", "sit", "smoke", "shop", "eat", "work", "phone", "away"]
+var slot_x := INF               # занятое место на людной точке
 var react := {}                # {kind, pos, t, area}
 var ko_left := 0.0
 var dazed_t := 0.0
@@ -98,6 +100,7 @@ func tick(dt: float) -> void:
 
 func _replan() -> void:
 	arrived = false
+	slot_x = INF
 	if goal.is_empty():
 		return
 	p.pose = ""
@@ -145,6 +148,12 @@ func _follow(dt: float) -> void:
 			p.move_x = 0.0
 		return
 	var gx := float(goal["x"]) + float(goal.get("dx", 0.0))
+	# на людных местах — своё место рядом, а не в одной точке со всеми
+	if goal.get("act", "") in SPREAD_ACTS and p.area == goal["area"] and not p.inside:
+		if is_inf(slot_x) and absf(gx - p.global_position.x) < 160.0:
+			slot_x = world.free_spot(p, gx)
+		if not is_inf(slot_x):
+			gx = slot_x
 	if not arrived:
 		if _walk_to(gx, dt, 4.0):
 			arrived = true

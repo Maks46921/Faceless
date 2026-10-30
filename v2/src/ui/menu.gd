@@ -9,6 +9,7 @@ var panel := "diff"            # diff, service, help
 var rng := RandomNumberGenerator.new()
 var city_shape: Array = []     # [x, w, h, окна]
 var spirit_x := 0.0
+var seed_text := ""            # номер дела, набранный в панели «Дело по номеру»
 
 const PAPER := Color(0.88, 0.85, 0.77)
 const DIM := Color(0.6, 0.58, 0.53)
@@ -36,6 +37,7 @@ func _ready() -> void:
 func _process(dt: float) -> void:
 	t += dt
 	spirit_x = fmod(t * 40.0, 2200.0) - 100.0
+	Sfx.music("evening", dt)
 	queue_redraw()
 
 
@@ -63,7 +65,7 @@ func _draw() -> void:
 		var a := 0.12 - i * 0.02
 		draw_circle(Vector2(spirit_x - i * 14, sy + i * 3), 16.0 - i * 2, Color(0.65, 0.8, 0.95, a))
 	draw_texture_rect(logo, Rect2(430, 80, 1060, 220), false, Color(1, 1, 1, 0.92 + 0.08 * sin(t * 2.0)))
-	draw_string(_f("Oswald"), Vector2(0, 350), "БЕЗ ЛИЦА · 2.1 · ВИД СБОКУ", HORIZONTAL_ALIGNMENT_CENTER, 1920, 30, K.GOLD)
+	draw_string(_f("Oswald"), Vector2(0, 350), "БЕЗ ЛИЦА · 2.2 · ВИД СБОКУ", HORIZONTAL_ALIGNMENT_CENTER, 1920, 30, K.GOLD)
 	_buttons()
 	_panel()
 	draw_string(_f("PT_Sans-Web-Bold"), Vector2(0, 1050), "%s · уровень %d · репутация %d" % [Game.rank(), Game.level, Game.reputation],
@@ -80,7 +82,7 @@ func _button(r: Rect2, label: String, id: String, active := false) -> void:
 
 func _buttons() -> void:
 	btns.clear()
-	var items := [["new", "Новое дело"], ["diff", "Сложность: %s" % Game.difficulty], ["service", "Служба и допуски"],
+	var items := [["new", "Новое дело"], ["seed", "Дело по номеру"], ["diff", "Сложность: %s" % Game.difficulty], ["service", "Служба и допуски"],
 		["help", "Управление"], ["full", "Полный экран"], ["quit", "Выход"]]
 	for i in items.size():
 		_button(Rect2(160, 430 + i * 84, 520, 66), items[i][1], items[i][0], panel == items[i][0])
@@ -133,6 +135,31 @@ func _panel() -> void:
 			draw_rect(rs, Color(0.8, 0.3, 0.25, 0.9) if hov2 else Color(1, 1, 1, 0.05))
 			draw_string(body, rs.position + Vector2(16, 30), "Начать службу заново", HORIZONTAL_ALIGNMENT_LEFT, -1, 20, PAPER)
 			btns.append([rs, "reset"])
+		"seed":
+			draw_string(_f("Oswald"), Vector2(x, y), "ДЕЛО ПО НОМЕРУ", HORIZONTAL_ALIGNMENT_LEFT, -1, 34, K.GOLD)
+			y += 30
+			draw_multiline_string(body, Vector2(x, y + 20), "Номер дела задаёт район, цель и людей. Тот же номер — тот же город: можно переиграть удачный район или проверить ошибку.", HORIZONTAL_ALIGNMENT_LEFT, 880, 24, -1, DIM)
+			y += 110
+			var fr := Rect2(x, y, 420, 64)
+			draw_rect(fr, Color(1, 1, 1, 0.06))
+			draw_rect(fr, Color(K.GOLD, 0.6), false, 2.0)
+			var cur := "_" if int(t * 2.0) % 2 == 0 else " "
+			draw_string(_f("Oswald"), fr.position + Vector2(20, 46), "№ " + seed_text + cur, HORIZONTAL_ALIGNMENT_LEFT, -1, 36, PAPER)
+			var go := Rect2(x + 450, y, 300, 64)
+			var hov3 := go.has_point(get_local_mouse_position())
+			draw_rect(go, Color(K.GOLD, 0.92) if hov3 else Color(0, 0, 0, 0.55))
+			draw_rect(go, Color(K.GOLD, 0.6), false, 2.0)
+			draw_string(_f("Oswald"), go.position + Vector2(0, 44), "Начать (Enter)", HORIZONTAL_ALIGNMENT_CENTER, 300, 28, K.INK if hov3 else PAPER)
+			btns.append([go, "seed_go"])
+			y += 110
+			var last := int(Game.last_result.get("seed", 0)) if Game.last_result is Dictionary else 0
+			if last > 0:
+				var lr := Rect2(x, y, 560, 52)
+				var hov4 := lr.has_point(get_local_mouse_position())
+				draw_rect(lr, Color(K.GOLD, 0.85) if hov4 else Color(1, 1, 1, 0.05))
+				draw_string(_f("Oswald"), lr.position + Vector2(16, 36), "Прошлое дело: №%d" % last, HORIZONTAL_ALIGNMENT_LEFT, -1, 26, K.INK if hov4 else PAPER)
+				btns.append([lr, "seed_last"])
+			draw_string(body, Vector2(x, r.end.y - 30), "Цифры — набрать номер, Backspace — стереть.", HORIZONTAL_ALIGNMENT_LEFT, -1, 20, DIM)
 		"help":
 			draw_string(_f("Oswald"), Vector2(x, y), "УПРАВЛЕНИЕ", HORIZONTAL_ALIGNMENT_LEFT, -1, 34, K.GOLD)
 			y += 20
@@ -155,7 +182,23 @@ func _gui_input(e: InputEvent) -> void:
 
 
 func _unhandled_input(e: InputEvent) -> void:
-	if e is InputEventKey and e.pressed and not e.echo and e.physical_keycode in [KEY_ENTER, KEY_SPACE]:
+	if not (e is InputEventKey and e.pressed and not e.echo):
+		return
+	var kc: int = e.physical_keycode
+	if panel == "seed":
+		if kc >= KEY_0 and kc <= KEY_9 and seed_text.length() < 9:
+			seed_text += str(kc - KEY_0)
+			return
+		if kc >= KEY_KP_0 and kc <= KEY_KP_9 and seed_text.length() < 9:
+			seed_text += str(kc - KEY_KP_0)
+			return
+		if kc == KEY_BACKSPACE:
+			seed_text = seed_text.substr(0, maxi(0, seed_text.length() - 1))
+			return
+		if kc in [KEY_ENTER, KEY_KP_ENTER]:
+			_click("seed_go")
+			return
+	if kc in [KEY_ENTER, KEY_SPACE]:
 		_click("new")
 
 
@@ -178,8 +221,15 @@ func _click(id: String) -> void:
 			var s := Game.seed_once if Game.seed_once != 0 else randi() % 900000 + 1000
 			Game.seed_once = 0
 			main.show_brief(s)
-		"diff", "service", "help":
+		"diff", "service", "help", "seed":
 			panel = id
+		"seed_go":
+			if seed_text.is_valid_int() and int(seed_text) > 0:
+				Sfx.loop_level("city", 0.0, 1.0)
+				main.show_brief(int(seed_text))
+		"seed_last":
+			Sfx.loop_level("city", 0.0, 1.0)
+			main.show_brief(int(Game.last_result.get("seed", 1000)))
 		"full":
 			Game.toggle_fullscreen()
 		"quit":

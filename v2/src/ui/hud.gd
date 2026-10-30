@@ -63,6 +63,7 @@ func open_talk(tk: Talk) -> void:
 		close_talk()
 	talk = tk
 	talk_hover = -1
+	world.pstats["talks"] = int(world.pstats["talks"]) + 1
 	portrait_rect.texture = Talk.portrait(tk.q)
 	portrait_rect.visible = true
 	Sfx.play("ui", -10.0)
@@ -284,6 +285,14 @@ func _pause_btn(id: String) -> void:
 			get_tree().paused = false
 		"full":
 			Game.toggle_fullscreen()
+		"music":
+			var steps := [0.0, 0.3, 0.6, 1.0]
+			var i := 0
+			for k in steps.size():
+				if absf(steps[k] - Game.music) < 0.05:
+					i = k
+			Game.music = steps[(i + 1) % steps.size()]
+			Game.save_cfg()
 		"quit":
 			world.paused = false
 			pause = false
@@ -430,6 +439,8 @@ func _bubbles() -> void:
 	var pl: PlayerCtl = world.player
 	var fp := pl.focus_pos()
 	var fin := pl.focus_inside()
+	# сначала важные (крик, тревога) и ближние; рядом не больше двух пузырей, остальные — «…»
+	var cand := []
 	for p in world.people:
 		if p.bubble == "" or not p.visible or p.state == "gone":
 			continue
@@ -442,13 +453,46 @@ func _bubbles() -> void:
 		var sp: Vector2 = world.view.world_to_screen(p.head_pos() + Vector2(0, -6))
 		if not _onscreen(sp):
 			continue
-		var f := _font(F_BODY)
+		var prio := absf(p.global_position.x - fp.x) - (1000.0 if p.bubble_col.r > 0.95 and p.bubble_col.g < 0.7 else 0.0)
+		cand.append([prio, p, sp])
+	cand.sort_custom(func(a, b): return a[0] < b[0])
+	var placed: Array = []
+	var f := _font(F_BODY)
+	for c in cand:
+		var p: Person = c[1]
+		var sp: Vector2 = c[2]
 		var sz := f.get_multiline_string_size(p.bubble, HORIZONTAL_ALIGNMENT_LEFT, 380, 22)
 		var r := Rect2(sp.x - sz.x / 2 - 12, sp.y - sz.y - 22, sz.x + 24, sz.y + 12)
+		var near := 0
+		for q in placed:
+			if absf((q as Rect2).get_center().x - r.get_center().x) < 260.0:
+				near += 1
+		var ok := near < 2
+		var shifts := 0
+		while ok:
+			var hit := false
+			for q in placed:
+				if (q as Rect2).grow(4).intersects(r):
+					r.position.y = (q as Rect2).position.y - r.size.y - 8
+					hit = true
+			if not hit:
+				break
+			shifts += 1
+			if shifts > 2:
+				ok = false
+		if not ok:
+			# не влезает — точка над головой
+			d.draw_rect(Rect2(sp.x - 14, sp.y - 26, 28, 18), Color(0.07, 0.07, 0.08, 0.8))
+			_text(Vector2(sp.x - 14, sp.y - 12), "…", F_BODY, 20, p.bubble_col, HORIZONTAL_ALIGNMENT_CENTER, 28)
+			continue
+		placed.append(r)
 		d.draw_rect(r, Color(0.07, 0.07, 0.08, 0.86))
 		d.draw_rect(r, Color(p.bubble_col, 0.5), false, 2.0)
-		var tri := PackedVector2Array([Vector2(sp.x - 8, r.end.y), Vector2(sp.x + 8, r.end.y), Vector2(sp.x, r.end.y + 10)])
-		d.draw_colored_polygon(tri, Color(0.07, 0.07, 0.08, 0.86))
+		if r.end.y < sp.y - 16:
+			d.draw_line(Vector2(sp.x, r.end.y), Vector2(sp.x, sp.y - 6), Color(p.bubble_col, 0.5), 2.0)
+		else:
+			var tri := PackedVector2Array([Vector2(sp.x - 8, r.end.y), Vector2(sp.x + 8, r.end.y), Vector2(sp.x, r.end.y + 10)])
+			d.draw_colored_polygon(tri, Color(0.07, 0.07, 0.08, 0.86))
 		d.draw_multiline_string(f, r.position + Vector2(12, 26), p.bubble, HORIZONTAL_ALIGNMENT_LEFT, 380, 22, -1, p.bubble_col)
 	if pl.msg_t > 0.0:
 		var hp: Vector2 = world.view.world_to_screen(pl.focus_pos() + Vector2(0, -60 if pl.host else -36))
@@ -558,6 +602,10 @@ func _talk_panel() -> void:
 	var nw := _font(F_HEAD).get_string_size(q.full_name(), HORIZONTAL_ALIGNMENT_LEFT, -1, 30).x
 	_text(Vector2(424 + nw + 18, 822), "%s  ·  для тебя: %s" % [world.player._who_word(q), tk.rel[0]], F_BODY, 20, DIM)
 	_text(Vector2(424, 852), "характер: " + tk.trait_words(), F_BODY, 18, Color(K.GOLD, 0.8))
+	var mw2 := tk.memory_words()
+	if mw2 != "":
+		var tw := _font(F_BODY).get_string_size("характер: " + tk.trait_words(), HORIZONTAL_ALIGNMENT_LEFT, -1, 18).x
+		_text(Vector2(424 + tw + 24, 852), mw2, F_BODY, 18, RED if mw2.begins_with("помнит обиду") else Color(0.55, 0.75, 0.45))
 	# реплика
 	_wrap(Vector2(424, 892), "— " + tk.line, F_BODY, 24, PAPER, 1230)
 	# варианты: три столбца по три строки
@@ -856,7 +904,7 @@ func _pause() -> void:
 	d.draw_rect(Rect2(0, 0, 1920, 1080), Color(0.04, 0.04, 0.05, 0.8))
 	_text(Vector2(960, 330), "ПАУЗА", F_HEAD, 72, PAPER, HORIZONTAL_ALIGNMENT_CENTER, 0)
 	pause_btns.clear()
-	var items := [["resume", "Продолжить"], ["help", "Управление"], ["full", "Полный экран (F11)"], ["quit", "Бросить дело"]]
+	var items := [["resume", "Продолжить"], ["help", "Управление"], ["music", "Музыка: %d%%" % int(round(Game.music * 100))], ["full", "Полный экран (F11)"], ["quit", "Бросить дело"]]
 	var mp: Vector2 = d.get_local_mouse_position()
 	for i in items.size():
 		var r := Rect2(760, 420 + i * 84, 400, 64)

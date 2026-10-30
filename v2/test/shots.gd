@@ -42,7 +42,14 @@ func _ready() -> void:
 	main.show_menu()
 	await wait(1.0)
 	await shot("menu")
-	main.show_brief(31337)
+	var mn: Node = main.current
+	mn._click("seed")
+	mn.seed_text = "31337"
+	mn.queue_redraw()
+	await wait(0.3)
+	await shot("menu_seed")
+	mn._click("seed_go")
+	await wait(0.3)
 	w = main.current
 	await wait(0.6)
 	await shot("brief")
@@ -132,7 +139,7 @@ func _ready() -> void:
 	await wait(2.0)
 	await shot("drain")
 	# итог
-	var res := {"ok": true, "grade": "чисто", "tails": [], "how": "fall", "alarms": 0, "extra": 0, "hour": 13.4, "target": "Лариса Савельева", "curator": "Лиса", "seed": 808}
+	var res := {"ok": true, "grade": "чисто", "tails": [], "how": "fall", "alarms": 0, "extra": 0, "hour": 13.4, "target": "Лариса Савельева", "female": true, "curator": "Лиса", "seed": 808}
 	w.queue_free()
 	main.show_result(res)
 	await wait(1.2)

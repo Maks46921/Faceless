@@ -63,7 +63,7 @@ func enter(p: Person, free: bool) -> void:
 		leave(false)
 	if not free:
 		var cost := 8.0 + (20.0 if world.t_total - last_enter_t < 8.0 else 0.0)
-		case.spend(cost)
+		case.spend(cost, "enter" if cost < 10.0 else "enter_fast")
 		last_enter_t = world.t_total
 	host = p
 	p.host = true
@@ -286,9 +286,7 @@ func _neighbours(dt: float) -> void:
 				world.susp += 6.0
 				if world.susp_why == "":
 					world.susp_why = "не ответил соседу"
-				var mem: Dictionary = world.talk_mem.get(q2.pid, {})
-				if not mem.is_empty() and (mem["mood"] as Dictionary).has(str(p.pid)):
-					mem["mood"][str(p.pid)] = maxf(0.0, float(mem["mood"][str(p.pid)]) - 8.0)
+				Talk.remember(world, q2, p, "grudge", "не поздоровал%s" % ("ась" if p.female else "ся"), -8.0)
 
 
 func _strangle(dt: float) -> void:
@@ -1004,7 +1002,8 @@ func _nearest_body(c: Vector2, r: float) -> Person:
 
 func _thrown() -> void:
 	## Плотность кончилась: духа швыряет в ближайшего человека, память рвётся.
-	case.spend(18.0)
+	case.spend(18.0, "thrown")
+	world.pstats["thrown"] = int(world.pstats.get("thrown", 0)) + 1
 	var best: Person = null
 	var bd := 1e9
 	for q in world.people:
@@ -1152,7 +1151,7 @@ func _apply_claw() -> void:
 	match t["kind"]:
 		"point":
 			if id == "tug":
-				case.spend(cost)
+				case.spend(cost, "claw_" + id)
 				Sfx.play_at("thud", at, focus_pos(), -6.0)
 				world.noise_at(at, 110.0, null, "knock")
 			elif id == "take":
@@ -1167,7 +1166,7 @@ func _apply_claw() -> void:
 func _claw_person(q: Person, id: String, cost: float) -> void:
 	match id:
 		"tug":
-			case.spend(cost)
+			case.spend(cost, "claw_" + id)
 			q.say(["Ай!", "Кто здесь?", "Что за…"][randi() % 3], 1.8)
 			if q.brain:
 				q.brain.distract(q.global_position + Vector2(-q.facing * 30, 0), 5.0)
@@ -1178,12 +1177,12 @@ func _claw_person(q: Person, id: String, cost: float) -> void:
 			if q.keys.is_empty():
 				say("В карманах пусто.")
 				return
-			case.spend(cost)
+			case.spend(cost, "claw_" + id)
 			spirit.held = {"kind": "keys", "keys": q.keys.duplicate(), "name": "ключи: %s" % _who_word(q)}
 			say("Связка ключей. Войди в тело — и она будет в его кармане.")
 			Sfx.play("pickup", -6.0)
 		"move":
-			case.spend(cost)
+			case.spend(cost, "claw_" + id)
 			var dir := 1.0 if q.global_position.x > spirit.global_position.x else -1.0
 			q.velocity = Vector2(dir * 170.0, -110.0)
 			q.say("Ох!", 1.2)
@@ -1192,13 +1191,13 @@ func _claw_person(q: Person, id: String, cost: float) -> void:
 			if q.area == "S" and world.car_near(q.global_position.x, 240.0):
 				_road_kill(q, int(dir))
 		"stun":
-			case.spend(cost)
+			case.spend(cost, "claw_" + id)
 			q.knock_out(32.0)
 			q.say("…", 1.0)
 			Sfx.play("thud", -4.0)
 			world.noise_at(q.global_position, 60.0, q, "fall")
 		"choke":
-			case.spend(cost)
+			case.spend(cost, "claw_" + id)
 			choke = {"victim": q, "t": 0.0}
 			if q.brain:
 				q.brain.react = {}
@@ -1230,11 +1229,11 @@ func _claw_obj(o: Dictionary, id: String, cost: float) -> void:
 	var pos := Vector2(float(o["x"]), float(o.get("y", 0.0)))
 	match o["kind"]:
 		"pot":
-			case.spend(cost)
+			case.spend(cost, "claw_" + id)
 			o["fallen"] = true
 			_pot_fall(o)
 		"movable":
-			case.spend(cost)
+			case.spend(cost, "claw_" + id)
 			var n: Sprite2D = o["node"]
 			if id == "move":
 				o["fallen"] = true
@@ -1250,7 +1249,7 @@ func _claw_obj(o: Dictionary, id: String, cost: float) -> void:
 				Sfx.play_at("thud", pos, focus_pos(), -4.0)
 				world.noise_at(pos, 120.0, null, "knock")
 		"door":
-			case.spend(cost)
+			case.spend(cost, "claw_" + id)
 			if id == "move":
 				city.set_door(o, not o["open"])
 				o["t_close"] = 0.0
@@ -1260,7 +1259,7 @@ func _claw_obj(o: Dictionary, id: String, cost: float) -> void:
 				Sfx.play_at("thud", pos, focus_pos(), -2.0)
 				world.noise_at(pos, 140.0, null, "knock")
 		"console":
-			case.spend(cost)
+			case.spend(cost, "claw_" + id)
 			var n2 := 0
 			for t in case.open_tails():
 				if String(t["id"]).begins_with("cam"):
@@ -1269,10 +1268,10 @@ func _claw_obj(o: Dictionary, id: String, cost: float) -> void:
 			Sfx.play("click", -2.0)
 			say("Записи стёрты." if n2 > 0 else "Стирать нечего.")
 		"fusebox":
-			case.spend(cost)
+			case.spend(cost, "claw_" + id)
 			_fuse(o)
 		"transformer":
-			case.spend(cost)
+			case.spend(cost, "claw_" + id)
 			for l in city.lamps:
 				if l["outer"] and absf((l["pos"] as Vector2).x - pos.x) < 520.0:
 					l["off_t"] = world.t_total + 60.0
@@ -1280,21 +1279,21 @@ func _claw_obj(o: Dictionary, id: String, cost: float) -> void:
 			world.noise_at(pos, 160.0, null, "crash")
 			world.hud.voice("ГОРОД", "Подстанция треснула искрой. Фонари вокруг погасли.", Color(0.75, 0.78, 0.82))
 		"lockbox":
-			case.spend(cost)
+			case.spend(cost, "claw_" + id)
 			o["open"] = true
 			(o["node"] as Sprite2D).frame = 1
 			spirit.held = {"kind": "keys", "keys": (o["keys"] as Array).duplicate(), "name": "ключи из ящика"}
 			say("Достал %s. Отдам телу." % o["what"])
 			Sfx.play("pickup", -6.0)
 		"clue":
-			case.spend(cost)
+			case.spend(cost, "claw_" + id)
 			o["taken"] = true
 			(o["node"] as Node2D).visible = false
 			case.learn(o["card"], 100.0, "улика")
 			world.hud.card_toast(case.card(o["card"]), o["name"], o["text"])
 			Sfx.play("paper", -4.0)
 		"dumpster", "closet":
-			case.spend(cost)
+			case.spend(cost, "claw_" + id)
 			Sfx.play_at("crash", pos, focus_pos(), -4.0)
 			world.noise_at(pos, 150.0, null, "crash")
 

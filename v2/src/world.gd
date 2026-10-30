@@ -49,7 +49,10 @@ var greeted_by := {}               # "pid:тело" -> сосед уже здо�
 var greet_wait := {}               # pid соседа -> секунд, пока он ждёт ответного «здравствуйте»
 var rumours: Array = []            # [ключ, заголовок, текст] — слухи о районе
 var rumours_told := {}
-var talk_after := {}               # что делает собеседник, когда разговор кончился
+var talk_after := {}
+var grudge_t := 2.0
+var pstats := {"thrown": 0, "witness": 0, "talks": 0, "max_susp": 0.0, "min_density": 100.0, "body_s": 0.0, "spirit_s": 0.0}
+var grudge_said := {}               # что делает собеседник, когда разговор кончился
 var stats := {"jumps": 0, "claws": 0, "kills": 0, "extra_dead": 0}
 
 
@@ -307,7 +310,8 @@ func _spawn_people() -> void:
 		var nb := not home.is_empty() and int(p.home.get("bid", -1)) == int(case.p["home_bid"])
 		var colleague: bool = role == "office" and p.get_meta("work", "") == ("Гранит" if case.p["work"] == "Офис" else "НИИ")
 		if nb or colleague or role == "tramp" or (role == "pensioner" and rng.randf() < 0.5):
-			gossip_people[p.pid] = case.gossip_line()
+			var gl := case.gossip_line()
+			gossip_people[p.pid] = [gl[0], Case.voiced(gl[1], p.female)]
 	# цель
 	var tp := _new_person(case.p["look"], "office", case.p["female"])
 	tp.first = case.p["first"]
@@ -400,6 +404,7 @@ func _items_in_home() -> void:
 	for it in case.item_cards():
 		var host_rm: Dictionary = rm if i % 2 == 0 else rk
 		var x := lerpf(float(host_rm["x0"]) + 18, float(host_rm["x1"]) - 18, rng.randf())
+		x = city.unwall(x, y, (float(host_rm["x0"]) + float(host_rm["x1"])) / 2.0)
 		var s := Res.prop_sprite(it[0])
 		s.position = Vector2(x, y - (22 if i % 3 == 0 else 0))
 		s.visibility_layer = K.V_INNER
@@ -440,6 +445,16 @@ func _process(dt: float) -> void:
 		if p.brain:
 			p.brain.tick(dt)
 	_underworld(dt)
+	pstats["max_susp"] = maxf(float(pstats["max_susp"]), susp)
+	if player.host:
+		pstats["body_s"] = float(pstats["body_s"]) + dt
+	else:
+		pstats["spirit_s"] = float(pstats["spirit_s"]) + dt
+		pstats["min_density"] = minf(float(pstats["min_density"]), player.density)
+	grudge_t -= dt
+	if grudge_t <= 0.0:
+		grudge_t = 1.5
+		_grudges()
 	perc_t -= dt
 	if perc_t <= 0.0:
 		perc_t = 0.2
@@ -480,6 +495,7 @@ func _audio(dt: float) -> void:
 	Sfx.loop_level("rain", env.rain * (0.15 if ins or under else 0.5), dt)
 	Sfx.loop_level("under", 0.35 if under else 0.0, dt)
 	Sfx.loop_level("spirit", 0.5 if not player.host else 0.0, dt)
+	Sfx.music(_music_theme(), dt)
 	Sfx.loop_level("heart", clampf((susp - 40.0) / 60.0, 0.0, 1.0) * 0.7 if player.host else clampf((40.0 - player.density) / 40.0, 0.0, 1.0) * 0.6, dt)
 	var high := player.focus_pos().y < K.floor_y(4)
 	Sfx.loop_level("wind", 0.25 if high and not ins else 0.0, dt)
@@ -540,6 +556,26 @@ func portal_unlocked(pt: Dictionary) -> bool:
 	return pt.get("opened", false)
 
 
+func _music_theme() -> String:
+	## Тема по времени суток; тревога — свидетель, милиция, звонок на выход, подозрение или тающий дух.
+	var ringing := false
+	for o in city.objs:
+		if o["kind"] == "payphone" and o["ring"]:
+			ringing = true
+			break
+	var alarmed := witnesses.any(func(w): return not w["done"])
+	if ringing or alarmed or police_state != "" and police_state != "gone" or susp > 60.0 or (not player.host and player.density < 25.0):
+		return "tension"
+	var h := fmod(env.hour, 24.0)
+	if h >= 5.0 and h < 11.0:
+		return "morning"
+	if h >= 11.0 and h < 17.0:
+		return "day"
+	if h >= 17.0 and h < 22.0:
+		return "evening"
+	return "night"
+
+
 func _underworld(dt: float) -> void:
 	## Коллектор живёт: пар бьёт из труб, крысы бегают вдоль стен.
 	for st in city.steams:
@@ -562,6 +598,28 @@ func _underworld(dt: float) -> void:
 		n.position.x = x
 		n.flip_h = float(r["v"]) < 0.0
 		n.frame = int(t_total * 8.0) % n.hframes
+
+
+func _grudges() -> void:
+	## Обиды живут дольше тела: дух ушёл, а человек получает за то, чего не помнит.
+	for pid in talk_mem:
+		var m: Dictionary = talk_mem[pid]
+		if (m["grudge"] as Dictionary).is_empty():
+			continue
+		var q: Person = people[int(pid)]
+		if q.state != "ok" or q.host:
+			continue
+		for hk in m["grudge"]:
+			var b: Person = people[int(hk)]
+			if b.host or b.state != "ok" or b.area != q.area or grudge_said.has("%s:%s" % [pid, hk]):
+				continue
+			if b.global_position.distance_to(q.global_position) > 60.0:
+				continue
+			grudge_said["%s:%s" % [pid, hk]] = true
+			q.facing = 1 if b.global_position.x > q.global_position.x else -1
+			q.say(["Явил%s… После того, как %s!" % ["ась" if b.female else "ся", m["grudge"][hk]], "Глаза бы мои тебя не видели."][rng.randi() % 2], 3.5, Color(1.0, 0.75, 0.6))
+			var bb := b
+			get_tree().create_timer(1.6).timeout.connect(func(): if is_instance_valid(bb) and bb.state == "ok": bb.say(["Я? Что я сделал%s?" % ("а" if bb.female else ""), "Вы о чём вообще?", "Не помню такого…"][randi() % 3], 3.0))
 
 
 func steam_at(pos: Vector2) -> bool:
@@ -891,6 +949,31 @@ func woke_up(p: Person) -> void:
 	p.say("Где я?..", 2.5)
 
 
+func free_spot(who: Person, x: float) -> float:
+	## Ближайшее свободное место у точки сбора: шаг 16 px в обе стороны, очередь к таксофону — в одну.
+	var taken := []
+	for q in people:
+		if q == who or q.state != "ok" or q.area != who.area or not q.brain:
+			continue
+		var qx: float = q.brain.slot_x if not is_inf(q.brain.slot_x) else (q.global_position.x if q.brain.arrived else INF)
+		if not is_inf(qx) and absf(qx - x) < 120.0:
+			taken.append(qx)
+	var a: Dictionary = city.areas.get(who.area, {})
+	for k in 15:
+		var off := float((k + 1) / 2) * 16.0 * (1.0 if k % 2 == 1 else -1.0)
+		var cx := x + off
+		if not a.is_empty() and (cx < float(a["x0"]) or cx > float(a["x1"])):
+			continue
+		var free := true
+		for tx in taken:
+			if absf(float(tx) - cx) < 13.0:
+				free = false
+				break
+		if free:
+			return cx + randf_range(-2.0, 2.0)
+	return x + randf_range(-60.0, 60.0)
+
+
 func nearest_payphone(pos: Vector2) -> Dictionary:
 	var best := {}
 	var bd := 1e9
@@ -1000,6 +1083,7 @@ func add_witness(p: Person, what: String) -> void:
 	for w in witnesses:
 		if w["who"] == p and not w["done"]:
 			return
+	pstats["witness"] = int(pstats["witness"]) + 1
 	witnesses.append({"who": p, "t": float(Game.d("witness_t")), "what": what, "done": false})
 	case.add_tail("witness%d" % p.pid, "Свидетель (%s). Вселись в него, оглуши — или он позовёт милицию." % what)
 	p.brain.scare(p.global_position + Vector2(-p.facing * 20, 0), 3.0)
@@ -1361,11 +1445,41 @@ func finish(emergency: bool) -> void:
 	_finish_result()
 
 
+func _write_stats() -> void:
+	## Строка в playstats.csv рядом с настройками: по ней подбираются цены памяти, таяние, свидетели.
+	var path := "user://playstats.csv"
+	var cols := ["date", "version", "seed", "difficulty", "ok", "grade", "why", "hour_start", "hour_end", "real_min", "body_min", "spirit_min",
+		"memory_end", "spent_enter", "spent_enter_fast", "spent_thrown", "spent_claws", "thrown", "jumps", "claws", "talks", "witnesses",
+		"alarms", "max_susp", "min_density", "extra_dead"]
+	var claws := 0.0
+	for k in case.spent:
+		if str(k).begins_with("claw_"):
+			claws += float(case.spent[k])
+	var row := [Time.get_datetime_string_from_system(), ProjectSettings.get_setting("application/config/version", ""), case_seed, Game.difficulty,
+		result.get("ok", false), result.get("grade", ""), str(result.get("why", "")).replace(";", ","), "%.2f" % start_h, "%.2f" % env.hour,
+		"%.1f" % (t_total / 60.0), "%.1f" % (float(pstats["body_s"]) / 60.0), "%.1f" % (float(pstats["spirit_s"]) / 60.0), "%.0f" % case.memory(),
+		"%.1f" % float(case.spent.get("enter", 0.0)), "%.1f" % float(case.spent.get("enter_fast", 0.0)), "%.1f" % float(case.spent.get("thrown", 0.0)),
+		"%.1f" % claws, pstats["thrown"], stats["jumps"], stats["claws"], pstats["talks"], pstats["witness"], alarm_count,
+		"%.0f" % float(pstats["max_susp"]), "%.0f" % float(pstats["min_density"]), stats["extra_dead"]]
+	var exists := FileAccess.file_exists(path)
+	var f := FileAccess.open(path, FileAccess.READ_WRITE if exists else FileAccess.WRITE)
+	if f == null:
+		return
+	if exists:
+		f.seek_end()
+	else:
+		f.store_line(";".join(cols))
+	f.store_line(";".join(row.map(func(v): return str(v))))
+	f.close()
+
+
 func _finish_result() -> void:
 	result["hour"] = env.hour
 	result["target"] = case.p["first"] + " " + case.p["last"]
+	result["female"] = bool(case.p["female"])
 	result["curator"] = case.curator["name"]
 	result["seed"] = case_seed
+	_write_stats()
 	hud.end_flash(result)
 	get_tree().create_timer(2.5).timeout.connect(func(): main.show_result(result))
 
